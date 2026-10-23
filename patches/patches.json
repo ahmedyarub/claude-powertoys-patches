@@ -1,0 +1,4686 @@
+{
+ "app": "Claude Desktop 3.6556.2 for Windows",
+ "files": [
+  {
+   "path": "scripts/assemble.mjs",
+   "kind": "edit",
+   "baseSha256": "4a73149d31be80ad4b194347614bef643f68ed45eb2266b50439f75bbbde5368",
+   "resultSha256": "6e79443ac7667ced1e304cc2f52429ec1f2eab75ba60e824d068ab8c26d20c6d",
+   "hunks": [
+    {
+     "at": 3,
+     "remove": 1,
+     "removeSha256": "cbf0abecf62cfc5a4b34f9d590542b07f7d21a6f6cd6f3e385356fb793420a52",
+     "add": [
+      [
+       [
+        3,
+        0,
+        56
+       ],
+       " [--out <dir>]\n"
+      ]
+     ]
+    },
+    {
+     "at": 6,
+     "remove": 0,
+     "add": [
+      [
+       "//   --out     write to <dir> instead of app/.vite (a staging copy, e.g. while the app runs from app/)\n"
+      ]
+     ]
+    },
+    {
+     "at": 11,
+     "remove": 1,
+     "removeSha256": "7557bfa207df76190664f13c9dabfea578534d8205f645547ea65238e11b24bc",
+     "add": [
+      [
+       "const outIndex = process.argv.indexOf('--out');\n"
+      ],
+      [
+       "const OUT = outIndex >= 0 ? path.resolve(process.argv[outIndex + 1]) :",
+       [
+        11,
+        11,
+        41
+       ]
+      ]
+     ]
+    },
+    {
+     "at": 59,
+     "remove": 1,
+     "removeSha256": "7e432b2609fa125b4bd19f3ceda815b4a9ef013c494cd29690711db95b94c66f",
+     "add": [
+      [
+       [
+        59,
+        0,
+        54
+       ],
+       "${path.relative(ROOT, OUT)}",
+       [
+        59,
+        63,
+        108
+       ]
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "path": "scripts/check-syntax.mjs",
+   "kind": "add",
+   "sha256": "ef6cd6d4b51778c39b50bb5cba6583c18234cef30fa40be403f140551075f8d4"
+  },
+  {
+   "path": "scripts/restart-and-continue.mjs",
+   "kind": "add",
+   "sha256": "70ae83c9c11fb7c537b9b5560b9b4fddbff038e67480345da77405b2a9179b97"
+  },
+  {
+   "path": "scripts/swap-and-launch.mjs",
+   "kind": "add",
+   "sha256": "b83f8c6f7cb0e3d8de004f225422f0a82ca741b84380d7b97b779e1e3eaf7f6b"
+  },
+  {
+   "path": "src/vite/build/ccd-local-session-manager/0026-ccd.js",
+   "kind": "edit",
+   "baseSha256": "a7b4e1cd5b28016b85d7cdd7365349a6e277c1103803fec41421d4262c0275d9",
+   "resultSha256": "50ab4b7f754afef88c99c1a53ba3bd7e276f64bfd19535d72620119534593f36",
+   "hunks": [
+    {
+     "at": 1523,
+     "remove": 1,
+     "removeSha256": "3a1729fa45868f334624f1bcb9bf3815b325864b3b3be8f719922b69affbfbf2",
+     "add": [
+      [
+       "      // Local change: the page shows a message sent while the session works as queued until the\n"
+      ],
+      [
+       "      // message comes back with its uuid. This command never reaches the queue or the CLI, and its\n"
+      ],
+      [
+       "      // echo (when it has one) had a new uuid, so the queued bubble stayed and could not be cancelled\n"
+      ],
+      [
+       "      // (seen 2026-10-23). The echo now carries the page's uuid, and there is always one.\n"
+      ],
+      [
+       "      session.commandEchoUuid = options?.messageUuid;\n"
+      ],
+      [
+       [
+        1523,
+        0,
+        16
+       ],
+       ";\n"
+      ],
+      [
+       "      try {\n"
+      ],
+      [
+       "       ",
+       [
+        1523,
+        9,
+        97
+       ]
+      ],
+      [
+       "      } finally {\n"
+      ],
+      [
+       "        if ",
+       [
+        1523,
+        86,
+        94
+       ],
+       ".commandEchoUuid) {\n"
+      ],
+      [
+       "         ",
+       [
+        1523,
+        24,
+        35
+       ],
+       "emitSyntheticUserMessage",
+       [
+        1523,
+        86,
+        94
+       ],
+       ", trimmed);\n"
+      ],
+      [
+       "        }\n"
+      ],
+      [
+       "        session.commandEchoUuid = undefined;\n"
+      ],
+      [
+       "      }\n"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "path": "src/vite/build/ccd-local-session-manager/0048-ccd.js",
+   "kind": "edit",
+   "baseSha256": "abbe5d4cc148ed5838fafb6ecccab52ae63f2ceb520b00773d9147e721cef114",
+   "resultSha256": "b38e6831892cf4047d34c789a7c979da9343323b6fa5fd57570ab96b5917d73b",
+   "hunks": [
+    {
+     "at": 19994,
+     "remove": 0,
+     "add": [
+      [
+       "    // Local change: a slash command the app handles itself echoes with the uuid the page sent it under\n"
+      ],
+      [
+       "    // (sendMessage sets commandEchoUuid), so the page's queued bubble resolves; used once.\n"
+      ],
+      [
+       "    let echoUuid = session.commandEchoUuid;\n"
+      ],
+      [
+       "    session.commandEchoUuid = undefined;\n"
+      ]
+     ]
+    },
+    {
+     "at": 19996,
+     "remove": 1,
+     "removeSha256": "582b2de25f9c8c9bdc88e4a222a1a00f3f23edb516be22d1fd88c2a18abf23e5",
+     "add": [
+      [
+       "      uuid: echoUuid ??",
+       [
+        19996,
+        11,
+        44
+       ]
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "path": "src/vite/build/ccd-local-session-manager/session-core/0035-session-clearing-events.js",
+   "kind": "edit",
+   "baseSha256": "acc6807c6bebfc0e494cb830446906b2931ae7418d6a4fcc9fad1923bfd53ca3",
+   "resultSha256": "23209cd35c204d7deb6490ec917a3de3e1024f9541e11921a230d53f5220246d",
+   "hunks": [
+    {
+     "at": 1645,
+     "remove": 0,
+     "add": [
+      [
+       "        // Local change: Powertoys' pastes folder and files the person allowed from the \"Couldn't find this\n"
+      ],
+      [
+       "        // file\" view open outside the session's folders, read only (like the CLI's temp folders).\n"
+      ],
+      [
+       "        let outsideRoot = mainChunk.powertoysOutsideReadRoot?.(realAbs);\n"
+      ],
+      [
+       "        if (outsideRoot) {\n"
+      ],
+      [
+       "          return {\n"
+      ],
+      [
+       "            ",
+       [
+        1649,
+        10,
+        27
+       ],
+       "\n"
+      ],
+      [
+       "            realRoot: outsideRoot,\n"
+      ],
+      [
+       "            ",
+       [
+        1964,
+        10,
+        26
+       ],
+       "\n"
+      ],
+      [
+       "          };\n"
+      ],
+      [
+       "        }\n"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "path": "src/vite/build/ccd-local-sessions-api/0002-local-sessions-api-core.js",
+   "kind": "edit",
+   "baseSha256": "642ec9d51692d8f1c6e22c13f4df2b8de58a9310489d0249de078072b1f89a0a",
+   "resultSha256": "3a6c7dce60364873d9c607d523dc4825097ec5a753d50a8252220a18b57e9a3b",
+   "hunks": [
+    {
+     "at": 1288,
+     "remove": 0,
+     "add": [
+      [
+       "        // Local change: Powertoys per-project defaults (model, effort) for a new session the person starts.\n"
+      ],
+      [
+       "        if (!request.scheduledTaskId) {\n"
+      ],
+      [
+       "          mainChunk.powertoysApplyProjectDefaults?.(startOptions);\n"
+      ],
+      [
+       "        }\n"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "path": "src/vite/build/git-worktree-manager/0003-worktree-trash-tombstones.js",
+   "kind": "edit",
+   "baseSha256": "4d43b89a26c99d1f1ae17acb39027106bf4342a2ef13c289972250b37bd3bec4",
+   "resultSha256": "38902abb4f1e336765e2deadbde1b27f125921cbf773917ea76189d7bc6c894a",
+   "hunks": [
+    {
+     "at": 1216,
+     "remove": 0,
+     "add": [
+      [
+       "// Local change: the background fetch's GIT_SSH_COMMAND replaced the user's own SSH program (global\n"
+      ],
+      [
+       "// core.sshCommand, e.g. Windows OpenSSH with its agent), so it signed in with another key and got\n"
+      ],
+      [
+       "// \"Repository not found\". Only the global setting is used, read once from the home folder: a\n"
+      ],
+      [
+       "// repository's own core.sshCommand can run any command, which is what the override keeps out.\n"
+      ],
+      [
+       "let userSshCommand;\n"
+      ],
+      [
+       "function backgroundFetchSshCommand() {\n"
+      ],
+      [
+       "  if (userSshCommand === undefined) {\n"
+      ],
+      [
+       "    try {\n"
+      ],
+      [
+       "      userSshCommand =\n"
+      ],
+      [
+       "        require(\"node:child_process\")\n"
+      ],
+      [
+       "          .execFileSync(\"git\", [\"config\", \"--global\", \"--get\", \"core.sshCommand\"], { cwd: osModule.homedir(), encoding: \"utf8\", timeout: 5000, windowsHide: true })\n"
+      ],
+      [
+       "          .trim() || null;\n"
+      ],
+      [
+       "    } catch {\n"
+      ],
+      [
+       "      userSshCommand = null;\n"
+      ],
+      [
+       "    }\n"
+      ],
+      [
+       "    mainChunk.logger.info(`[git] background fetches use ${userSshCommand ? `the global core.sshCommand (${userSshCommand})` : \"ssh\"} -o BatchMode=yes`);\n"
+      ],
+      [
+       "  }\n"
+      ],
+      [
+       "  return `${userSshCommand ?? \"ssh\"} -o BatchMode=yes`;\n"
+      ],
+      [
+       "}\n"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "path": "src/vite/build/git-worktree-manager/0004-create-worktree-guards.js",
+   "kind": "edit",
+   "baseSha256": "21cf35eb8e864fd356ad1df47443ce0ec13494ee24b6db5234ddf36bbd280f7a",
+   "resultSha256": "0a3fb8af51cb429cd462178b34589eda31438f282a75a433298c3d83c939c7cc",
+   "hunks": [
+    {
+     "at": 13234,
+     "remove": 1,
+     "removeSha256": "2350a0e2e44e0c3cfac0fabc86756f0b8af153beae3f62af80def6dc48bc4bea",
+     "add": [
+      [
+       [
+        13234,
+        0,
+        25
+       ],
+       "backgroundFetchSshCommand(),\n"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "path": "src/vite/build/index.pre/telemetry-scrub/0034-error-withholding-breadcrumbs.js",
+   "kind": "edit",
+   "baseSha256": "c7549d93c0aeb0c868bae31e3ffa3f007f07656f6904a81b5ae46f77ab026b38",
+   "resultSha256": "39a5c316661a1a5a464645c977383d40b3249b62ab1cafb012588b6fa97f656a",
+   "hunks": [
+    {
+     "at": 1001,
+     "remove": 0,
+     "add": [
+      [
+       "// Local change: Powertoys profiles. --powertoys-profile=<name> runs the app with its own data folder\n"
+      ],
+      [
+       "// (%APPDATA%Claude-<name>): its own sign-in, sessions and settings, and its own single-instance lock.\n"
+      ],
+      [
+       "{\n"
+      ],
+      [
+       "  let profileArgument = process.argv.find((argument) => argument.startsWith(\"--powertoys-profile=\"));\n"
+      ],
+      [
+       "  let profileName = profileArgument ? profileArgument.slice(\"--powertoys-profile=\".length) : \"\";\n"
+      ],
+      [
+       "  if (/^[\\w -]{1,40}$/.test(profileName)) {\n"
+      ],
+      [
+       "    process.env.CLAUDE_USER_DATA_DIR = path.default.join(electron.app.getPath(\"appData\"), `Claude-${profileName}`);\n"
+      ],
+      [
+       "    process.env.POWERTOYS_PROFILE = profileName;\n"
+      ],
+      [
+       "  }\n"
+      ],
+      [
+       "}\n"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "path": "src/vite/build/main/0242-support-bundle.js",
+   "kind": "edit",
+   "baseSha256": "dc9708d2fbded6ea4197ce962c8bb42590aa72b0955b28e53aaeb9e62f2f8123",
+   "resultSha256": "6d8597c48ac75c9c5674401cc9b3eba317d40268c18a57f187318da66a062ef4",
+   "hunks": [
+    {
+     "at": 813,
+     "remove": 0,
+     "add": [
+      [
+       "      // Local change: the Powertoys Ctrl+Tab switcher takes these keys in the page while it is on.\n"
+      ],
+      [
+       "      registerAccelerator: !powertoysSetting(\"sessionSwitcher\"),\n"
+      ]
+     ]
+    },
+    {
+     "at": 822,
+     "remove": 0,
+     "add": [
+      [
+       "      registerAccelerator: !powertoysSetting(\"sessionSwitcher\"),\n"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "path": "src/vite/build/main/_manifest.json",
+   "kind": "edit",
+   "baseSha256": "a586be36f782c7b02610c0983a4f5101c1ded1b46c76a9b5876da55907067aaa",
+   "resultSha256": "62885ad4ef134edd71b2441980f12c58567444584174120e98514796dbd46de7",
+   "hunks": [
+    {
+     "at": 1226,
+     "remove": 0,
+     "add": [
+      [
+       "    },\n"
+      ],
+      [
+       "    {\n"
+      ],
+      [
+       "      \"path\": \"powertoys/0340-powertoys-store.js\",\n"
+      ],
+      [
+       "      \"statements\": 0\n"
+      ],
+      [
+       "    },\n"
+      ],
+      [
+       "    {\n"
+      ],
+      [
+       "      \"path\": \"powertoys/0341-powertoys-transcripts.js\",\n"
+      ],
+      [
+       "      \"statements\": 0\n"
+      ],
+      [
+       "    },\n"
+      ],
+      [
+       "    {\n"
+      ],
+      [
+       "      \"path\": \"powertoys/0342-powertoys-sessions.js\",\n"
+      ],
+      [
+       "      \"statements\": 0\n"
+      ],
+      [
+       "    },\n"
+      ],
+      [
+       "    {\n"
+      ],
+      [
+       "      \"path\": \"powertoys/0343-powertoys-hotkeys-menus.js\",\n"
+      ],
+      [
+       "      \"statements\": 0\n"
+      ],
+      [
+       "    },\n"
+      ],
+      [
+       "    {\n"
+      ],
+      [
+       "      \"path\": \"powertoys/0344-powertoys-ipc.js\",\n"
+      ],
+      [
+       "      \"statements\": 0\n"
+      ],
+      [
+       "    },\n"
+      ],
+      [
+       "    {\n"
+      ],
+      [
+       "      \"path\": \"powertoys/0345-powertoys-system.js\",\n"
+      ],
+      [
+       "      \"statements\": 0\n"
+      ],
+      [
+       "    },\n"
+      ],
+      [
+       "    {\n"
+      ],
+      [
+       "      \"path\": \"powertoys/0346-powertoys-extra.js\",\n"
+      ],
+      [
+       "      \"statements\": 0\n"
+      ],
+      [
+       "    },\n"
+      ],
+      [
+       "    {\n"
+      ],
+      [
+       "      \"path\": \"powertoys/0349-powertoys-notify.js\",\n"
+      ],
+      [
+       "      \"statements\": 0\n"
+      ],
+      [
+       "    },\n"
+      ],
+      [
+       "    {\n"
+      ],
+      [
+       "      \"path\": \"powertoys/0350-powertoys-restart.js\",\n"
+      ],
+      [
+       "      \"statements\": 0\n"
+      ],
+      [
+       "    },\n"
+      ],
+      [
+       "    {\n"
+      ],
+      [
+       "      \"path\": \"powertoys/0351-powertoys-work.js\",\n"
+      ],
+      [
+       "      \"statements\": 0\n"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "path": "src/vite/build/main/app/0202-session-notifications.js",
+   "kind": "edit",
+   "baseSha256": "4a32564d7a66109bf2f5786a0db3fe4f9a25f1c5761138a432a0ae9d8cf3a371",
+   "resultSha256": "94fde221ae94178a73b162e6e385a444f4ccb0555ad588fd4751a564b81a87cc",
+   "hunks": [
+    {
+     "at": 106,
+     "remove": 0,
+     "add": [
+      [
+       "// Local change: Windows notification layout built here instead of by Electron, so notifications stay on\n"
+      ],
+      [
+       "// screen until dismissed (scenario=\"reminder\") without the system \"Close\" button Electron adds to\n"
+      ],
+      [
+       "// reminders: Electron reports that button as a click on the body, which brings the app forward.\n"
+      ],
+      [
+       "// Everything else matches Electron 44's own layout (windows_toast_notification.cc GetToastXml), so\n"
+      ],
+      [
+       "// buttons (\"action\" events by index), drop-downs (an \"action\" event with the chosen item's index) and\n"
+      ],
+      [
+       "// the text box (\"reply\" event) behave as before.\n"
+      ],
+      [
+       "const WINDOWS_TOAST_MAX_BUTTONS = 5;\n"
+      ],
+      [
+       "function escapeToastXml(text) {\n"
+      ],
+      [
+       "  return String(text).replace(\n"
+      ],
+      [
+       "    /[<>&\"']/g,\n"
+      ],
+      [
+       "    (character) => ({ \"<\": \"&lt;\", \">\": \"&gt;\", \"&\": \"&amp;\", '\"': \"&quot;\", \"'\": \"&apos;\" })[character],\n"
+      ],
+      [
+       "  );\n"
+      ],
+      [
+       "}\n"
+      ],
+      [
+       "function buildWindowsToastXml(options, iconPath) {\n"
+      ],
+      [
+       "  let id = options.id;\n"
+      ],
+      [
+       "  let attribute = (name, value) => ` ${name}=\"${escapeToastXml(value)}\"`;\n"
+      ],
+      [
+       "  // Windows' own rules by default (Do Not Disturb, Focus, banner settings; one that times out moves to the\n"
+      ],
+      [
+       "  // notification centre, where its buttons still work). scenario=\"reminder\" keeps it on screen until\n"
+      ],
+      [
+       "  // dismissed but is a priority notification: it shows through Do Not Disturb, so only when asked for.\n"
+      ],
+      [
+       "  let stayOnScreen = powertoysSetting(\"notificationsStayOnScreen\") === true;\n"
+      ],
+      [
+       "  let xml = \"<toast\" + (stayOnScreen ? attribute(\"scenario\", \"reminder\") : \"\") + \">\";\n"
+      ],
+      [
+       "  if (options.groupId && options.groupTitle) {\n"
+      ],
+      [
+       "    xml += \"<header\" + attribute(\"id\", options.groupId) + attribute(\"title\", options.groupTitle) + attribute(\"arguments\", \"\") + \"/>\";\n"
+      ],
+      [
+       "  }\n"
+      ],
+      [
+       "  let lines = [options.title, options.body].filter((line) => line);\n"
+      ],
+      [
+       "  if (lines.length === 0) {\n"
+      ],
+      [
+       "    lines = [\"[no message]\"];\n"
+      ],
+      [
+       "  }\n"
+      ],
+      [
+       "  xml += '<visual><binding template=\"ToastGeneric\">';\n"
+      ],
+      [
+       "  xml += lines.map((line) => `<text>${escapeToastXml(line)}</text>`).join(\"\");\n"
+      ],
+      [
+       "  if (iconPath) {\n"
+      ],
+      [
+       "    xml += \"<image\" + attribute(\"id\", \"1\") + attribute(\"placement\", \"appLogoOverride\") + attribute(\"hint-crop\", \"none\") + attribute(\"src\", iconPath) + \"/>\";\n"
+      ],
+      [
+       "  }\n"
+      ],
+      [
+       "  xml += \"</binding></visual><actions>\";\n"
+      ],
+      [
+       "  let buttons = options.actions ?? [];\n"
+      ],
+      [
+       "  // Inputs come first, each drop-down's button sits beside it (hint-inputId), like the Reply button.\n"
+      ],
+      [
+       "  // The first item is chosen to start with, so the button always has an answer to send.\n"
+      ],
+      [
+       "  buttons.forEach((action, index) => {\n"
+      ],
+      [
+       "    if (action.type === \"selection\") {\n"
+      ],
+      [
+       "      xml += \"<input\" + attribute(\"id\", `selection${index}`) + attribute(\"type\", \"selection\") + attribute(\"defaultInput\", \"0\") + \">\";\n"
+      ],
+      [
+       "      xml += action.items.map((item, itemIndex) => \"<selection\" + attribute(\"id\", String(itemIndex)) + attribute(\"content\", item) + \"/>\").join(\"\");\n"
+      ],
+      [
+       "      xml += \"</input>\";\n"
+      ],
+      [
+       "    }\n"
+      ],
+      [
+       "  });\n"
+      ],
+      [
+       "  if (options.hasReply) {\n"
+      ],
+      [
+       "    xml += \"<input\" + attribute(\"id\", \"reply\") + attribute(\"type\", \"text\") + (options.replyPlaceholder ? attribute(\"placeHolderContent\", options.replyPlaceholder) : \"\") + \"/>\";\n"
+      ],
+      [
+       "  }\n"
+      ],
+      [
+       "  buttons.forEach((action, index) => {\n"
+      ],
+      [
+       "    xml += \"<action\" + attribute(\"activationType\", \"foreground\") + attribute(\"arguments\", `type=action&action=${index}&tag=${id}`) + attribute(\"content\", action.text) + (action.type === \"selection\" ? attribute(\"hint-inputId\", `selection${index}`) : \"\") + \"/>\";\n"
+      ],
+      [
+       "  });\n"
+      ],
+      [
+       "  if (options.hasReply) {\n"
+      ],
+      [
+       "    xml += \"<action\" + attribute(\"activationType\", \"foreground\") + attribute(\"arguments\", `type=reply&tag=${id}`) + attribute(\"content\", \"Reply\") + attribute(\"hint-inputId\", \"reply\") + \"/>\";\n"
+      ],
+      [
+       "  }\n"
+      ],
+      [
+       "  // Close, when there is room: an action with no index, which Electron drops (HandleToastActivation only\n"
+      ],
+      [
+       "  // dispatches action_index >= 0), so the app never sees it, while Windows still removes the notification.\n"
+      ],
+      [
+       "  // Foreground like Electron's own buttons: an unpackaged app has no background activator.\n"
+      ],
+      [
+       "  if (buttons.length + (options.hasReply ? 1 : 0) < WINDOWS_TOAST_MAX_BUTTONS) {\n"
+      ],
+      [
+       "    xml += \"<action\" + attribute(\"activationType\", \"foreground\") + attribute(\"arguments\", `type=action&action=-1&tag=${id}`) + attribute(\"content\", \"Close\") + \"/>\";\n"
+      ],
+      [
+       "  }\n"
+      ],
+      [
+       "  xml += \"</actions>\";\n"
+      ],
+      [
+       "  if (options.silent) {\n"
+      ],
+      [
+       "    xml += '<audio silent=\"true\"/>';\n"
+      ],
+      [
+       "  }\n"
+      ],
+      [
+       "  return xml + \"</toast>\";\n"
+      ],
+      [
+       "}\n"
+      ]
+     ]
+    },
+    {
+     "at": 147,
+     "remove": 0,
+     "add": [
+      [
+       "    // Local change: the Powertoys inbox records it and can replay its buttons later.\n"
+      ],
+      [
+       "    try {\n"
+      ],
+      [
+       "      onInteraction = powertoysInboxRecord(notificationOptions, notificationId, onInteraction);\n"
+      ],
+      [
+       "    ",
+       [
+        178,
+        4,
+        22
+       ],
+       "\n"
+      ],
+      [
+       "      logger.warn(\"[powertoys] inbox: recording a notification failed: %o\", caught);\n"
+      ],
+      [
+       "    }\n"
+      ]
+     ]
+    },
+    {
+     "at": 152,
+     "remove": 0,
+     "add": [
+      [
+       "      // Local change: notifications stay on screen until they are dismissed (Windows, Linux).\n"
+      ],
+      [
+       "      timeoutType: \"never\",\n"
+      ]
+     ]
+    },
+    {
+     "at": 167,
+     "remove": 5,
+     "removeSha256": "7929ee8f8f52e2066e55690ddfbbeb308187589f9ce39efa81d83f0756a28049",
+     "add": [
+      [
+       "      // Local change: an action with a list of items is a drop-down with its own button.\n"
+      ],
+      [
+       [
+        167,
+        0,
+        49
+       ],
+       "\n"
+      ],
+      [
+       [
+        168,
+        0,
+        8
+       ],
+       "Array.isArray(action.selection)\n"
+      ],
+      [
+       [
+        168,
+        0,
+        8
+       ],
+       "  ? {\n"
+      ],
+      [
+       "      ",
+       [
+        168,
+        0,
+        15
+       ],
+       "selection\",\n"
+      ],
+      [
+       "              ",
+       [
+        169,
+        8,
+        26
+       ],
+       "\n"
+      ],
+      [
+       "              items",
+       [
+        169,
+        12,
+        21
+       ],
+       "selection,\n"
+      ],
+      [
+       [
+        168,
+        0,
+        8
+       ],
+       "    }\n"
+      ],
+      [
+       [
+        168,
+        0,
+        8
+       ],
+       "  : {\n"
+      ],
+      [
+       "              ",
+       [
+        168,
+        8,
+        23
+       ],
+       "\n"
+      ],
+      [
+       "              ",
+       [
+        169,
+        8,
+        26
+       ],
+       "\n"
+      ],
+      [
+       [
+        168,
+        0,
+        8
+       ],
+       "    },\n"
+      ],
+      [
+       "      );\n"
+      ],
+      [
+       [
+        171,
+        0,
+        39
+       ],
+       " && !notificationOptions.reply) {\n"
+      ]
+     ]
+    },
+    {
+     "at": 175,
+     "remove": 0,
+     "add": [
+      [
+       "    // Inline text box (Windows, macOS); the typed text arrives as a \"reply\" interaction.\n"
+      ],
+      [
+       "    if (notificationOptions.reply) {\n"
+      ],
+      [
+       "      i.hasReply = true;\n"
+      ],
+      [
+       "      if (notificationOptions.reply.placeholder) {\n"
+      ],
+      [
+       "        i.replyPlaceholder = notificationOptions.reply.placeholder;\n"
+      ],
+      [
+       "      }\n"
+      ],
+      [
+       "    }\n"
+      ],
+      [
+       "    if (process.platform === \"win32\") {\n"
+      ],
+      [
+       "      let iconPath = getAppIconPath();\n"
+      ],
+      [
+       "      i.toastXml = buildWindowsToastXml(i, fsModule.default.existsSync(iconPath) ? iconPath : undefined);\n"
+      ],
+      [
+       "    }\n"
+      ]
+     ]
+    },
+    {
+     "at": 214,
+     "remove": 1,
+     "removeSha256": "f925fe4ad89eaa4468532bd6d01ebbd3ebd45afc1f434038e8bd15c8a62480e8",
+     "add": [
+      [
+       [
+        214,
+        0,
+        30
+       ],
+       "event) => {\n"
+      ],
+      [
+       "      // A banner that times out moves to the",
+       [
+        214,
+        3,
+        16
+       ],
+       " centre (reason \"timedOut\"); keep it, so its\n"
+      ],
+      [
+       "      // buttons still reach this handler there and close() can still remove it.\n"
+      ],
+      [
+       "      if (event?.reason === \"timedOut\") {\n"
+      ],
+      [
+       "        return;\n"
+      ],
+      [
+       "      }\n"
+      ]
+     ]
+    },
+    {
+     "at": 224,
+     "remove": 1,
+     "removeSha256": "037199ce82fcdecceebffd0b4d35941e3b4e2a2cf9c719f4b99247d8af6bf527",
+     "add": [
+      [
+       "    // Windows delivers each button press and reply twice; only the first one counts.\n"
+      ],
+      [
+       "    let answered = false;\n"
+      ],
+      [
+       [
+        224,
+        0,
+        39
+       ],
+       ", legacySelectionIndex) => {\n"
+      ],
+      [
+       "      if (answered) {\n"
+      ],
+      [
+       "        return;\n"
+      ],
+      [
+       "      }\n"
+      ],
+      [
+       "      answered = true;\n"
+      ],
+      [
+       "      let actionIndex = typeof event?.actionIndex === \"number\" ? event.actionIndex : i;\n"
+      ],
+      [
+       "      let selectionIndex = typeof event?.selectionIndex === \"number\" ? event.selectionIndex : legacySelectionIndex;\n"
+      ]
+     ]
+    },
+    {
+     "at": 227,
+     "remove": 1,
+     "removeSha256": "fbda159d4ce7dd5e145b6274a6df9050991dd7ae7d58ebac4afbcde361b1fa04",
+     "add": [
+      [
+       [
+        227,
+        0,
+        38
+       ],
+       "actionIndex",
+       [
+        227,
+        39,
+        48
+       ]
+      ],
+      [
+       [
+        227,
+        0,
+        8
+       ],
+       "...(typeof selectionIndex === \"number\" &&\n"
+      ],
+      [
+       [
+        227,
+        0,
+        8
+       ],
+       "  selectionIndex >= 0 && {\n"
+      ],
+      [
+       [
+        227,
+        0,
+        8
+       ],
+       "    selectionIndex: selectionIndex,\n"
+      ],
+      [
+       [
+        227,
+        0,
+        8
+       ],
+       "  }),\n"
+      ]
+     ]
+    },
+    {
+     "at": 233,
+     "remove": 0,
+     "add": [
+      [
+       "    notification.on(\"reply\", (event, legacyReply) => {\n"
+      ],
+      [
+       "      if (answered) {\n"
+      ],
+      [
+       "        return;\n"
+      ],
+      [
+       "      }\n"
+      ],
+      [
+       "      answered = true;\n"
+      ],
+      [
+       "      let reply = typeof event?.reply === \"string\" ? event.reply : legacyReply;\n"
+      ],
+      [
+       "      onInteraction?.({\n"
+      ],
+      [
+       "        action: \"reply\",\n"
+      ],
+      [
+       "        reply: typeof reply === \"string\" ? reply : \"\",\n"
+      ],
+      [
+       "        ",
+       [
+        209,
+        8,
+        39
+       ],
+       "\n"
+      ],
+      [
+       "      });\n"
+      ],
+      [
+       "      ",
+       [
+        203,
+        8,
+        51
+       ],
+       "\n"
+      ],
+      [
+       "    });\n"
+      ]
+     ]
+    },
+    {
+     "at": 633,
+     "remove": 0,
+     "add": [
+      [
+       "/** Permission-notification buttons and the session decision each one sends (allow_always: see buildPermissionAlwaysAction). */\n"
+      ],
+      [
+       "const PERMISSION_NOTIFICATION_DECISIONS = {\n"
+      ],
+      [
+       "  allow_once: \"once\",\n"
+      ],
+      [
+       "  allow_always: \"always\",\n"
+      ],
+      [
+       "  deny: \"deny\",\n"
+      ],
+      [
+       "};\n"
+      ],
+      [
+       "/** Built-in tools whose in-app card is the generic one (no tool-specific buttons or labels). */\n"
+      ],
+      [
+       "const GENERIC_CARD_BUILTIN_TOOLS = new Set([\n"
+      ],
+      [
+       "  \"Bash\",\n"
+      ],
+      [
+       "  \"Read\",\n"
+      ],
+      [
+       "  \"Write\",\n"
+      ],
+      [
+       "  \"Edit\",\n"
+      ],
+      [
+       "  \"MultiEdit\",\n"
+      ],
+      [
+       "  \"NotebookEdit\",\n"
+      ],
+      [
+       "  \"Glob\",\n"
+      ],
+      [
+       "  \"Grep\",\n"
+      ],
+      [
+       "  \"WebFetch\",\n"
+      ],
+      [
+       "  \"WebSearch\",\n"
+      ],
+      [
+       "]);\n"
+      ],
+      [
+       "/** MCP tools with their own in-app card in Claude Code sessions. */\n"
+      ],
+      [
+       "function hasSpecialCcdCard(toolName) {\n"
+      ],
+      [
+       "  return (\n"
+      ],
+      [
+       "    toolName.startsWith(\"mcp__ccd_\") ||\n"
+      ],
+      [
+       "    toolName.startsWith(\"mcp__remote-devices__\") ||\n"
+      ],
+      [
+       "    /__(request_credential|device_request_folder_access|device_request_delete_permission)$/.test(toolName)\n"
+      ],
+      [
+       "  );\n"
+      ],
+      [
+       "}\n"
+      ],
+      [
+       "/** Where the card's \"always\" answer saves its rule, from the first non-mode suggestion. */\n"
+      ],
+      [
+       "function getPermissionSuggestionScope(suggestions) {\n"
+      ],
+      [
+       "  let suggestion = suggestions.find((update) => update.type !== \"setMode\") ?? suggestions[0];\n"
+      ],
+      [
+       "  switch (suggestion?.destination) {\n"
+      ],
+      [
+       "    case \"userSettings\":\n"
+      ],
+      [
+       "      return \"user\";\n"
+      ],
+      [
+       "    case \"projectSettings\":\n"
+      ],
+      [
+       "      return \"project\";\n"
+      ],
+      [
+       "    case \"localSettings\":\n"
+      ],
+      [
+       "      return \"projectLocal\";\n"
+      ],
+      [
+       "    default:\n"
+      ],
+      [
+       "      return \"session\";\n"
+      ],
+      [
+       "  }\n"
+      ],
+      [
+       "}\n"
+      ],
+      [
+       "function formatApprovalDays(days) {\n"
+      ],
+      [
+       "  return `Allow for ${days} ${days === 1 ? \"day\" : \"days\"}`;\n"
+      ],
+      [
+       "}\n"
+      ],
+      [
+       "/**\n"
+      ],
+      [
+       " * The in-app card's persistent allow button for this request ({label, decision}), or undefined when the\n"
+      ],
+      [
+       " * card shows none or its effect needs the card itself (SSH-host grants, connector-wide Cowork grants).\n"
+      ],
+      [
+       " */\n"
+      ],
+      [
+       "function buildPermissionAlwaysAction(product, request, session) {\n"
+      ],
+      [
+       "  let { toolName: toolName, suggestions: suggestions } = request;\n"
+      ],
+      [
+       "  if (!suggestions?.length || request.suppressAlwaysAllowRule === true || request.defaultToNo === true) {\n"
+      ],
+      [
+       "    return undefined;\n"
+      ],
+      [
+       "  }\n"
+      ],
+      [
+       "  // The card answers \"once\" for asks Claude Code cannot keep a rule for.\n"
+      ],
+      [
+       "  let decision = request.viaHostCliLauncher === true ? \"once\" : \"always\";\n"
+      ],
+      [
+       "  ",
+       [
+        1097,
+        4,
+        31
+       ],
+       "\n"
+      ],
+      [
+       "    if (!GENERIC_CARD_BUILTIN_TOOLS.has(toolName) || isPrivilegedBridgeTool(toolName)) {\n"
+      ],
+      [
+       "      return undefined;\n"
+      ],
+      [
+       "    }\n"
+      ],
+      [
+       "    if (isScheduledTaskSession(session) && request.viaHostCliLauncher !== true) {\n"
+      ],
+      [
+       "      let addsAllowRule = suggestions.some(\n"
+      ],
+      [
+       "        (update) => (update.type === \"addRules\" || update.type === \"replaceRules\") && update.behavior === \"allow\",\n"
+      ],
+      [
+       "      );\n"
+      ],
+      [
+       "      if (!addsAllowRule) {\n"
+      ],
+      [
+       "        return undefined;\n"
+      ],
+      [
+       "      }\n"
+      ],
+      [
+       "      return {\n"
+      ],
+      [
+       "        label: request.scheduledRunApprovalDays\n"
+      ],
+      [
+       "          ? formatApprovalDays(request.scheduledRunApprovalDays)\n"
+      ],
+      [
+       "          : \"Allow for all scheduled runs\",\n"
+      ],
+      [
+       "        decision: \"always\",\n"
+      ],
+      [
+       "      };\n"
+      ],
+      [
+       "    }\n"
+      ],
+      [
+       "    return {\n"
+      ],
+      [
+       "      label: \"Always allow\",\n"
+      ],
+      [
+       "      decision: decision,\n"
+      ],
+      [
+       "    };\n"
+      ],
+      [
+       "  }\n"
+      ],
+      [
+       "  let isMcpTool = toolName.startsWith(\"mcp__\");\n"
+      ],
+      [
+       "  if (!(GENERIC_CARD_BUILTIN_TOOLS.has(toolName) || (isMcpTool && !hasSpecialCcdCard(toolName)))) {\n"
+      ],
+      [
+       "    return undefined;\n"
+      ],
+      [
+       "  }\n"
+      ],
+      [
+       "  // Answers from outside the card keep no local MCP allow rule on SSH sessions.\n"
+      ],
+      [
+       "  if (isMcpTool && session?.backend?.remoteTarget?.kind === \"ssh\") {\n"
+      ],
+      [
+       "    return undefined;\n"
+      ],
+      [
+       "  }\n"
+      ],
+      [
+       "  let scope = getPermissionSuggestionScope(suggestions);\n"
+      ],
+      [
+       "  if (scope === \"session\" && request.alwaysAllowKeptForHost) {\n"
+      ],
+      [
+       "    return undefined;\n"
+      ],
+      [
+       "  }\n"
+      ],
+      [
+       "  let label = request.scheduledRunApprovalDays\n"
+      ],
+      [
+       "    ? formatApprovalDays(request.scheduledRunApprovalDays)\n"
+      ],
+      [
+       "    : request.alwaysAllowEndsWithSession && scope === \"session\"\n"
+      ],
+      [
+       "      ? \"Allow for this session\"\n"
+      ],
+      [
+       "      : \"Always allow\";\n"
+      ],
+      [
+       "  return {\n"
+      ],
+      [
+       "    label: label,\n"
+      ],
+      [
+       "    decision: decision,\n"
+      ],
+      [
+       "  };\n"
+      ],
+      [
+       "}\n"
+      ],
+      [
+       "/** Windows shows at most five buttons on a toast; the text box brings its own (Reply). */\n"
+      ],
+      [
+       "const MAX_TOAST_BUTTONS = 5;\n"
+      ],
+      [
+       "const MAX_QUESTION_NOTIFICATION_OPTIONS = 4;\n"
+      ],
+      [
+       "/** What the in-app card answers for a skipped question. */\n"
+      ],
+      [
+       "const SKIPPED_QUESTION_ANSWER = \"[No preference]\";\n"
+      ],
+      [
+       "/**\n"
+      ],
+      [
+       " * How a notification can offer an AskUserQuestion question, like the in-app card: the options in a\n"
+      ],
+      [
+       " * full-width drop-down with an Answer button (buttons are narrow and cut long options short), a text\n"
+      ],
+      [
+       " * box for another answer, and Skip. Undefined when the notification cannot offer the question, so it\n"
+      ],
+      [
+       " * only opens the conversation: multiSelect questions, since Windows notifications have no check boxes\n"
+      ],
+      [
+       " * (their inputs are a text box or a single-choice drop-down).\n"
+      ],
+      [
+       " */\n"
+      ],
+      [
+       "function buildQuestionNotificationLayout(question) {\n"
+      ],
+      [
+       "  if (!question || typeof question.question !== \"string\" || !question.question.trim()) {\n"
+      ],
+      [
+       "    return undefined;\n"
+      ],
+      [
+       "  }\n"
+      ],
+      [
+       "  let options = Array.isArray(question.options) ? question.options : [];\n"
+      ],
+      [
+       "  if (\n"
+      ],
+      [
+       "    (question.multiSelect === true && options.length > 0) ||\n"
+      ],
+      [
+       "    options.length > MAX_QUESTION_NOTIFICATION_OPTIONS ||\n"
+      ],
+      [
+       "    options.some((option) => typeof option?.label !== \"string\" || !option.label.trim())\n"
+      ],
+      [
+       "  ) {\n"
+      ],
+      [
+       "    return undefined;\n"
+      ],
+      [
+       "  }\n"
+      ],
+      [
+       "  // Answer, Reply, Skip and Close: within MAX_TOAST_BUTTONS.\n"
+      ],
+      [
+       "  return {\n"
+      ],
+      [
+       "    options: options,\n"
+      ],
+      [
+       "    textBox: true,\n"
+      ],
+      [
+       "    skip: true,\n"
+      ],
+      [
+       "  };\n"
+      ],
+      [
+       "}\n"
+      ],
+      [
+       "/** One question's answer in the format each surface's card sends. */\n"
+      ],
+      [
+       "function formatQuestionAnswer(product, response) {\n"
+      ],
+      [
+       "  if (!Array.isArray(response)) {\n"
+      ],
+      [
+       "    return response;\n"
+      ],
+      [
+       "  }\n"
+      ],
+      [
+       "  // Cowork sends a single value as a string; Claude Code sends multiSelect answers as a list.\n"
+      ],
+      [
+       "  return product === \"cowork\" && response.length === 1 ? response[0] : response;\n"
+      ],
+      [
+       "}\n"
+      ],
+      [
+       "/** The updated input the in-app card sends for answered questions: answers keyed by question text. */\n"
+      ],
+      [
+       "function buildQuestionAnswerInput(product, questions, responses) {\n"
+      ],
+      [
+       "  let answers = Object.fromEntries(\n"
+      ],
+      [
+       "    questions.map((question, index) => [question.question, formatQuestionAnswer(product, responses[index].value)]),\n"
+      ],
+      [
+       "  );\n"
+      ],
+      [
+       "  // Claude Code's card notes the preview of a chosen single-select option that has one.\n"
+      ],
+      [
+       "  let annotations =\n"
+      ],
+      [
+       "    ",
+       [
+        1077,
+        6,
+        26
+       ],
+       "\n"
+      ],
+      [
+       "      ? []\n"
+      ],
+      [
+       "      : questions.flatMap((question, index) =>\n"
+      ],
+      [
+       "          typeof responses[index].preview === \"string\"\n"
+      ],
+      [
+       "            ? [\n"
+      ],
+      [
+       "                [\n"
+      ],
+      [
+       "                  question.question,\n"
+      ],
+      [
+       "                  {\n"
+      ],
+      [
+       "                    preview: responses[index].preview,\n"
+      ],
+      [
+       "                  },\n"
+      ],
+      [
+       "                ],\n"
+      ],
+      [
+       "              ]\n"
+      ],
+      [
+       "            : [],\n"
+      ],
+      [
+       "        );\n"
+      ],
+      [
+       "  return {\n"
+      ],
+      [
+       "    questions: questions,\n"
+      ],
+      [
+       "    answers: answers,\n"
+      ],
+      [
+       "    ...(annotations.length > 0 && {\n"
+      ],
+      [
+       "      annotations: Object.fromEntries(annotations),\n"
+      ],
+      [
+       "    }),\n"
+      ],
+      [
+       "  };\n"
+      ],
+      [
+       "}\n"
+      ]
+     ]
+    },
+    {
+     "at": 721,
+     "remove": 0,
+     "add": [
+      [
+       "    // requestId -> { index, responses }: answers given so far from question notifications, sent together after the last one.\n"
+      ],
+      [
+       "    this.questionNotificationAnswers = new Map();\n"
+      ]
+     ]
+    },
+    {
+     "at": 1054,
+     "remove": 0,
+     "add": [
+      [
+       "  handlePermissionResponse(product, requestId, decision, updatedInput) {\n"
+      ],
+      [
+       "    ",
+       [
+        1097,
+        4,
+        31
+       ],
+       "\n"
+      ],
+      [
+       "      getLocalAgentModeSessionManager()\n"
+      ],
+      [
+       "        .then((sessionManager) => sessionManager.respondToToolPermission(requestId, decision, updatedInput))\n"
+      ],
+      [
+       "        ",
+       [
+        525,
+        12,
+        32
+       ],
+       "\n"
+      ],
+      [
+       "          ",
+       [
+        1081,
+        14,
+        71
+       ],
+       "\n"
+      ],
+      [
+       "            ",
+       [
+        311,
+        6,
+        20
+       ],
+       "\n"
+      ],
+      [
+       "          });\n"
+      ],
+      [
+       "        });\n"
+      ],
+      [
+       "    } else {\n"
+      ],
+      [
+       "      getClaudeCodeSessionManager()\n"
+      ],
+      [
+       "        .then((sessionManager) => sessionManager.respondToToolPermission(requestId, decision, updatedInput))\n"
+      ],
+      [
+       "        ",
+       [
+        525,
+        12,
+        32
+       ],
+       "\n"
+      ],
+      [
+       "          ",
+       [
+        1081,
+        14,
+        71
+       ],
+       "\n"
+      ],
+      [
+       "            ",
+       [
+        311,
+        6,
+        20
+       ],
+       "\n"
+      ],
+      [
+       "          });\n"
+      ],
+      [
+       "        });\n"
+      ],
+      [
+       "    }\n"
+      ],
+      [
+       "  }\n"
+      ]
+     ]
+    },
+    {
+     "at": 1135,
+     "remove": 0,
+     "add": [
+      [
+       "    // Local change: Powertoys per-session mute (the request still counts as waiting).\n"
+      ],
+      [
+       "    if (powertoysSessionMuted(sessionId)) {\n"
+      ],
+      [
+       "      return;\n"
+      ],
+      [
+       "    }\n"
+      ]
+     ]
+    },
+    {
+     "at": 1276,
+     "remove": 1,
+     "removeSha256": "8227f8a9878c944ad170186a784b0cc1f0e3f5e6e79fb0ea3359fa0d71dcae6b",
+     "add": [
+      [
+       "    // Asks that only the card may approve still get Deny, like the card.\n"
+      ],
+      [
+       [
+        1276,
+        0,
+        30
+       ],
+       [
+        1276,
+        52,
+        70
+       ],
+       ";\n"
+      ]
+     ]
+    },
+    {
+     "at": 1287,
+     "remove": 8,
+     "removeSha256": "cf396f597a81c61f8929ac797cc90991d065854eabdfae888c2ce9499280ef49",
+     "add": [
+      [
+       "        actions: this.permissionNotificationActions(request,",
+       [
+        1287,
+        16,
+        37
+       ],
+       "),\n"
+      ]
+     ]
+    },
+    {
+     "at": 1303,
+     "remove": 2,
+     "removeSha256": "b57b1a98f699e704e10a95e9135184227cebd016e2ed7e1afb4b3a858080a221",
+     "add": [
+      [
+       [
+        1303,
+        0,
+        12
+       ],
+       "decis",
+       [
+        1303,
+        81,
+        90
+       ],
+       "\n"
+      ],
+      [
+       "         ",
+       [
+        1303,
+        30,
+        66
+       ],
+       "PERMISSION_NOTIFICATION_DECISIONS[",
+       [
+        1303,
+        66,
+        88
+       ],
+       "]\n"
+      ],
+      [
+       "            ?",
+       [
+        1303,
+        65,
+        88
+       ],
+       "\n"
+      ],
+      [
+       [
+        1303,
+        0,
+        8
+       ],
+       "    : null;\n"
+      ],
+      [
+       "        // While computer use is controlling the screen nothing is allowed from a n",
+       [
+        1304,
+        65,
+        76
+       ],
+       " (the\n"
+      ],
+      [
+       [
+        1303,
+        0,
+        8
+       ],
+       "// release's own rule for Allow once): the press opens the session instead. Deny still works.\n"
+      ],
+      [
+       [
+        1303,
+        0,
+        12
+       ],
+       "blocked = decisionType !== null && decisionType !== \"deny\"",
+       [
+        1304,
+        42,
+        51
+       ],
+       "computerUseHoldsScreen();\n"
+      ],
+      [
+       [
+        1304,
+        0,
+        13
+       ],
+       "ction =\n"
+      ],
+      [
+       "          decisionType && !blocked ? decisionType :",
+       [
+        1303,
+        30,
+        63
+       ],
+       "? \"click\" :",
+       [
+        1303,
+        30,
+        49
+       ],
+       ";\n"
+      ]
+     ]
+    },
+    {
+     "at": 1308,
+     "remove": 1,
+     "removeSha256": "d41cf37531793508002dbc22fee0362a4c3b3568de55d84d38d04e5139e0f883",
+     "add": [
+      [
+       [
+        1308,
+        0,
+        19
+       ],
+       "ction,\n"
+      ]
+     ]
+    },
+    {
+     "at": 1316,
+     "remove": 2,
+     "removeSha256": "c4fe42d34ceb6d6336ac32bdf5f1c35c95ddf1c21ec29e47bf173914a38b1dfe",
+     "add": [
+      [
+       [
+        1316,
+        0,
+        12
+       ],
+       "decisionType && !blocked) {\n"
+      ],
+      [
+       "          // The",
+       [
+        1317,
+        49,
+        62
+       ],
+       " closes when the session reports the request resolved (tool_p",
+       [
+        1317,
+        24,
+        33
+       ],
+       "_resolved).\n"
+      ],
+      [
+       [
+        1317,
+        0,
+        11
+       ],
+       "et decision =\n"
+      ],
+      [
+       [
+        1317,
+        0,
+        10
+       ],
+       "  decisionType === \"allow_always\" ? request.alwaysAction?.decision : PERMISSION_NOTIFICATION_DECISIONS[decisionType];\n"
+      ],
+      [
+       "  ",
+       [
+        1316,
+        0,
+        12
+       ],
+       "!decision) {\n"
+      ],
+      [
+       [
+        1317,
+        0,
+        10
+       ],
+       "  return;\n"
+      ],
+      [
+       [
+        1317,
+        0,
+        10
+       ],
+       "}\n"
+      ],
+      [
+       [
+        1317,
+        0,
+        22
+       ],
+       "`Permission ${decision}",
+       [
+        1317,
+        44,
+        62
+       ],
+       "`, {\n"
+      ]
+     ]
+    },
+    {
+     "at": 1322,
+     "remove": 1,
+     "removeSha256": "c46b8d2891d2ba38abc6b5ef1758877765c9f7fd38e643a0fc630a0e19bc2c3b",
+     "add": [
+      [
+       [
+        1322,
+        0,
+        8
+       ],
+       "  this.handlePermissionResponse(product, requestId, decision);\n"
+      ],
+      [
+       [
+        1322,
+        0,
+        53
+       ],
+       "blocked) {\n"
+      ],
+      [
+       [
+        1322,
+        0,
+        8
+       ],
+       "  if (blocked) {\n"
+      ],
+      [
+       [
+        1322,
+        0,
+        8
+       ],
+       "    logger.info(\"notification: an allow press was ignored because computer use is controlling the screen\", {\n"
+      ],
+      [
+       "              ",
+       [
+        1070,
+        12,
+        33
+       ],
+       "\n"
+      ],
+      [
+       "    ",
+       [
+        1322,
+        0,
+        9
+       ],
+       ");\n"
+      ],
+      [
+       "  ",
+       [
+        1322,
+        0,
+        9
+       ],
+       "\n"
+      ]
+     ]
+    },
+    {
+     "at": 1324,
+     "remove": 1,
+     "removeSha256": "cdf82f95901ee1819f6bfdcf52f5c3b0bfba8914ed7996b764e6fa5f86acc3d3",
+     "add": [
+      [
+       "          let openSession",
+       [
+        1324,
+        30,
+        117
+       ]
+      ]
+     ]
+    },
+    {
+     "at": 1326,
+     "remove": 1,
+     "removeSha256": "fbac3bfd6ba00c87bd6590a9953b49f75af1e089b0407e54fd0c91aecc87aa1e",
+     "add": [
+      [
+       [
+        1326,
+        0,
+        54
+       ],
+       [
+        1326,
+        59,
+        72
+       ],
+       ");\n"
+      ]
+     ]
+    },
+    {
+     "at": 1328,
+     "remove": 1,
+     "removeSha256": "fae0099248def35bff9c0567082a762266ed7d932526639f3df0781948b13803",
+     "add": [
+      [
+       [
+        1328,
+        0,
+        23
+       ],
+       "();\n"
+      ]
+     ]
+    },
+    {
+     "at": 1338,
+     "remove": 1,
+     "removeSha256": "8fe0ad70ca0d24ac53aa86128aa6fb4b282ae4ab8c995de8dfbde551ea59a3cd",
+     "add": [
+      [
+       "      has_action_buttons:",
+       [
+        1338,
+        49,
+        86
+       ]
+      ]
+     ]
+    },
+    {
+     "at": 1347,
+     "remove": 0,
+     "add": [
+      [
+       "  /** Buttons of a permission notification, as on the in-app card: Allow once, its persistent allow button, Deny. */\n"
+      ],
+      [
+       "  permissionNotificationActions(request, allowFromNotification) {\n"
+      ],
+      [
+       "    if (!allowFromNotification) {\n"
+      ],
+      [
+       "      return [\n"
+      ],
+      [
+       "        {\n"
+      ],
+      [
+       "          type: \"deny\",\n"
+      ],
+      [
+       "          text: \"Deny\",\n"
+      ],
+      [
+       "        },\n"
+      ],
+      [
+       "      ];\n"
+      ],
+      [
+       "    }\n"
+      ],
+      [
+       "    return [\n"
+      ],
+      [
+       "      {\n"
+      ],
+      [
+       "        ",
+       [
+        1290,
+        16,
+        35
+       ],
+       "\n"
+      ],
+      [
+       "        ",
+       [
+        1291,
+        16,
+        35
+       ],
+       "\n"
+      ],
+      [
+       "      },\n"
+      ],
+      [
+       "      ...(request.alwaysAction\n"
+      ],
+      [
+       "        ? [\n"
+      ],
+      [
+       "            {\n"
+      ],
+      [
+       "              type: \"allow_always\",\n"
+      ],
+      [
+       "              text: request.alwaysAction.label,\n"
+      ],
+      [
+       "            },\n"
+      ],
+      [
+       "          ]\n"
+      ],
+      [
+       "        : []),\n"
+      ],
+      [
+       "      {\n"
+      ],
+      [
+       "        type: \"deny\",\n"
+      ],
+      [
+       "        text: \"Deny\",\n"
+      ],
+      [
+       "      },\n"
+      ],
+      [
+       "    ];\n"
+      ],
+      [
+       "  }\n"
+      ]
+     ]
+    },
+    {
+     "at": 1399,
+     "remove": 0,
+     "add": [
+      [
+       "    // Local change: Powertoys per-session mute (the request still counts as waiting).\n"
+      ],
+      [
+       "    if (powertoysSessionMuted(request.sessionId)) {\n"
+      ],
+      [
+       "      return;\n"
+      ],
+      [
+       "    }\n"
+      ]
+     ]
+    },
+    {
+     "at": 1639,
+     "remove": 0,
+     "add": [
+      [
+       "    // Local change: Powertoys per-session mute (the request still counts as waiting).\n"
+      ],
+      [
+       "    if (powertoysSessionMuted(sessionId)) {\n"
+      ],
+      [
+       "      return;\n"
+      ],
+      [
+       "    }\n"
+      ]
+     ]
+    },
+    {
+     "at": 1734,
+     "remove": 12,
+     "removeSha256": "a1be9074aae67d9ec14b3134af5a65ce40a95bc6ccc09e287cbcffa31e8b9275",
+     "add": [
+      [
+       "      this.showElectronQuest",
+       [
+        1740,
+        26,
+        41
+       ],
+       "(request, title2, body,",
+       [
+        1738,
+        17,
+        27
+       ],
+       " eventProps, clearClickCallback);\n"
+      ],
+      [
+       "    }\n"
+      ],
+      [
+       "  }\n"
+      ],
+      [
+       "  /**\n"
+      ],
+      [
+       "   * Shows the current ",
+       [
+        1743,
+        28,
+        36
+       ],
+       " of an AskUserQuestion",
+       [
+        1745,
+        11,
+        19
+       ],
+       " with the in-app card's choices (see\n"
+      ],
+      [
+       "   * buildQuest",
+       [
+        1740,
+        26,
+        41
+       ],
+       "Layout). Questions are asked one",
+       [
+        1739,
+        14,
+        27
+       ],
+       " at a time; the answers go to\n"
+      ],
+      [
+       "   * the session together after the last one, and the",
+       [
+        1739,
+        14,
+        27
+       ],
+       " closes when the",
+       [
+        1744,
+        11,
+        19
+       ],
+       " reports the\n"
+      ],
+      [
+       "   *",
+       [
+        1745,
+        11,
+        19
+       ],
+       " resolved.\n"
+      ],
+      [
+       "   */\n"
+      ],
+      [
+       "  showElectronQuest",
+       [
+        1740,
+        26,
+        41
+       ],
+       "(request, title, fallbackBody, silent, eventProps, clearClickCallback) {\n"
+      ],
+      [
+       "    let { product: product,",
+       [
+        1744,
+        11,
+        33
+       ],
+       [
+        1745,
+        11,
+        32
+       ],
+       " } =",
+       [
+        1745,
+        11,
+        19
+       ],
+       ";\n"
+      ],
+      [
+       "    ",
+       [
+        1669,
+        4,
+        54
+       ],
+       "\n"
+      ],
+      [
+       "    let ",
+       [
+        1743,
+        28,
+        36
+       ],
+       "s = Array.isArray(request.",
+       [
+        1743,
+        28,
+        36
+       ],
+       "s) ? request.",
+       [
+        1743,
+        28,
+        36
+       ],
+       "s : [];\n"
+      ],
+      [
+       "    let progress = this.quest",
+       [
+        1740,
+        26,
+        41
+       ],
+       "Answers.get(",
+       [
+        1745,
+        12,
+        21
+       ],
+       ") ?? {\n"
+      ],
+      [
+       "      index: 0,\n"
+      ],
+      [
+       [
+        1745,
+        6,
+        14
+       ],
+       "sponses: [],\n"
+      ],
+      [
+       "    };\n"
+      ],
+      [
+       "    let ",
+       [
+        1743,
+        28,
+        36
+       ],
+       " = ",
+       [
+        1743,
+        28,
+        36
+       ],
+       "s[progress.index];\n"
+      ],
+      [
+       "    let layout =\n"
+      ],
+      [
+       "      questions.length > 0 && questions.every((item) => buildQuest",
+       [
+        1740,
+        26,
+        41
+       ],
+       "Layout(item))\n"
+      ],
+      [
+       "        ? buildQuest",
+       [
+        1740,
+        26,
+        41
+       ],
+       "Layout(",
+       [
+        1743,
+        28,
+        36
+       ],
+       ")\n"
+      ],
+      [
+       "        ",
+       [
+        84,
+        6,
+        18
+       ],
+       "\n"
+      ],
+      [
+       "    let actions = [];\n"
+      ],
+      [
+       "    if (layout) {\n"
+      ],
+      [
+       "      if (layout.options.length > 0) {\n"
+      ],
+      [
+       [
+        1735,
+        0,
+        8
+       ],
+       "actions.push({\n"
+      ],
+      [
+       [
+        1743,
+        2,
+        19
+       ],
+       "choose\",\n"
+      ],
+      [
+       [
+        1736,
+        0,
+        11
+       ],
+       "ext: \"Answer\",\n"
+      ],
+      [
+       [
+        1744,
+        2,
+        14
+       ],
+       "lection: layout.options.map((option) => option.label),\n"
+      ],
+      [
+       [
+        1735,
+        0,
+        8
+       ],
+       "});\n"
+      ],
+      [
+       "      }\n"
+      ],
+      [
+       "      if (layout.skip) {\n"
+      ],
+      [
+       [
+        1735,
+        0,
+        8
+       ],
+       "actions.push({\n"
+      ],
+      [
+       [
+        1743,
+        2,
+        19
+       ],
+       "skip\",\n"
+      ],
+      [
+       [
+        1736,
+        0,
+        11
+       ],
+       "ext: \"Skip\",\n"
+      ],
+      [
+       [
+        1735,
+        0,
+        8
+       ],
+       "});\n"
+      ],
+      [
+       "      }\n"
+      ],
+      [
+       "    }\n"
+      ],
+      [
+       "    let body = layout\n"
+      ],
+      [
+       "      ? sanitize",
+       [
+        1740,
+        29,
+        42
+       ],
+       "ext(\n"
+      ],
+      [
+       [
+        1736,
+        0,
+        10
+       ],
+       [
+        1743,
+        28,
+        36
+       ],
+       "s.length > 1 ? `(${progress.index + 1}/${",
+       [
+        1743,
+        28,
+        36
+       ],
+       "s.length}) ${",
+       [
+        1743,
+        28,
+        36
+       ],
+       ".",
+       [
+        1743,
+        28,
+        36
+       ],
+       "}` : ",
+       [
+        1743,
+        28,
+        36
+       ],
+       ".",
+       [
+        1743,
+        28,
+        36
+       ],
+       ",\n"
+      ],
+      [
+       [
+        1735,
+        0,
+        8
+       ],
+       ")\n"
+      ],
+      [
+       "      : fallbackBody;\n"
+      ],
+      [
+       "    let saveProgress = (nextProgress) => {\n"
+      ],
+      [
+       "      this.quest",
+       [
+        1740,
+        26,
+        41
+       ],
+       "Answers.set(",
+       [
+        1745,
+        23,
+        33
+       ],
+       " nextProgress);\n"
+      ],
+      [
+       "      this.showElectronQuest",
+       [
+        1740,
+        26,
+        41
+       ],
+       "(request, title, fallbackBody, silent, eventProps, clearClickCallback);\n"
+      ],
+      [
+       "    };\n"
+      ],
+      [
+       "    let answerQuestion = (response) => {\n"
+      ],
+      [
+       "      let responses = [...progress.responses, response];\n"
+      ],
+      [
+       "      if (responses.length < ",
+       [
+        1743,
+        28,
+        36
+       ],
+       "s.length) {\n"
+      ],
+      [
+       "        logger.info(\"AskUserQuestion answer from",
+       [
+        1739,
+        14,
+        27
+       ],
+       ", asking the next ",
+       [
+        1743,
+        28,
+        38
+       ],
+       " {\n"
+      ],
+      [
+       "          ",
+       [
+        1070,
+        12,
+        33
+       ],
+       "\n"
+      ],
+      [
+       "          ",
+       [
+        930,
+        12,
+        33
+       ],
+       "\n"
+      ],
+      [
+       [
+        1736,
+        0,
+        10
+       ],
+       "answered: responses.length,\n"
+      ],
+      [
+       [
+        1736,
+        0,
+        10
+       ],
+       "of: ",
+       [
+        1743,
+        28,
+        36
+       ],
+       "s.length,\n"
+      ],
+      [
+       [
+        1735,
+        0,
+        8
+       ],
+       "});\n"
+      ],
+      [
+       [
+        1738,
+        2,
+        11
+       ],
+       "aveProgress({\n"
+      ],
+      [
+       [
+        1736,
+        0,
+        10
+       ],
+       "index: progress.index + 1,\n"
+      ],
+      [
+       [
+        1745,
+        2,
+        14
+       ],
+       "sponses: responses,\n"
+      ],
+      [
+       [
+        1735,
+        0,
+        8
+       ],
+       "});\n"
+      ],
+      [
+       [
+        1745,
+        4,
+        14
+       ],
+       "turn;\n"
+      ],
+      [
+       "      }\n"
+      ],
+      [
+       "      logger.info(\"AskUserQuestion answered from",
+       [
+        1739,
+        14,
+        27
+       ],
+       "\", {\n"
+      ],
+      [
+       "        ",
+       [
+        1070,
+        12,
+        33
+       ],
+       "\n"
+      ],
+      [
+       "        ",
+       [
+        930,
+        12,
+        33
+       ],
+       "\n"
+      ],
+      [
+       "      });\n"
+      ],
+      [
+       "      this.handlePermissionResponse(product,",
+       [
+        1745,
+        22,
+        33
+       ],
+       " \"once\", buildQuestionAnswerInput(product, ",
+       [
+        1743,
+        28,
+        36
+       ],
+       "s, responses));\n"
+      ],
+      [
+       "    };\n"
+      ],
+      [
+       "    ",
+       [
+        1510,
+        6,
+        40
+       ],
+       "\n"
+      ],
+      [
+       [
+        1735,
+        2,
+        10
+       ]
+      ],
+      [
+       "        ",
+       [
+        2084,
+        10,
+        23
+       ],
+       "\n"
+      ],
+      [
+       [
+        1737,
+        2,
+        22
+       ]
+      ],
+      [
+       "        ",
+       [
+        1283,
+        8,
+        23
+       ],
+       "\n"
+      ],
+      [
+       "        ",
+       [
+        1515,
+        10,
+        31
+       ],
+       "\n"
+      ],
+      [
+       "        ",
+       [
+        1285,
+        8,
+        54
+       ],
+       "\n"
+      ],
+      [
+       "        ",
+       [
+        1286,
+        8,
+        26
+       ],
+       "\n"
+      ],
+      [
+       [
+        1735,
+        0,
+        8
+       ],
+       "...(actions.length > 0 && {\n"
+      ],
+      [
+       [
+        1736,
+        0,
+        10
+       ],
+       "actions: actions,\n"
+      ],
+      [
+       [
+        1735,
+        0,
+        8
+       ],
+       "}),\n"
+      ],
+      [
+       [
+        1735,
+        0,
+        8
+       ],
+       "...(layout?.textBox && {\n"
+      ],
+      [
+       [
+        1745,
+        2,
+        14
+       ],
+       "ply: {\n"
+      ],
+      [
+       [
+        1743,
+        0,
+        12
+       ],
+       "placeholder: layout.options.length > 0 ? \"Type another answer\" : \"Type your answer\",\n"
+      ]
+     ]
+    },
+    {
+     "at": 1747,
+     "remove": 0,
+     "add": [
+      [
+       "        }),\n"
+      ],
+      [
+       "        data: {\n"
+      ],
+      [
+       "          ",
+       [
+        1704,
+        12,
+        38
+       ],
+       "\n"
+      ],
+      [
+       "          ",
+       [
+        930,
+        12,
+        33
+       ],
+       "\n"
+      ],
+      [
+       "          ",
+       [
+        1070,
+        12,
+        33
+       ],
+       "\n"
+      ]
+     ]
+    },
+    {
+     "at": 1748,
+     "remove": 5,
+     "removeSha256": "4a5467a3f4ebf45db6015de6b47de777cb0f5a385fd065f2570aea8b8ebe0b69",
+     "add": [
+      [
+       "      },\n"
+      ],
+      [
+       "      ",
+       [
+        1302,
+        6,
+        24
+       ],
+       "\n"
+      ],
+      [
+       "        ",
+       [
+        921,
+        10,
+        56
+       ],
+       "\n"
+      ],
+      [
+       "          ",
+       [
+        798,
+        10,
+        24
+       ],
+       "\n"
+      ],
+      [
+       "          ",
+       [
+        1526,
+        12,
+        32
+       ],
+       "\n"
+      ],
+      [
+       [
+        1752,
+        2,
+        52
+       ],
+       "||",
+       [
+        1752,
+        19,
+        44
+       ],
+       "reply\" ? \"answer",
+       [
+        1752,
+        60,
+        84
+       ]
+      ],
+      [
+       [
+        1748,
+        0,
+        8
+       ],
+       "});\n"
+      ],
+      [
+       "        ",
+       [
+        1529,
+        10,
+        47
+       ],
+       "\n"
+      ],
+      [
+       "          ",
+       [
+        914,
+        8,
+        41
+       ],
+       "\n"
+      ],
+      [
+       "          ",
+       [
+        1531,
+        12,
+        80
+       ],
+       "\n"
+      ],
+      [
+       "          ",
+       [
+        947,
+        10,
+        30
+       ],
+       "\n"
+      ],
+      [
+       "            ",
+       [
+        948,
+        12,
+        28
+       ],
+       "\n"
+      ],
+      [
+       "            ",
+       [
+        1452,
+        8,
+        59
+       ],
+       "\n"
+      ],
+      [
+       [
+        1749,
+        0,
+        10
+       ],
+       "}\n"
+      ],
+      [
+       "          ",
+       [
+        1681,
+        8,
+        66
+       ],
+       "\n"
+      ],
+      [
+       "          ",
+       [
+        1045,
+        12,
+        78
+       ],
+       "\n"
+      ],
+      [
+       "            ",
+       [
+        1763,
+        14,
+        50
+       ],
+       "\n"
+      ],
+      [
+       [
+        1749,
+        0,
+        10
+       ],
+       "}\n"
+      ],
+      [
+       [
+        1749,
+        0,
+        10
+       ],
+       "return;\n"
+      ],
+      [
+       [
+        1748,
+        0,
+        8
+       ],
+       "}\n"
+      ],
+      [
+       [
+        1748,
+        0,
+        8
+       ],
+       "if (!layout) {\n"
+      ],
+      [
+       [
+        1749,
+        0,
+        10
+       ],
+       "return;\n"
+      ],
+      [
+       [
+        1748,
+        0,
+        8
+       ],
+       "}\n"
+      ],
+      [
+       "        if (",
+       [
+        1752,
+        20,
+        44
+       ],
+       "reply\") {\n"
+      ],
+      [
+       "          let text =",
+       [
+        1752,
+        19,
+        32
+       ],
+       "reply.trim();\n"
+      ],
+      [
+       [
+        1749,
+        0,
+        10
+       ],
+       "if (!text) {\n"
+      ],
+      [
+       [
+        1750,
+        0,
+        12
+       ],
+       "return;\n"
+      ],
+      [
+       [
+        1749,
+        0,
+        10
+       ],
+       "}\n"
+      ],
+      [
+       [
+        1752,
+        2,
+        13
+       ],
+       "nswerQuestion({\n"
+      ],
+      [
+       [
+        1750,
+        0,
+        12
+       ],
+       "value: text,\n"
+      ]
+     ]
+    },
+    {
+     "at": 1754,
+     "remove": 11,
+     "removeSha256": "d061a1b426991129eb33686fc94a4cb4b6d009da8f0c4294e684aa5c2fd60c19",
+     "add": [
+      [
+       "        } else",
+       [
+        1754,
+        9,
+        38
+       ],
+       "action\" && ",
+       [
+        1754,
+        14,
+        32
+       ],
+       "Type === \"skip\") {\n"
+      ],
+      [
+       [
+        1754,
+        0,
+        10
+       ],
+       "answ",
+       [
+        1761,
+        28,
+        38
+       ],
+       "({\n"
+      ],
+      [
+       [
+        1755,
+        0,
+        12
+       ],
+       "value: SKIPPED_QUESTION_ANSWER,\n"
+      ],
+      [
+       [
+        1760,
+        2,
+        13
+       ],
+       ");\n"
+      ],
+      [
+       "        } else",
+       [
+        1754,
+        9,
+        38
+       ],
+       "action\" && ",
+       [
+        1754,
+        14,
+        32
+       ],
+       "Type === \"choose\") {\n"
+      ],
+      [
+       [
+        1756,
+        2,
+        16
+       ],
+       "option = layout.options[",
+       [
+        1754,
+        14,
+        26
+       ],
+       "selectionIndex];\n"
+      ],
+      [
+       [
+        1754,
+        0,
+        14
+       ],
+       "!option) {\n"
+      ],
+      [
+       [
+        1755,
+        0,
+        12
+       ],
+       "// No option picked in the drop-down: ask again.\n"
+      ],
+      [
+       [
+        1763,
+        2,
+        15
+       ],
+       "aveProgress(progress);\n"
+      ],
+      [
+       [
+        1755,
+        0,
+        12
+       ],
+       "return;\n"
+      ]
+     ]
+    },
+    {
+     "at": 1766,
+     "remove": 14,
+     "removeSha256": "c8bcc5dc6448d52579e6746b48f3aff80aa8864163e1f2d514d16d03725c00f5",
+     "add": [
+      [
+       "          answ",
+       [
+        1775,
+        41,
+        51
+       ],
+       "({\n"
+      ],
+      [
+       [
+        1766,
+        0,
+        8
+       ],
+       "    value: option.label,\n"
+      ],
+      [
+       "    ",
+       [
+        1770,
+        0,
+        11
+       ],
+       "(typeof option.preview === \"string\" && {\n"
+      ],
+      [
+       [
+        1766,
+        0,
+        8
+       ],
+       "      preview: option.preview,\n"
+      ],
+      [
+       "    ",
+       [
+        1766,
+        0,
+        9
+       ],
+       "),\n"
+      ],
+      [
+       "    ",
+       [
+        1774,
+        0,
+        10
+       ]
+      ],
+      [
+       [
+        1766,
+        0,
+        9
+       ],
+       "\n"
+      ],
+      [
+       [
+        1766,
+        2,
+        11
+       ]
+      ],
+      [
+       "      ",
+       [
+        1538,
+        8,
+        69
+       ],
+       "\n"
+      ],
+      [
+       "    );\n"
+      ],
+      [
+       "    ",
+       [
+        1233,
+        6,
+        46
+       ],
+       "\n"
+      ],
+      [
+       "      ",
+       [
+        798,
+        10,
+        24
+       ],
+       "\n"
+      ],
+      [
+       "      ",
+       [
+        1526,
+        12,
+        32
+       ],
+       "\n"
+      ],
+      [
+       [
+        1772,
+        2,
+        28
+       ],
+       "layout !== undefined,\n"
+      ],
+      [
+       "      ",
+       [
+        1238,
+        8,
+        36
+       ],
+       "\n"
+      ],
+      [
+       [
+        1774,
+        2,
+        10
+       ]
+      ],
+      [
+       "    ",
+       [
+        1775,
+        6,
+        68
+       ],
+       "\n"
+      ],
+      [
+       "      ",
+       [
+        930,
+        12,
+        33
+       ],
+       "\n"
+      ],
+      [
+       "      ",
+       [
+        1070,
+        12,
+        33
+       ],
+       "\n"
+      ],
+      [
+       "      question: progress.index,\n"
+      ],
+      [
+       [
+        1774,
+        2,
+        10
+       ]
+      ]
+     ]
+    },
+    {
+     "at": 1782,
+     "remove": 0,
+     "add": [
+      [
+       "    this.questionNotificationAnswers.delete(requestId);\n"
+      ]
+     ]
+    },
+    {
+     "at": 1814,
+     "remove": 0,
+     "add": [
+      [
+       "      this.questionNotificationAnswers.delete(requestId);\n"
+      ]
+     ]
+    },
+    {
+     "at": 1853,
+     "remove": 1,
+     "removeSha256": "953b40d3a31548c34ca9cffc33e089e51dbf8e3f0270521261a74624e26b40f4",
+     "add": [
+      [
+       "      // Local change: restore() keeps a maximized window maximized; show() on a minimized window\n"
+      ],
+      [
+       "      // (which reports ",
+       [
+        1853,
+        23,
+        35
+       ],
+       "false on Windows) brings it back at its normal size.\n"
+      ],
+      [
+       "      (this.mainWindow.isMinimized() ? this.mainWindow.restore() : ",
+       [
+        1853,
+        7,
+        62
+       ]
+      ]
+     ]
+    },
+    {
+     "at": 1975,
+     "remove": 0,
+     "add": [
+      [
+       "    // Local change: Powertoys per-session mute (the request still counts as waiting).\n"
+      ],
+      [
+       "    if (powertoysSessionMuted(attribution?.sessionId)) {\n"
+      ],
+      [
+       "      ",
+       [
+        1977,
+        6,
+        23
+       ],
+       "\n"
+      ],
+      [
+       "      return;\n"
+      ],
+      [
+       "    }\n"
+      ]
+     ]
+    },
+    {
+     "at": 2340,
+     "remove": 1,
+     "removeSha256": "9f49d5ddded342f8184c0ae9ad7394e52a1f8f41ac7ced56607bafeae43fb26e",
+     "add": [
+      [
+       "})();\n"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "path": "src/vite/build/main/app/0296-device-storage-api.js",
+   "kind": "edit",
+   "baseSha256": "aa3e3d57f1b79031d99f85461c9eaa6a8c7662be211fc1313a40ec28aabe7888",
+   "resultSha256": "4fe9120568e9ea04c062653fb0ce2c471e3800e6a61011a45fec391a84b79aa9",
+   "hunks": [
+    {
+     "at": 1889,
+     "remove": 1,
+     "removeSha256": "26fa719a8bcdf390914d6dd04fce42a1380b20dcc886af2861a5ae59e3883bd7",
+     "add": [
+      [
+       [
+        1889,
+        0,
+        10
+       ],
+       "// Local change: restore() keeps a maximized window maximized (show() would not).\n"
+      ],
+      [
+       "          if (",
+       [
+        1889,
+        15,
+        31
+       ],
+       "Minimized()) {\n"
+      ],
+      [
+       "            ",
+       [
+        1889,
+        15,
+        29
+       ],
+       "restore();\n"
+      ],
+      [
+       "          } else",
+       [
+        1889,
+        9,
+        44
+       ]
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "path": "src/vite/build/main/app/0311-app-ipc-preferences.js",
+   "kind": "edit",
+   "baseSha256": "25308faa93e8070fa00331329e41ebcbb4692b7990158b0ad5a7eb0fc6cecf7a",
+   "resultSha256": "f6fa0b65a1832fea128fc14777f4eb3a165bbe8ec0cdecf0ac90b3989573a94b",
+   "hunks": [
+    {
+     "at": 132,
+     "remove": 0,
+     "add": [
+      [
+       "  let squirrelStubPath = path.default.resolve(path.default.dirname(execPath), \"..\", path.default.basename(execPath));\n"
+      ],
+      [
+       "  // Local change: this build has no Squirrel layout (no stub one folder up), so it starts itself.\n"
+      ]
+     ]
+    },
+    {
+     "at": 133,
+     "remove": 1,
+     "removeSha256": "25cb5515ada9902dc04e70e1b2c21bc37f102f67c218fd5f62bc9c635d473900",
+     "add": [
+      [
+       [
+        133,
+        0,
+        10
+       ],
+       "fsModule.existsSync(squirrelStubPath) ? squirrelStubPath : ",
+       [
+        133,
+        52,
+        60
+       ],
+       ",\n"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "path": "src/vite/build/main/app/0312-main-window-squirrel.js",
+   "kind": "edit",
+   "baseSha256": "49837381d2bef05b55335e264ab46db07f133bfe014997720f777ed1b0b98a57",
+   "resultSha256": "e4fb5963aa4eea2b97bb86dc27d0241b9daabe1f90385ca07ab82d9a8c85e3b6",
+   "hunks": [
+    {
+     "at": 626,
+     "remove": 1,
+     "removeSha256": "f4e8dc499cf6518682553b9980d844ae62cc1f0e71d773a7f378581b15d94bb0",
+     "add": [
+      [
+       "  // Local change: Powertoys' extra windows reuse the code window's setup.\n"
+      ],
+      [
+       "  let configure = (powertoysCodeWindowC",
+       [
+        626,
+        7,
+        36
+       ]
+      ]
+     ]
+    },
+    {
+     "at": 697,
+     "remove": 1,
+     "removeSha256": "42a2cb25a122b44221a6234ec660a7b5fb7f9bde7b3b9e2b3c559a0d96fac739",
+     "add": [
+      [
+       "  });\n"
+      ]
+     ]
+    },
+    {
+     "at": 998,
+     "remove": 4,
+     "removeSha256": "ac6b4faf4deecfc301f6cf100e062cae56298e8841bde0b64f0629d0e5f5e602",
+     "add": [
+      [
+       [
+        998,
+        0,
+        8
+       ],
+       "// Local change: Powertoys opens the most recent code conversation instead of the Code home.\n"
+      ],
+      [
+       [
+        998,
+        0,
+        23
+       ],
+       "powertoys",
+       [
+        998,
+        30,
+        40
+       ],
+       "Url(\n"
+      ],
+      [
+       "         ",
+       [
+        998,
+        22,
+        67
+       ]
+      ],
+      [
+       "            ",
+       [
+        999,
+        10,
+        58
+       ],
+       "\n"
+      ],
+      [
+       "            ",
+       [
+        1000,
+        10,
+        45
+       ],
+       "\n"
+      ],
+      [
+       [
+        999,
+        0,
+        10
+       ],
+       "}),\n"
+      ],
+      [
+       [
+        998,
+        0,
+        8
+       ],
+       ");\n"
+      ]
+     ]
+    },
+    {
+     "at": 2426,
+     "remove": 0,
+     "add": [
+      [
+       "      initPowertoys();\n"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "path": "src/vite/build/main/app/0313-app-main-tray.js",
+   "kind": "edit",
+   "baseSha256": "00fd8696a0acd4577fc33dfd73924e21d661d659e04bb45c3d27968713c306c5",
+   "resultSha256": "ea8c9895db620d8dafd73c9a68e01e4950c9ede58f330403b021b6ff2b03eb6d",
+   "hunks": [
+    {
+     "at": 221,
+     "remove": 3,
+     "removeSha256": "018126f3ca74ff15aafb5bbb3e17597cab43be667793d8a2769d6afeb52871a3",
+     "add": [
+      [
+       "  // Local change: submenus count too (the Powertoys snippets and bookmarks change inside them).\n"
+      ],
+      [
+       "  let signatureOf = (items) =>\n"
+      ],
+      [
+       "    ",
+       [
+        222,
+        9,
+        117
+       ],
+       [
+        222,
+        47,
+        58
+       ],
+       "submenu ? signatureOf(menuItem.sub",
+       [
+        222,
+        4,
+        14
+       ],
+       ") : null]);\n"
+      ],
+      [
+       [
+        221,
+        0,
+        24
+       ],
+       "signatureOf(",
+       [
+        222,
+        4,
+        14
+       ],
+       "));\n"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "path": "src/vite/build/main/chrome/0244-browser-launch-extension-install.js",
+   "kind": "edit",
+   "baseSha256": "098271c40aa115ee3f41472108680f0ac861b1bfc1f61574855b779710a62645",
+   "resultSha256": "49ba9f616f46dd616b9867783023a966c40fd9c321f2c03eb5b92b3a88bb293d",
+   "hunks": [
+    {
+     "at": 77,
+     "remove": 0,
+     "add": [
+      [
+       "    buildPowertoysApplicationMenu(),\n"
+      ]
+     ]
+    },
+    {
+     "at": 101,
+     "remove": 0,
+     "add": [
+      [
+       "    // Local change: waiting sessions, snippets, bookmarks and the Powertoys switches.\n"
+      ],
+      [
+       "    ...buildPowertoysTrayMenuItems(),\n"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "path": "src/vite/build/main/platform/0028-electron-store-sync-timing.js",
+   "kind": "edit",
+   "baseSha256": "92f754d6634646ccf529a6809ec03da3007d98c201a57bd09137adacf4475b7e",
+   "resultSha256": "d40dbc9fef98330128256d41fb726e7c412f60ffc9928b9bfceb3291b2ecbc41",
+   "hunks": [
+    {
+     "at": 3,
+     "remove": 0,
+     "add": [
+      [
+       "  // Local change: the bundled electron-store (replaced by the npm package in this build)\n"
+      ],
+      [
+       "  // journals writes and commits them asynchronously, and quit and cache reset wait for them with\n"
+      ],
+      [
+       "  // these two. The npm electron-store writes synchronously, so there is never a write in flight.\n"
+      ],
+      [
+       "  // Without them every quit threw \"CachedElectronStore.quiesce is not a function\" after its clean-up\n"
+      ],
+      [
+       "  // and stopped half-way: page views gone, process alive (a black window, 2026-10-19).\n"
+      ],
+      [
+       "  static quiesce() {\n"
+      ],
+      [
+       "    return Promise.resolve();\n"
+      ],
+      [
+       "  }\n"
+      ],
+      [
+       "  static resume() {}\n"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "path": "src/vite/build/main/platform/0205-gpu-state-telemetry.js",
+   "kind": "edit",
+   "baseSha256": "a951291223f823d3443470043c89bdfeee6e35bd9380dac6441c26a79ddbb0eb",
+   "resultSha256": "e71ed24e67491fbb075d6a66b4868fa8e84644bb058538640c47c3d449f678b9",
+   "hunks": [
+    {
+     "at": 761,
+     "remove": 0,
+     "add": [
+      [
+       "    // Local change: the Powertoys network watchdog restarts once no session is working.\n"
+      ],
+      [
+       "    try {\n"
+      ],
+      [
+       "      powertoysOnNetworkServiceGone(details);\n"
+      ],
+      [
+       "    ",
+       [
+        587,
+        2,
+        20
+       ],
+       "\n"
+      ],
+      [
+       "      logger.warn(\"[powertoys] network watchdog failed: %o\", caught);\n"
+      ],
+      [
+       "    }\n"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "path": "src/vite/build/main/powertoys/0340-powertoys-store.js",
+   "kind": "add",
+   "sha256": "b2eb5a15bd5a8edd6c8d6e49289e33dedda9aba684410b800c3dd28808cd390b"
+  },
+  {
+   "path": "src/vite/build/main/powertoys/0341-powertoys-transcripts.js",
+   "kind": "add",
+   "sha256": "338c1b5f5c8b712ec39d6cee78c3113ce7da7a6204a5070fd510a29f1333a808"
+  },
+  {
+   "path": "src/vite/build/main/powertoys/0342-powertoys-sessions.js",
+   "kind": "add",
+   "sha256": "f047cab0e81b29757aaac0dd0775f060aea685f4ab84ee3f150c1d131ba87c48"
+  },
+  {
+   "path": "src/vite/build/main/powertoys/0343-powertoys-hotkeys-menus.js",
+   "kind": "add",
+   "sha256": "4d08850f3d1573d6527903829bb1b8c35ee3a209fa147aef68d17938ff626e4c"
+  },
+  {
+   "path": "src/vite/build/main/powertoys/0344-powertoys-ipc.js",
+   "kind": "add",
+   "sha256": "978442afd646b92a2258478e885e31535781fef37af25a6d6c3745e77a92e9f6"
+  },
+  {
+   "path": "src/vite/build/main/powertoys/0345-powertoys-system.js",
+   "kind": "add",
+   "sha256": "ca32fd33fddeb4f588813e5bacc6d8fe82bab68a38fcaadb143fdbbfeed9fc8e"
+  },
+  {
+   "path": "src/vite/build/main/powertoys/0346-powertoys-extra.js",
+   "kind": "add",
+   "sha256": "1e907be7619ad8f3413436605af15cf5e21e7eb18222bf10dc1dfc7f0d05e10b"
+  },
+  {
+   "path": "src/vite/build/main/powertoys/0349-powertoys-notify.js",
+   "kind": "add",
+   "sha256": "f9d9252011616e9f09d29c1449f3fc9d5c5a668cca5815f9caa317663cbc50d4"
+  },
+  {
+   "path": "src/vite/build/main/powertoys/0350-powertoys-restart.js",
+   "kind": "add",
+   "sha256": "a68adb374bc8f30e1d3f35c2f86bda045f742c2d98763ea4903798861c95ac2b"
+  },
+  {
+   "path": "src/vite/build/main/powertoys/0351-powertoys-work.js",
+   "kind": "add",
+   "sha256": "ebea540fec9cca01f1a180a1f3976e46f8e8449ca46909be9ded028659b64e8d"
+  },
+  {
+   "path": "src/vite/build/main/settings/0200-supported-features.js",
+   "kind": "edit",
+   "baseSha256": "bb6c79ded85b5b01857baed5fd9b29c5b79dc68da49f0bdc57014d44698d5b9e",
+   "resultSha256": "bb6f8eab6ffd472f5102ad9ef8817c2c2eeb308b73e562a061f41876d6c090b3",
+   "hunks": [
+    {
+     "at": 185,
+     "remove": 1,
+     "removeSha256": "b6dbe9856cb33f96457f42b50ce66146f0f9fb98f07d7be0e7797bd993ece726",
+     "add": [
+      [
+       "  // Local change: Powertoys \"Cowork without the Store install\" skips only this check; the VM service\n"
+      ],
+      [
+       "  // (installed with the Store app) and every check below still apply.\n"
+      ],
+      [
+       "  let skipMsixCheck = false;\n"
+      ],
+      [
+       "  try {\n"
+      ],
+      [
+       "    skipMsixCheck = powertoysSetting(\"coworkWithoutMsix\") === true;\n"
+      ],
+      [
+       "  } catch {}\n"
+      ],
+      [
+       [
+        185,
+        0,
+        46
+       ],
+       " && !skipMsixCheck) {\n"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "path": "src/vite/build/main/vm/0148-vm-rpc-client.js",
+   "kind": "edit",
+   "baseSha256": "163c16f0cf6fd720c9599425728ddd92e505242f25a9ca8a9dca078aba66e93d",
+   "resultSha256": "d6bf6a861d3f9587021dfe13b6c91600d43e889bfb045982e0f00524a70b4a7d",
+   "hunks": [
+    {
+     "at": 56,
+     "remove": 0,
+     "add": [
+      [
+       "  // Local change: Powertoys can keep the Cowork background service from being started at all.\n"
+      ],
+      [
+       "  if (powertoysCoworkServiceDisabled()) {\n"
+      ],
+      [
+       "    throw Error(\"The Cowork background service is turned off in Powertoys settings\");\n"
+      ],
+      [
+       "  }\n"
+      ]
+     ]
+    },
+    {
+     "at": 809,
+     "remove": 0,
+     "add": [
+      [
+       "  // Local change: no VM client while Powertoys has the Cowork service turned off (callers handle null).\n"
+      ],
+      [
+       "  if (powertoysCoworkServiceDisabled()) {\n"
+      ],
+      [
+       "    ",
+       [
+        559,
+        4,
+        16
+       ],
+       "\n"
+      ],
+      [
+       "  }\n"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "path": "src/vite/build/main/vm/0220-vm-bundle-download.js",
+   "kind": "edit",
+   "baseSha256": "d061aba2b2d018e7f8e901f9f3a27b6a5424eea09add621ef2d0ac9018ff8b32",
+   "resultSha256": "21881d113e74c66adcec68308698ab3dd6d3d7027efa4cc41ed8f552ad1f2811",
+   "hunks": [
+    {
+     "at": 930,
+     "remove": 0,
+     "add": [
+      [
+       "  // Local change: Powertoys lets the VM image live elsewhere (setting \"coworkBundleDir\").\n"
+      ],
+      [
+       "  let powertoysBundleDir = powertoysSetting(\"coworkBundleDir\");\n"
+      ],
+      [
+       "  if (powertoysBundleDir) {\n"
+      ],
+      [
+       "    return path.default.resolve(powertoysBundleDir);\n"
+      ],
+      [
+       "  }\n"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "path": "src/vite/build/main/windows/0170-session-handoff-activity.js",
+   "kind": "edit",
+   "baseSha256": "ec7f6af5315f18ba2c7856035f93e2ec35f64d5a26c0df4b2297ea367192fe4b",
+   "resultSha256": "2d65f300e7239a10b7a61328f649333ae285aed2500966085a6c05945d1da169",
+   "hunks": [
+    {
+     "at": 612,
+     "remove": 1,
+     "removeSha256": "12b40b81468b904abce60d89e4f2915376c114df84467dc0ca8b208b909e8800",
+     "add": [
+      [
+       [
+        612,
+        0,
+        8
+       ],
+       "// Local change: folders removed from the recent lists (Powertoys) stay out of the jump list.\n"
+      ],
+      [
+       [
+        612,
+        0,
+        16
+       ],
+       "(folder) => folder && !powertoysIsFolderHidden(folder)),\n"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "path": "src/vite/build/main/windows/0307-main-view-input-errors.js",
+   "kind": "edit",
+   "baseSha256": "d0fa7439365a0fc98eb6a5dc0252e640af5a6189272541a0d68bf27efd5a925d",
+   "resultSha256": "99d25fc28072843aef1ba9d0e1fb46be377f631014f6ce4f31315467f8cee31f",
+   "hunks": [
+    {
+     "at": 1294,
+     "remove": 0,
+     "add": [
+      [
+       "            questions: toolInput?.questions,\n"
+      ]
+     ]
+    },
+    {
+     "at": 1332,
+     "remove": 0,
+     "add": [
+      [
+       "                  alwaysAction: buildPermissionAlwaysAction(\"cowork\", request, session),\n"
+      ]
+     ]
+    },
+    {
+     "at": 1350,
+     "remove": 0,
+     "add": [
+      [
+       "        if (sessionEvent.request.toolName === \"AskUserQuestion\") {\n"
+      ],
+      [
+       "          notificationService.closeAskUserQuestionNotification(sessionEvent.request.requestId);\n"
+      ],
+      [
+       "        }\n"
+      ]
+     ]
+    },
+    {
+     "at": 1906,
+     "remove": 0,
+     "add": [
+      [
+       "              questions: toolInput?.questions,\n"
+      ]
+     ]
+    },
+    {
+     "at": 1930,
+     "remove": 0,
+     "add": [
+      [
+       "            alwaysAction: buildPermissionAlwaysAction(\"ccd\", notifyPermissionRequest, session),\n"
+      ]
+     ]
+    },
+    {
+     "at": 1961,
+     "remove": 0,
+     "add": [
+      [
+       "      // Local change: Powertoys' extra windows show local sessions too.\n"
+      ],
+      [
+       "      for (let extraWebContents of powertoysExtraWebContents()) {\n"
+      ],
+      [
+       "        ",
+       [
+        1245,
+        8,
+        62
+       ],
+       "\n"
+      ],
+      [
+       "          LocalSessions.getDispatcher(extraWebContents)?.dispatchOnEvent(event),\n"
+      ],
+      [
+       "        );\n"
+      ],
+      [
+       "      }\n"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "path": "src/vite/build/mainView/0003-powertoys-page.js",
+   "kind": "add",
+   "sha256": "505d2012dbd3756df002a00064f17c8de8995612d3aa54036b978642c8c52a05"
+  },
+  {
+   "path": "src/vite/build/mainView/0007-window-manager-vm-bridges.js",
+   "kind": "edit",
+   "baseSha256": "9b12cb231f0e031ef955f2e3574d4f2f250dca3534e9840623996f7baf394dd1",
+   "resultSha256": "69c1209fb91d887a8489f408b3a40ed023d423e5d33b14149b0aab3a852265b3",
+   "hunks": [
+    {
+     "at": 585,
+     "remove": 1,
+     "removeSha256": "7870e9ec76133d3bc969cb33d072770965e4108ede7d535242cfd564ef5cd05d",
+     "add": [
+      [
+       [
+        585,
+        0,
+        70
+       ],
+       " || powertoysPastedFilePath",
+       [
+        585,
+        64,
+        72
+       ]
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "path": "src/vite/build/mainView/_manifest.json",
+   "kind": "edit",
+   "baseSha256": "f38b2317697a4f5439b24d143f63145d7ca484295f874bf1530a4129ecba8e37",
+   "resultSha256": "74d22859f47992e96f1290003139979911c73147c5a7ed911c433eb78cec5362",
+   "hunks": [
+    {
+     "at": 0,
+     "remove": 37,
+     "removeSha256": "f38b2317697a4f5439b24d143f63145d7ca484295f874bf1530a4129ecba8e37",
+     "add": [
+      [
+       "{\r\n"
+      ],
+      [
+       "  ",
+       [
+        1,
+        2,
+        30
+       ],
+       "\r\n"
+      ],
+      [
+       "  ",
+       [
+        2,
+        2,
+        16
+       ],
+       "\r\n"
+      ],
+      [
+       "    {\r\n"
+      ],
+      [
+       "      ",
+       [
+        4,
+        6,
+        31
+       ],
+       "\r\n"
+      ],
+      [
+       "      ",
+       [
+        5,
+        6,
+        21
+       ],
+       "\r\n"
+      ],
+      [
+       "    },\r\n"
+      ],
+      [
+       "    {\r\n"
+      ],
+      [
+       "      ",
+       [
+        8,
+        6,
+        33
+       ],
+       "\r\n"
+      ],
+      [
+       "      ",
+       [
+        9,
+        6,
+        22
+       ],
+       "\r\n"
+      ],
+      [
+       "    },\r\n"
+      ],
+      [
+       "    {\r\n"
+      ],
+      [
+       "      ",
+       [
+        12,
+        6,
+        41
+       ],
+       "\r\n"
+      ],
+      [
+       "      ",
+       [
+        13,
+        6,
+        23
+       ],
+       "\r\n"
+      ],
+      [
+       "    },\r\n"
+      ],
+      [
+       "    {\r\n"
+      ],
+      [
+       "      ",
+       [
+        16,
+        6,
+        29
+       ],
+       "\r\n"
+      ],
+      [
+       "      ",
+       [
+        17,
+        6,
+        23
+       ],
+       "\r\n"
+      ],
+      [
+       "    },\r\n"
+      ],
+      [
+       "    {\r\n"
+      ],
+      [
+       "      ",
+       [
+        20,
+        6,
+        41
+       ],
+       "\r\n"
+      ],
+      [
+       "      ",
+       [
+        21,
+        6,
+        22
+       ],
+       "\r\n"
+      ],
+      [
+       "    },\r\n"
+      ],
+      [
+       "    {\r\n"
+      ],
+      [
+       "      ",
+       [
+        24,
+        6,
+        29
+       ],
+       "\r\n"
+      ],
+      [
+       "      ",
+       [
+        25,
+        6,
+        23
+       ],
+       "\r\n"
+      ],
+      [
+       "    },\r\n"
+      ],
+      [
+       "    {\r\n"
+      ],
+      [
+       "      ",
+       [
+        28,
+        6,
+        50
+       ],
+       "\r\n"
+      ],
+      [
+       "      ",
+       [
+        29,
+        6,
+        23
+       ],
+       "\r\n"
+      ],
+      [
+       "    },\r\n"
+      ],
+      [
+       "    {\r\n"
+      ],
+      [
+       "      ",
+       [
+        32,
+        6,
+        50
+       ],
+       "\r\n"
+      ],
+      [
+       "      ",
+       [
+        33,
+        6,
+        22
+       ],
+       "\r\n"
+      ],
+      [
+       "    },\r\n"
+      ],
+      [
+       "    {\r\n"
+      ],
+      [
+       [
+        16,
+        0,
+        21
+       ],
+       "owertoys-page.js\",\r\n"
+      ],
+      [
+       [
+        5,
+        0,
+        20
+       ],
+       "0\r\n"
+      ],
+      [
+       "    }\r\n"
+      ],
+      [
+       "  ]\r\n"
+      ],
+      [
+       "}\r\n"
+      ]
+     ]
+    }
+   ]
+  }
+ ]
+}
