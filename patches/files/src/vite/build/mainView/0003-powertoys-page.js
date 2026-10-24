@@ -320,6 +320,29 @@ function powertoysPageMain() {
     .tab .ci.failed { color: #f85149; }
     .tab .ci.pending { color: #d29922; }
     .tab .queued { flex: none; font-size: 11px; cursor: pointer; color: hsl(var(--text-300, 55 9% 74%)); }
+    /* The context map window. */
+    .history.ctxmap { inset: 4vh 5vw; }
+    .ctxmap .body { flex: 1; overflow: auto; padding: 12px 18px 20px; display: flex; flex-direction: column; gap: 18px; font-size: 13px; }
+    .ctxmap .summary { font-size: 13.5px; color: hsl(var(--text-200, 50 9% 87%)); }
+    .ctxmap h3 { margin: 0 0 8px; font-size: 12.5px; font-weight: 600; color: hsl(var(--text-300, 55 9% 74%)); }
+    .ctxmap .bar { display: flex; height: 22px; border-radius: 6px; overflow: hidden; margin-bottom: 8px; }
+    .ctxmap .bar > span { height: 100%; min-width: 1px; }
+    .ctxmap .bar .free { background: hsl(var(--text-500, 40 3% 50%) / 0.15); }
+    .ctxmap .legend { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 12px; margin-bottom: 6px; }
+    .ctxmap .swatch { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; flex: none; }
+    .ctxmap .note { font-size: 11.5px; color: hsl(var(--text-400, 48 5% 57%)); margin-top: 4px; }
+    .ctxmap .chart { position: relative; color: hsl(var(--text-300, 55 9% 74%)); }
+    .ctxmap .chart svg { display: block; width: 100%; height: auto; }
+    .ctxmap .tip { position: absolute; pointer-events: none; max-width: 380px; padding: 7px 10px; border-radius: 8px; font-size: 12px; line-height: 1.45;
+      background: hsl(var(--bg-000, 0 0% 12%)); color: hsl(var(--text-100, 60 14% 97%)); border: 1px solid hsl(var(--border-300, 52 12% 87%) / 0.2); box-shadow: 0 6px 24px rgb(0 0 0 / 0.35); }
+    .ctxmap .tip .dim { color: hsl(var(--text-300, 55 9% 74%)); }
+    .ctxmap .cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 18px; }
+    .ctxmap .rows .r { display: grid; grid-template-columns: 4.4em minmax(0, 1fr) auto; column-gap: 10px; align-items: center; padding: 4px 6px; border-radius: 6px; font-size: 12.5px; }
+    .ctxmap .rows .r[title] { cursor: pointer; }
+    .ctxmap .rows .r:hover { background: hsl(var(--bg-300, 0 0% 5%)); }
+    .ctxmap .rows .size { text-align: right; font-variant-numeric: tabular-nums; color: hsl(var(--text-200, 50 9% 87%)); }
+    .ctxmap .rows .label { display: flex; align-items: center; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+    .ctxmap .rows .when { font-size: 11.5px; color: hsl(var(--text-400, 48 5% 57%)); font-variant-numeric: tabular-nums; }
     .tab.more { flex: none; max-width: none; }
     .tab.dragging { opacity: .45; }
     .tab.drop-before { box-shadow: inset 2px 0 0 hsl(var(--accent-100, 212 75% 62%)); }
@@ -1517,6 +1540,319 @@ function powertoysPageMain() {
     }
     editor.focus();
     document.execCommand("insertText", false, item.text);
+  }
+  // --- Context map: what fills a session's context, and how it got there --------------------------------
+  // From the transcript (contextMap in the main process): the size at every request is exact; what each kind of
+  // content takes is estimated from its text and scaled to that size. Every row and the chart jump to the message.
+  const CONTEXT_KINDS = {
+    system: ["System prompt", "#8f8a80"],
+    tools: ["Tool definitions", "#6f8fb0"],
+    instructions: ["Instructions (CLAUDE.md, memory)", "#d8bf8a"],
+    summary: ["Compaction summary", "#f06aa8"],
+    prompts: ["Your messages", "#3fa85a"],
+    replies: ["Claude's text", "#4fc3f7"],
+    thinking: ["Thinking", "#8a6cf0"],
+    toolCalls: ["Tool calls", "#f0883e"],
+    toolResults: ["Tool results", "#e5534b"],
+    files: ["Attached files", "#e8c547"],
+    reminders: ["Reminders and tool lists", "#a8693c"],
+    images: ["Images", "#2bb5a5"],
+  };
+  const CONTEXT_ORDER = Object.keys(CONTEXT_KINDS);
+  const kTokens = (count) => (count >= 1e6 ? `${(count / 1e6).toFixed(2)}M` : count >= 10000 ? `${Math.round(count / 1000)}k` : count >= 1000 ? `${(count / 1000).toFixed(1)}k` : String(count));
+  function whenText(at) {
+    let date = new Date(at);
+    return date.toDateString() === new Date().toDateString() ? clock(at) : date.toLocaleString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
+  }
+  function svgNode(tag, attributes = {}) {
+    let node = document.createElementNS("http://www.w3.org/2000/svg", tag);
+    for (let [name, value] of Object.entries(attributes)) {
+      node.setAttribute(name, String(value));
+    }
+    return node;
+  }
+  let contextWindowOpen = null;
+  async function openContextMap(sessionId, title) {
+    closePopup();
+    if (!sessionId) {
+      flash("No session here");
+      return;
+    }
+    contextWindowOpen?.shut();
+    let backdrop = element("div", "backdrop");
+    let panel = element("div", "panel history ctxmap");
+    let head = element("div", "head");
+    let heading = element("span", "", `Context map · ${title || "this session"}`);
+    heading.style.cssText = "flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;";
+    let refresh = element("button", "iconbtn", "↻");
+    refresh.title = "Read the transcript again";
+    let close = element("button", "iconbtn", "✕");
+    head.append(heading, refresh, close);
+    let body = element("div", "body");
+    panel.append(head, body);
+    ui().append(backdrop, panel);
+    let shut = () => {
+      backdrop.remove();
+      panel.remove();
+      keyWindows.delete(windowState);
+      contextWindowOpen = null;
+    };
+    let windowState = {
+      shut,
+      onKey(event) {
+        if (event.type === "keydown" && event.code === "Escape" && !popup) {
+          shut();
+          return true;
+        }
+        return false;
+      },
+    };
+    keyWindows.add(windowState);
+    contextWindowOpen = windowState;
+    close.addEventListener("click", shut);
+    backdrop.addEventListener("mousedown", shut);
+    let jump = (keys, text) => {
+      shut();
+      if (!panes().some((pane) => paneSessionId(pane) === sessionId)) {
+        openSessionNow(sessionId);
+      }
+      revealWhenOnScreen(sessionId, keys ?? [], text ?? "");
+    };
+    let load = async () => {
+      body.textContent = "";
+      body.appendChild(element("div", "empty", "Reading the transcript…"));
+      let map = await call("contextMap", sessionId).catch((caught) => ({ error: caught.message.replace(/^Error invoking remote method '[^']+': (Error: )?/, "") }));
+      if (contextWindowOpen !== windowState) {
+        return;
+      }
+      body.textContent = "";
+      if (map.error || !map.points?.length) {
+        body.appendChild(element("div", "empty", map.error || "No responses yet, so nothing to show"));
+        return;
+      }
+      renderContextMap(body, map, jump);
+    };
+    refresh.addEventListener("click", load);
+    await load();
+  }
+  function renderContextMap(body, map, jump) {
+    let now = map.now;
+    let windowSize = map.contextWindow;
+    let percent = Math.round((100 * now.context) / windowSize);
+    let summary = element("div", "summary");
+    summary.append(
+      element("strong", "", `${kTokens(now.context)} of ${kTokens(windowSize)}`),
+      ` (${percent}%) at ${whenText(now.at)} · ${map.requests} requests · ${map.turns.length} messages from you · ${
+        map.compactions.length ? `compacted ${map.compactions.length}×` : "never compacted"
+      }`,
+    );
+    body.appendChild(summary);
+
+    // Now: what fills it, as one bar.
+    let nowSection = element("div", "section");
+    nowSection.appendChild(element("h3", "", "What fills it now"));
+    let bar = element("div", "bar");
+    for (let kind of CONTEXT_ORDER) {
+      let tokens = now.categories[kind] ?? 0;
+      if (tokens <= 0) {
+        continue;
+      }
+      let piece = element("span");
+      piece.style.cssText = `width: ${(100 * tokens) / windowSize}%; background: ${CONTEXT_KINDS[kind][1]};`;
+      piece.title = `${CONTEXT_KINDS[kind][0]}: ${kTokens(tokens)} (${Math.round((100 * tokens) / now.context)}% of the context)`;
+      bar.appendChild(piece);
+    }
+    let free = element("span", "free");
+    free.style.flex = "1";
+    free.title = `Free: ${kTokens(Math.max(0, windowSize - now.context))}`;
+    bar.appendChild(free);
+    nowSection.appendChild(bar);
+    let legend = element("div", "legend");
+    for (let kind of [...CONTEXT_ORDER].sort((left, right) => (now.categories[right] ?? 0) - (now.categories[left] ?? 0))) {
+      let tokens = now.categories[kind] ?? 0;
+      if (tokens <= 0) {
+        continue;
+      }
+      let entry = element("span");
+      let swatch = element("span", "swatch");
+      swatch.style.background = CONTEXT_KINDS[kind][1];
+      entry.append(swatch, `${CONTEXT_KINDS[kind][0]} `, element("b", "", kTokens(tokens)));
+      legend.appendChild(entry);
+    }
+    nowSection.appendChild(legend);
+    if (now.toolGroups?.length) {
+      nowSection.appendChild(
+        element("div", "note", `Tool definitions: ${now.toolGroups.map((group) => `${group.group} ${kTokens(group.tokens)} (${group.count})`).join(" · ")}`),
+      );
+    }
+    nowSection.appendChild(
+      element("div", "note", "The total and the curve are exact (from each response's usage). Each kind's share is estimated from the transcript's text and scaled to the total."),
+    );
+    body.appendChild(nowSection);
+
+    // How it grew: stacked areas over the requests, compactions, your messages.
+    let chartSection = element("div", "section");
+    chartSection.appendChild(element("h3", "", "How it grew (every request; ticks are your messages, dashed lines compactions)"));
+    let chart = element("div", "chart");
+    chartSection.appendChild(chart);
+    body.appendChild(chartSection);
+    drawContextChart(chart, map, jump);
+
+    // Lists: what is in it now, the biggest jumps, what each message added.
+    let columns = element("div", "cols");
+    let list = (titleText, rows) => {
+      let section = element("div", "section");
+      section.appendChild(element("h3", "", titleText));
+      let container = element("div", "rows");
+      for (let row of rows) {
+        let line = element("div", "r");
+        let dot = element("span", "swatch");
+        dot.style.background = CONTEXT_KINDS[row.kind]?.[1] ?? "transparent";
+        let label = element("span", "label", row.label);
+        label.prepend(dot);
+        label.title = row.label;
+        line.append(element("span", "size", row.size), label, element("span", "when", row.when));
+        if (row.keys?.length || row.text) {
+          line.addEventListener("click", () => jump(row.keys, row.text));
+          line.title = "Go to this message";
+        }
+        container.appendChild(line);
+      }
+      if (rows.length === 0) {
+        container.appendChild(element("div", "note", "Nothing"));
+      }
+      section.appendChild(container);
+      return section;
+    };
+    columns.appendChild(
+      list(
+        "Biggest things in it now",
+        now.items.map((item) => ({ size: kTokens(item.tokens), label: item.label, kind: item.category, when: whenText(item.at), keys: item.keys, text: item.text })),
+      ),
+    );
+    columns.appendChild(
+      list(
+        "Biggest jumps (from one request to the next)",
+        map.jumps.map((jumpRow) => ({
+          size: `+${kTokens(jumpRow.delta)}`,
+          label: jumpRow.cause?.label ?? "Several smaller things",
+          kind: jumpRow.cause?.category,
+          when: whenText(jumpRow.at),
+          keys: jumpRow.keys,
+        })),
+      ),
+    );
+    columns.appendChild(
+      list(
+        "What each of your messages added (latest first)",
+        [...map.turns]
+          .reverse()
+          .slice(0, 60)
+          .map((turn) => ({
+            size: `${turn.end >= turn.start ? "+" : "−"}${kTokens(Math.abs(turn.end - turn.start))}`,
+            label: `${turn.text} (${kTokens(turn.start)} → ${kTokens(turn.end)}, ${turn.requests} request${turn.requests === 1 ? "" : "s"})`,
+            kind: "prompts",
+            when: whenText(turn.at),
+            keys: turn.keys,
+            text: turn.text,
+          })),
+      ),
+    );
+    body.appendChild(columns);
+  }
+  function drawContextChart(container, map, jump) {
+    let width = Math.max(480, container.clientWidth || 900);
+    let height = 240;
+    let pad = { left: 46, right: 12, top: 12, bottom: 22 };
+    let points = map.points;
+    let lastIndex = Math.max(1, map.requests - 1);
+    let peak = Math.max(...points.map((point) => point.context));
+    let top = Math.max(map.contextWindow, peak);
+    let x = (index) => pad.left + (index / lastIndex) * (width - pad.left - pad.right);
+    let y = (value) => height - pad.bottom - (value / top) * (height - pad.top - pad.bottom);
+    let svg = svgNode("svg", { width, height, viewBox: `0 0 ${width} ${height}` });
+    // Grid: quarters of the window.
+    for (let quarter = 0; quarter <= 4; quarter++) {
+      let value = (top * quarter) / 4;
+      svg.appendChild(svgNode("line", { x1: pad.left, x2: width - pad.right, y1: y(value), y2: y(value), stroke: "currentColor", "stroke-opacity": 0.12 }));
+      let label = svgNode("text", { x: pad.left - 6, y: y(value) + 4, "text-anchor": "end", "font-size": 10, fill: "currentColor", "fill-opacity": 0.6 });
+      label.textContent = kTokens(Math.round(value));
+      svg.appendChild(label);
+    }
+    // The stacked areas, bottom to top in CONTEXT_ORDER.
+    let lower = points.map(() => 0);
+    for (let kind of CONTEXT_ORDER) {
+      let upper = points.map((point, index) => lower[index] + (point.categories[kind] ?? 0));
+      if (upper.every((value, index) => value === lower[index])) {
+        continue;
+      }
+      let forward = points.map((point, index) => `${x(point.index).toFixed(1)},${y(upper[index]).toFixed(1)}`);
+      let back = points.map((point, index) => `${x(point.index).toFixed(1)},${y(lower[index]).toFixed(1)}`).reverse();
+      svg.appendChild(svgNode("polygon", { points: [...forward, ...back].join(" "), fill: CONTEXT_KINDS[kind][1], "fill-opacity": 0.85 }));
+      lower = upper;
+    }
+    // The exact total on top.
+    svg.appendChild(
+      svgNode("polyline", { points: points.map((point) => `${x(point.index).toFixed(1)},${y(point.context).toFixed(1)}`).join(" "), fill: "none", stroke: "currentColor", "stroke-width": 1.2 }),
+    );
+    if (map.contextWindow <= top) {
+      svg.appendChild(svgNode("line", { x1: pad.left, x2: width - pad.right, y1: y(map.contextWindow), y2: y(map.contextWindow), stroke: "#f85149", "stroke-dasharray": "4 3" }));
+    }
+    for (let compaction of map.compactions) {
+      let at = x(Math.min(compaction.point, lastIndex));
+      svg.appendChild(svgNode("line", { x1: at, x2: at, y1: pad.top, y2: height - pad.bottom, stroke: "currentColor", "stroke-opacity": 0.6, "stroke-dasharray": "3 3" }));
+      let label = svgNode("text", { x: at + 4, y: pad.top + 10, "font-size": 10, fill: "currentColor", "fill-opacity": 0.8 });
+      label.textContent = `compacted ${kTokens(compaction.pre)} → ${kTokens(compaction.post)}`;
+      svg.appendChild(label);
+    }
+    for (let turn of map.turns) {
+      let at = x(Math.min(turn.point, lastIndex));
+      svg.appendChild(svgNode("line", { x1: at, x2: at, y1: height - pad.bottom, y2: height - pad.bottom + 5, stroke: "#3fa85a" }));
+    }
+    let cursor = svgNode("line", { y1: pad.top, y2: height - pad.bottom, stroke: "currentColor", "stroke-opacity": 0.7, visibility: "hidden" });
+    svg.appendChild(cursor);
+    container.appendChild(svg);
+    let tip = element("div", "tip");
+    tip.hidden = true;
+    container.appendChild(tip);
+    let nearest = (event) => {
+      let rect = svg.getBoundingClientRect();
+      let index = ((event.clientX - rect.left - pad.left) / (width - pad.left - pad.right)) * lastIndex;
+      return points.reduce((best, point) => (Math.abs(point.index - index) < Math.abs(best.index - index) ? point : best), points[0]);
+    };
+    svg.addEventListener("mousemove", (event) => {
+      let point = nearest(event);
+      let turn = map.turns[point.turn];
+      cursor.setAttribute("x1", x(point.index));
+      cursor.setAttribute("x2", x(point.index));
+      cursor.setAttribute("visibility", "visible");
+      let kinds = CONTEXT_ORDER.filter((kind) => point.categories[kind] > 0)
+        .sort((left, right) => point.categories[right] - point.categories[left])
+        .slice(0, 4)
+        .map((kind) => `${CONTEXT_KINDS[kind][0]} ${kTokens(point.categories[kind])}`);
+      tip.textContent = "";
+      tip.append(
+        element("b", "", `${kTokens(point.context)} (${Math.round((100 * point.context) / map.contextWindow)}%) · ${whenText(point.at)}`),
+        element("div", "", turn ? `After: ${turn.text}` : "Before your first message"),
+        element("div", "dim", kinds.join(" · ")),
+      );
+      tip.hidden = false;
+      let rect = container.getBoundingClientRect();
+      let left = event.clientX - rect.left + 14;
+      tip.style.left = `${Math.min(left, rect.width - 380)}px`;
+      tip.style.top = `${event.clientY - rect.top + 12}px`;
+    });
+    svg.addEventListener("mouseleave", () => {
+      cursor.setAttribute("visibility", "hidden");
+      tip.hidden = true;
+    });
+    svg.addEventListener("click", (event) => {
+      let turn = map.turns[nearest(event).turn];
+      if (turn) {
+        jump(turn.keys, turn.text);
+      }
+    });
+    svg.style.cursor = "pointer";
   }
   /** Whether a snippet belongs here: no "project", or one naming this conversation's project. */
   function snippetFits(snippet, project) {
@@ -2805,6 +3141,10 @@ function powertoysPageMain() {
       ["Snippets", showSnippets, "Ctrl+Shift+Space"],
       ["Quick send to a session", () => call("quickSend")],
       ["Token use and cost by project (last 7 days)", () => showUsageReport(7)],
+      ["Context map: what fills this session's context, and how it grew", () => {
+        let sessionId = paneSessionId(activePane());
+        openContextMap(sessionId, tabRows.find((row) => row.kind === "code" && row.id === sessionId)?.title);
+      }],
       ["Queued prompts for this session", () => {
         let sessionId = paneSessionId(activePane());
         sessionId ? showPromptQueue(sessionId, tabRows.find((row) => row.kind === "code" && row.id === sessionId)?.title) : flash("No session here");
@@ -3091,7 +3431,10 @@ function powertoysPageMain() {
     }
     if (info.local) {
       if (info.contextTokens) {
-        part([`${Math.round(info.contextTokens / 1000)}k context`], "Context at the last response");
+        part([`${Math.round(info.contextTokens / 1000)}k context`], "Context at the last response: click for what fills it and how it grew");
+        let node = parts.at(-1);
+        node.style.cursor = "pointer";
+        node.addEventListener("click", () => openContextMap(info.sessionId, tabRows.find((row) => row.kind === "code" && row.id === info.sessionId)?.title));
       }
       if (info.turnAge) {
         part([`working ${info.turnAge}`], "This turn so far", true);
@@ -4537,6 +4880,7 @@ function powertoysPageMain() {
           "-",
           { label: sessionNotes[row.id] ? "Edit note…" : "Add a note…", onClick: () => editNote(row.id, row.title) },
           { label: `Queued prompts (${promptQueue[row.id]?.length ?? 0})…`, onClick: () => showPromptQueue(row.id, row.title) },
+          { label: "Context map…", onClick: () => openContextMap(row.id, row.title) },
           isMuted(row.id)
             ? { label: "Unmute notifications", onClick: () => call("muteSession", row.id, false) }
             : { label: "Mute notifications", onClick: () => call("muteSession", row.id, true) },

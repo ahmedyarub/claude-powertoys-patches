@@ -634,7 +634,280 @@ function powertoysTranscriptWorkerMain() {
     }
   }
 
+  /**
+   * Where a session's context went: the context size at every request (exact, from each response's usage), what
+   * fills it (estimated), and how it grew. Categories are estimated from the text in the transcript (about 3.6
+   * characters a token); the system prompt and tool definitions from the request shape Claude Code records. At
+   * every request the message categories are scaled so that, with the system prompt and tools, they add up to the
+   * real size, so the picture always matches the total. A compaction starts the count again from its summary.
+   */
+  const CONTEXT_CATEGORIES = ["system", "tools", "instructions", "prompts", "replies", "thinking", "toolCalls", "toolResults", "files", "reminders", "summary", "images"];
+  const estimateTokens = (characters) => Math.ceil(characters / 3.6);
+  function oneLineOf(text, max = 100) {
+    let line = String(text ?? "").replace(/\s+/g, " ").trim();
+    return line.length > max ? `${line.slice(0, max - 1)}…` : line;
+  }
+  function toolLabelOf(name, input) {
+    let detail = input?.file_path ?? input?.notebook_path ?? input?.command ?? input?.pattern ?? input?.url ?? input?.query ?? input?.description ?? input?.path ?? input?.prompt ?? "";
+    detail = String(detail);
+    // A path's end says the most.
+    if (/[\\/]/.test(detail) && detail.length > 70 && !/\s/.test(detail)) {
+      detail = `…${detail.slice(-69)}`;
+    }
+    return `${name}${detail ? `: ${oneLineOf(detail, 90)}` : ""}`;
+  }
+  function textOfContent(content) {
+    if (typeof content === "string") {
+      return { characters: content.length, images: 0 };
+    }
+    let characters = 0;
+    let images = 0;
+    for (let block of Array.isArray(content) ? content : []) {
+      if (block?.type === "text" && typeof block.text === "string") {
+        characters += block.text.length;
+      } else if (block?.type === "image") {
+        images++;
+      }
+    }
+    return { characters, images };
+  }
+  // Attachments that are records for the app, not text Claude gets (the system prompt and tool schemas are
+  // counted from the request shape).
+  const RECORD_ATTACHMENTS = new Set(["prompt_snapshot", "deferred_tools_record", "thinking_drop", "credential_org", "command_permissions"]);
+  /** The characters of an attachment's text: its string values, without type names and ids. */
+  function attachmentCharacters(value, key = "") {
+    if (typeof value === "string") {
+      return key === "type" || /(^|_)(uuid|id)$|Id$|Uuid$/.test(key) ? 0 : value.length;
+    }
+    if (Array.isArray(value)) {
+      return value.reduce((sum, each) => sum + attachmentCharacters(each, key), 0);
+    }
+    if (value && typeof value === "object") {
+      return Object.entries(value).reduce((sum, [name, each]) => sum + attachmentCharacters(each, name), 0);
+    }
+    return 0;
+  }
+  async function contextMap(root, cliSessionId) {
+    let file = findTranscript(root, cliSessionId);
+    if (!file) {
+      return null;
+    }
+    let lines = readline.createInterface({ input: fs.createReadStream(file, { encoding: "utf8" }), crlfDelay: Infinity });
+    let fixed = { system: 0, tools: 0 };
+    let toolGroups = [];
+    let tools = new Map(); // tool_use_id -> label
+    let items = []; // every item: { category, tokens, label, at, keys, text }; a compaction drops those before it
+    let segmentStart = 0;
+    let totals = Object.fromEntries(CONTEXT_CATEGORIES.map((key) => [key, 0]));
+    let points = [];
+    let turns = [];
+    let compactions = [];
+    let seenMessages = new Set();
+    let model = "";
+    let add = (category, characters, label, at, keys, text) => {
+      if (characters <= 0) {
+        return;
+      }
+      let tokens = category === "images" ? 1600 * characters : estimateTokens(characters);
+      totals[category] += tokens;
+      items.push({ category, tokens, label, at, keys, text: oneLineOf(text, 160) });
+    };
+    for await (let line of lines) {
+      if (!line) {
+        continue;
+      }
+      let entry;
+      try {
+        entry = JSON.parse(line);
+      } catch {
+        continue;
+      }
+      if (entry.isSidechain === true) {
+        continue;
+      }
+      let at = timestampOf(entry);
+      let keys = [entry.uuid, entry.message?.id].filter(Boolean);
+      if (entry.type === "api-request-shape" && entry.shape) {
+        fixed.system = estimateTokens((entry.shape.system ?? []).reduce((sum, block) => sum + String(block?.text ?? "").length, 0));
+        let groups = new Map();
+        for (let tool of entry.shape.tools ?? []) {
+          let mcp = /^mcp__(.+?)__/.exec(tool?.name ?? "");
+          let group = mcp ? `MCP: ${mcp[1]}` : "Built-in tools";
+          let known = groups.get(group) ?? { group, count: 0, tokens: 0 };
+          known.count++;
+          known.tokens += estimateTokens(JSON.stringify(tool).length);
+          groups.set(group, known);
+        }
+        toolGroups = [...groups.values()].sort((left, right) => right.tokens - left.tokens);
+        fixed.tools = toolGroups.reduce((sum, group) => sum + group.tokens, 0);
+        continue;
+      }
+      if (entry.type === "system" && entry.subtype === "compact_boundary") {
+        let meta = entry.compactMetadata ?? {};
+        compactions.push({ at, pre: meta.preTokens ?? 0, post: meta.postTokens ?? 0, trigger: meta.trigger ?? "", point: points.length });
+        segmentStart = items.length;
+        totals = Object.fromEntries(CONTEXT_CATEGORIES.map((key) => [key, 0]));
+        continue;
+      }
+      if (entry.type === "attachment") {
+        let attachment = entry.attachment ?? {};
+        if (RECORD_ATTACHMENTS.has(attachment.type)) {
+          continue;
+        }
+        if (attachment.type === "queued_command") {
+          let text = String(attachment.prompt ?? "");
+          add("prompts", text.length, `You: ${oneLineOf(text, 90)}`, at, keys, text);
+          turns.push({ at, text: oneLineOf(text, 160), keys, point: points.length });
+        } else if (attachment.type === "instructions" || attachment.type === "nested_memory") {
+          let paths = (attachment.files ?? []).map((each) => each?.path).filter(Boolean);
+          add("instructions", attachmentCharacters(attachment), `Instructions: ${oneLineOf(paths.join(", "), 90) || "CLAUDE.md, memory"}`, at, keys, "");
+        } else if (attachment.type === "file" || attachment.type === "edited_text_file" || attachment.type === "compact_file_reference") {
+          let name = attachment.filename ?? attachment.path ?? attachment.content?.file?.filePath ?? "";
+          add("files", attachmentCharacters(attachment), `File: ${oneLineOf(name, 90) || attachment.type}`, at, keys, "");
+        } else {
+          add("reminders", attachmentCharacters(attachment), `Reminder: ${String(attachment.type ?? "attachment").replace(/_/g, " ")}`, at, keys, "");
+        }
+        continue;
+      }
+      if (entry.type === "user") {
+        let content = entry.message?.content;
+        if (entry.isCompactSummary === true) {
+          add("summary", textOfContent(content).characters, "Compaction summary", at, keys, "");
+          continue;
+        }
+        let blocks = typeof content === "string" ? [{ type: "text", text: content }] : Array.isArray(content) ? content : [];
+        for (let block of blocks) {
+          if (block?.type === "tool_result") {
+            let { characters, images } = textOfContent(block.content);
+            add("toolResults", characters, `Result of ${tools.get(block.tool_use_id) ?? "a tool"}`, at, keys, "");
+            add("images", images, "Image", at, keys, "");
+          } else if (block?.type === "text" && typeof block.text === "string") {
+            let injected = entry.isMeta === true || /^\s*</.test(block.text);
+            add(injected ? "reminders" : "prompts", block.text.length, injected ? `Reminder: ${oneLineOf(block.text.replace(/<[^>]+>/g, " "), 60)}` : `You: ${oneLineOf(block.text, 90)}`, at, keys, block.text);
+            if (!injected) {
+              turns.push({ at, text: oneLineOf(block.text, 160), keys, point: points.length });
+            }
+          } else if (block?.type === "image") {
+            add("images", 1, "Image", at, keys, "");
+          }
+        }
+        continue;
+      }
+      if (entry.type === "assistant") {
+        let message = entry.message ?? {};
+        let usage = message.usage;
+        // One request per message id; its context is everything before this response.
+        if (usage && message.id && !seenMessages.has(message.id)) {
+          seenMessages.add(message.id);
+          model = message.model ?? model;
+          let context = (usage.input_tokens ?? 0) + (usage.cache_read_input_tokens ?? 0) + (usage.cache_creation_input_tokens ?? 0);
+          if (context > 0) {
+            points.push({ at, context, totals: { ...totals }, fixed: { ...fixed }, items: items.length, turn: turns.length - 1, keys });
+          }
+        }
+        for (let block of Array.isArray(message.content) ? message.content : []) {
+          if (block?.type === "text") {
+            add("replies", String(block.text ?? "").length, `Claude: ${oneLineOf(block.text, 90)}`, at, keys, block.text);
+          } else if (block?.type === "thinking") {
+            add("thinking", String(block.thinking ?? "").length, "Thinking", at, keys, "");
+          } else if (block?.type === "tool_use") {
+            let label = toolLabelOf(block.name, block.input);
+            tools.set(block.id, label);
+            add("toolCalls", JSON.stringify(block.input ?? {}).length, `Call: ${label}`, at, keys, "");
+          }
+        }
+      }
+    }
+    if (points.length === 0) {
+      return { model, points: [], turns: [], compactions, categories: CONTEXT_CATEGORIES };
+    }
+    // Each point's categories, scaled to its real size: the system prompt and tools as measured, messages scaled.
+    let scaled = (point) => {
+      let messages = CONTEXT_CATEGORIES.filter((key) => key !== "system" && key !== "tools").reduce((sum, key) => sum + point.totals[key], 0);
+      let room = Math.max(0, point.context - point.fixed.system - point.fixed.tools);
+      let factor = messages > 0 ? room / messages : 0;
+      let result = { system: point.fixed.system, tools: point.fixed.tools };
+      for (let key of CONTEXT_CATEGORIES) {
+        if (key !== "system" && key !== "tools") {
+          result[key] = Math.round(point.totals[key] * factor);
+        }
+      }
+      // When the measured system prompt and tools are more than the whole (an early request), they share it.
+      let sum = Object.values(result).reduce((total, value) => total + value, 0);
+      if (sum > point.context && sum > 0) {
+        for (let key of CONTEXT_CATEGORIES) {
+          result[key] = Math.round((result[key] * point.context) / sum);
+        }
+      }
+      return { result, factor };
+    };
+    let last = points.at(-1);
+    let { result: nowCategories, factor: nowFactor } = scaled(last);
+    // What is in the context now: this segment's items up to the last request, biggest first.
+    let nowItems = items
+      .slice(segmentStart, last.items)
+      .map((item) => ({ ...item, tokens: Math.round(item.tokens * (item.category === "images" ? 1 : nowFactor)) }))
+      .sort((left, right) => right.tokens - left.tokens)
+      .slice(0, 30);
+    // The biggest jumps between one request and the next, with what came in between.
+    let jumps = [];
+    for (let index = 1; index < points.length; index++) {
+      let before = points[index - 1];
+      let point = points[index];
+      let delta = point.context - before.context;
+      if (delta <= 0 || compactions.some((compaction) => compaction.point === index)) {
+        continue;
+      }
+      jumps.push({ index, delta });
+    }
+    jumps.sort((left, right) => right.delta - left.delta);
+    // A jump's cause is the biggest item added between its two requests.
+    let topJumps = jumps.slice(0, 15).map(({ index, delta }) => {
+      let point = points[index];
+      let before = points[index - 1];
+      let cause = items.slice(before.items, point.items).sort((left, right) => right.tokens - left.tokens)[0] ?? null;
+      // Tools loaded in between (ToolSearch, a new MCP server) grow the tool definitions, which are not items.
+      let toolGrowth = point.fixed.tools - before.fixed.tools;
+      if (toolGrowth > (cause?.tokens ?? 0)) {
+        cause = { label: `Tool definitions loaded (+${Math.round(toolGrowth / 1000)}k)`, category: "tools", keys: point.keys };
+      }
+      return { at: point.at, delta, from: before.context, to: point.context, cause: cause && { label: cause.label, category: cause.category }, keys: cause?.keys ?? point.keys, turn: point.turn };
+    });
+    // Turns: what each of your messages cost, from its first request to the last one before the next message.
+    let turnRows = turns.map((turn, index) => {
+      let first = points.findIndex((point) => point.turn >= index);
+      let next = index + 1 < turns.length ? points.findIndex((point) => point.turn >= index + 1) : points.length;
+      let start = first >= 0 ? points[first].context : 0;
+      let end = first >= 0 && next > first ? points[next - 1].context : start;
+      let requests = first >= 0 ? Math.max(0, next - first) : 0;
+      return { ...turn, start, end, requests };
+    });
+    // At most 900 points for the chart, keeping the last and those around compactions.
+    let keep = new Set([0, points.length - 1]);
+    let step = Math.max(1, Math.ceil(points.length / 900));
+    for (let index = 0; index < points.length; index += step) {
+      keep.add(index);
+    }
+    for (let compaction of compactions) {
+      keep.add(Math.max(0, compaction.point - 1));
+      keep.add(Math.min(points.length - 1, compaction.point));
+    }
+    let chartIndexes = [...keep].sort((left, right) => left - right);
+    return {
+      model,
+      categories: CONTEXT_CATEGORIES,
+      now: { at: last.at, context: last.context, categories: nowCategories, items: nowItems, toolGroups, estimateFactor: nowFactor },
+      points: chartIndexes.map((index) => ({ index, at: points[index].at, context: points[index].context, categories: scaled(points[index]).result, turn: points[index].turn })),
+      requests: points.length,
+      turns: turnRows,
+      compactions,
+      jumps: topJumps,
+    };
+  }
+
   const methods = {
+    /** Where the session's context went, and how it grew (see contextMap). */
+    contextMap: ({ root, cliSessionId }) => contextMap(root, cliSessionId),
     /** The session's task list with its items' times (see trackTodos); null without a transcript. */
     todos({ root, cliSessionId }) {
       let file = findTranscript(root, cliSessionId);

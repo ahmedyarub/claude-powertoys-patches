@@ -2,7 +2,7 @@
 
 Patches that add **Powertoys** to Claude Desktop for Windows: browser-like tabs, a session switcher,
 side-by-side work, prompt history and search, bookmarks, snippets, a prompt queue, task-list progress with time
-estimates, PR check status on tabs, actionable notifications, and more. This repository holds **only the
+estimates, a context map, PR check status on tabs, actionable notifications, and more. This repository holds **only the
 patches and the patcher**. It contains no code from Claude Desktop.
 
 > Not affiliated with or endorsed by Anthropic. "Claude" and "Claude Desktop" are Anthropic's. The patches are
@@ -154,6 +154,23 @@ pastes). Every feature has a switch in the Powertoys settings window (tray menu 
   - **When it's recalculated:** every 30 minutes while the session works (configurable), when a step finishes,
     and with a ↻ button.
   - The tab preview and Ctrl+Tab show the short form, "☑ 3/7 · done ≈ 21:10".
+
+**Context map**
+
+- **Where the context went:** click "k context" in the status bar, or use a tab's menu or the command palette.
+  - **How full it is:** for example "466k of 1M (47%), compacted 3×".
+  - **What fills it now:** a bar split into the system prompt, tool definitions (per MCP server), instructions
+    (CLAUDE.md, memory), your messages, Claude's text, thinking, tool calls, tool results, attached files,
+    reminders, compaction summaries and images.
+- **How it got there:** a stacked chart over every request, with compactions and your messages marked. Hovering
+  shows the size, the message it came after and what dominated; clicking goes to that message.
+- **Three lists**, each row going to its message:
+  - the biggest things in the context now;
+  - the biggest jumps between requests, with their cause (a file read, a command's output, tool definitions
+    loaded);
+  - what each of your messages added.
+- **Exact and estimated:** the totals come from each response's usage and are exact. Each kind's share is
+  estimated from its text and scaled to match.
 
 **App and system**
 

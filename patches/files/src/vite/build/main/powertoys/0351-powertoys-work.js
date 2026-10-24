@@ -835,6 +835,23 @@ async function powertoysSendQueued(sessionId, why) {
     powertoysQueueSending.delete(sessionId);
   }
 }
+/** Where a session's context went (contextMap in the transcript worker), with the model's context window. */
+async function powertoysContextMap(sessionId) {
+  let record = powertoysSessionManager()?.sessions.get(sessionId);
+  let cliSessionId = record?.cliSessionId ?? record?.unarchivedCliSessionId;
+  if (!cliSessionId) {
+    throw Error("This session has no transcript yet");
+  }
+  let map = await powertoysTranscripts("contextMap", { cliSessionId });
+  if (!map) {
+    throw Error("This session's transcript was not found");
+  }
+  let model = record.model || map.model || "";
+  let peak = Math.max(0, ...map.points.map((point) => point.context), ...map.compactions.map((compaction) => compaction.pre));
+  // The app's own size for the model when it has one; else 1M for a [1m] model or a session that went past 200k.
+  let contextWindow = getContextWindowForModel(model, map.model) ?? (/[1m]/i.test(model) || peak > 200000 ? 1000000 : 200000);
+  return { ...map, contextWindow };
+}
 /** A session's task list with each item's times (transcript), and whether the session is working now. */
 async function powertoysTodoProgress(sessionId) {
   let record = powertoysSessionManager()?.sessions.get(sessionId);
@@ -1033,6 +1050,7 @@ try {
   powertoysHandle("tabPreview", (event, sessionId) => powertoysTabPreview(String(sessionId)));
   powertoysHandle("todoProgress", (event, sessionId) => powertoysTodoProgress(String(sessionId)));
   powertoysHandle("tabExtras", (event, sessionIds) => powertoysTabExtras(sessionIds));
+  powertoysHandle("contextMap", (event, sessionId) => powertoysContextMap(String(sessionId ?? "")));
   // A PR's page from its tab's checks mark.
   powertoysHandle("openUrl", (event, url) => {
     if (!/^https:\/\//.test(String(url))) {
