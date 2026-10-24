@@ -799,6 +799,7 @@ async function powertoysTabExtras(sessionIds) {
         prs: powertoysSessionPrs(view),
         reason: waiting.get(sessionId)?.reason ?? powertoysWaitReason(view, state),
         queued: queue[sessionId]?.length ?? 0,
+        taskList: manager?.sessions.get(sessionId)?.turnBoxMounted === true || manager?.sessions.get(sessionId)?.turnBoxDeclared === true,
         todos: todos?.items.length ? { ...todos, state } : null,
       };
     }),
@@ -1002,6 +1003,51 @@ function powertoysApplyProjectDefaults(startOptions) {
   }
 }
 Object.defineProperty(exports, "powertoysApplyProjectDefaults", { enumerable: true, get: () => powertoysApplyProjectDefaults });
+// --- The app's task list (its plan tool, mcp__ccd_turn__update_plan, with the wrap-up box) ---------------------
+// The page asks for it per new session only while two of its server flags allow it, and a session keeps the tool
+// set it started with, so some sessions have no task list at all (nor Claude Code's own task tools).
+/** A new session the person starts asks for the task list when the setting is on. */
+function powertoysApplyTaskList(startOptions) {
+  if (powertoysSetting("forceTaskList") === false || !startOptions || startOptions.turnBox === true || startOptions.violinBow) {
+    return;
+  }
+  startOptions.turnBox = true;
+  powertoysLog("new session: the task list asked for (Powertoys)");
+}
+Object.defineProperty(exports, "powertoysApplyTaskList", { enumerable: true, get: () => powertoysApplyTaskList });
+/**
+ * Gives an existing local session the task list from its next message: it is declared, the pinned prompt and tool
+ * set are dropped (so the next start builds them with it; the conversation is read again once, without the cache),
+ * and an idle Claude Code process is stopped so that start comes with the next message.
+ */
+async function powertoysAddTaskList(sessionId) {
+  let manager = powertoysSessionManager();
+  let session = manager?.sessions.get(sessionId);
+  if (!session) {
+    throw Error("Session not found");
+  }
+  if (session.backend?.remoteTarget || session.violinBow || session.wslConfig) {
+    throw Error("Only a local Windows session can get the task list here");
+  }
+  if (!isFeatureEnabled("2371478310")) {
+    throw Error("The app has the task list switched off for this account right now");
+  }
+  if (session.turnBoxMounted === true) {
+    return "already";
+  }
+  if (session.query && !manager.canRestartForModelNow(session)) {
+    throw Error("The session is busy: try again when its turn has ended");
+  }
+  session.turnBoxDeclared = true;
+  session.promptAppendSnapshot = undefined;
+  session.toolSurfaceSnapshot = undefined;
+  manager.saveSession(session);
+  if (session.query) {
+    await manager.teardownSession(sessionId, "stop", { stopTrigger: "model_restart" });
+  }
+  powertoysLog(`task list added to ${sessionId}; it comes with the next message`);
+  return "next message";
+}
 /** Opens `primary`, then each of `splits` beside it (a saved workspace, or the layout before a restart). */
 async function powertoysApplyLayout(layout, label) {
   let { primary, splits } = layout ?? {};
@@ -1051,6 +1097,7 @@ try {
   powertoysHandle("todoProgress", (event, sessionId) => powertoysTodoProgress(String(sessionId)));
   powertoysHandle("tabExtras", (event, sessionIds) => powertoysTabExtras(sessionIds));
   powertoysHandle("contextMap", (event, sessionId) => powertoysContextMap(String(sessionId ?? "")));
+  powertoysHandle("addTaskList", (event, sessionId) => powertoysAddTaskList(String(sessionId ?? "")));
   // A PR's page from its tab's checks mark.
   powertoysHandle("openUrl", (event, url) => {
     if (!/^https:\/\//.test(String(url))) {

@@ -25,9 +25,9 @@ patches/patches.json        the patch manifest: every file, its hashes and its e
 patches/files/...           files that are entirely new (written for Powertoys), copied in as they are
 ```
 
-`patches/patches.json` lists 39 files:
+`patches/patches.json` lists 40 files:
 
-- **14 new files** (`"kind": "add"`), all written for Powertoys:
+- **15 new files** (`"kind": "add"`), all written for Powertoys:
   - `src/vite/build/main/powertoys/0340` … `0351`: the main-process half (settings and stores, the transcript
     reader worker, session status, hotkeys and menus, IPC, system integration, extra windows, notifications
     inbox, restart, and the newer features).
@@ -35,6 +35,8 @@ patches/files/...           files that are entirely new (written for Powertoys),
     windows Powertoys draws inside the app).
   - `scripts/restart-and-continue.mjs`, `scripts/swap-and-launch.mjs`, `scripts/check-syntax.mjs`:
     restarting the app from inside it, then continuing the session.
+  - `scripts/powertoys-command.mjs`: asks the running app, from a session, to do what a page action does
+    (for now, add the task list to a session).
 - **25 edits** (`"kind": "edit"`) to the app's own files: the small hooks that call into
   Powertoys, a rewrite of the Windows notification code, and two build manifests that list the new files.
   They are described one by one [below](#every-change-to-the-apps-own-files).
@@ -148,6 +150,10 @@ pastes). Every feature has a switch in the Powertoys settings window (tray menu 
 
 **Progress**
 
+- **The task list for every session:** the app gives a session its task list (its plan tool, with the wrap-up
+  box at the end of a turn) only when its server flags allow it at the session's start, so some sessions have
+  none and Claude cannot make one. Powertoys asks for it for every new session (a setting, on by default), and
+  a tab's menu adds it to a session that started without it, from its next message.
 - **Task lists:** under a session's task list (its plan or TodoWrite list), a progress bar and an estimate, for
   example "3 of 7 done · ~25 min left · done ≈ 21:10 · ~1 h in all":
   - **How it's estimated:** from the time per finished step, read from the transcript.
@@ -209,7 +215,7 @@ Each hook is marked `Local change` in the patched code.
 | `ccd-local-session-manager/0026-ccd.js` | +14 −1 | A slash command the app handles itself (`/remote-control`) no longer stays "queued" in the page. |
 | `ccd-local-session-manager/0048-ccd.js` | +5 −1 | That command's echo uses the id the page sent it under, once. |
 | `ccd-local-session-manager/session-core/0035-session-clearing-events.js` | +10 | Files outside the session's folders: Powertoys' pastes folder, and files you allowed with "Open anyway". |
-| `ccd-local-sessions-api/0002-local-sessions-api-core.js` | +4 | Per-project model and effort defaults for a session you start. |
+| `ccd-local-sessions-api/0002-local-sessions-api-core.js` | +6 | Per-project model and effort defaults for a session you start, and the task list when the Powertoys setting is on. |
 | `git-worktree-manager/0003-worktree-trash-tombstones.js` | +19 | Background fetches keep your global `core.sshCommand` (with batch mode) instead of replacing it. |
 | `git-worktree-manager/0004-create-worktree-guards.js` | +1 −1 | Uses the above. |
 | `index.pre/telemetry-scrub/0034-error-withholding-breadcrumbs.js` | +10 | `--powertoys-profile=<name>`: a separate data folder (sign-in, sessions, settings, single-instance lock). |

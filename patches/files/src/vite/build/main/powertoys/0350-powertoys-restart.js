@@ -333,6 +333,36 @@ function powertoysTakeRestartRequest() {
     source: "request file",
   }).catch((caught) => powertoysWarn(`restart request failed: ${caught.message}`));
 }
+// Command requests (scripts/powertoys-command.mjs): { id, command, sessionId }, answered in command-result.json
+// as { id, ok, result | error }. For what a session in this app asks the app to do (a page action, by name).
+const POWERTOYS_COMMAND_REQUEST_FILE = "command-request.json";
+const POWERTOYS_COMMANDS = {
+  addTaskList: (request) => powertoysAddTaskList(String(request.sessionId ?? "")),
+};
+function powertoysTakeCommandRequest() {
+  let file = powertoysFile(POWERTOYS_COMMAND_REQUEST_FILE);
+  if (!powertoysFs.existsSync(file)) {
+    return;
+  }
+  let request = powertoysReadJson(POWERTOYS_COMMAND_REQUEST_FILE, null);
+  try {
+    powertoysFs.rmSync(file, { force: true });
+  } catch {}
+  let answer = (outcome) => powertoysWriteJson("command-result.json", { id: request?.id ?? null, ...outcome });
+  let run = request && POWERTOYS_COMMANDS[request.command];
+  if (!run) {
+    powertoysWarn(`command request: unknown command ${request?.command}`);
+    answer({ ok: false, error: `Unknown command ${request?.command}` });
+    return;
+  }
+  powertoysLog(`command request: ${request.command} ${request.sessionId ?? ""}`);
+  Promise.resolve()
+    .then(() => run(request))
+    .then(
+      (result) => answer({ ok: true, result: result ?? null }),
+      (caught) => answer({ ok: false, error: caught.message }),
+    );
+}
 function powertoysWatchRestartRequests() {
   try {
     powertoysFs.mkdirSync(powertoysDir(), { recursive: true });
@@ -341,6 +371,8 @@ function powertoysWatchRestartRequests() {
       if (fileName === POWERTOYS_RESTART_REQUEST_FILE) {
         clearTimeout(timer);
         timer = setTimeout(powertoysTakeRestartRequest, 300);
+      } else if (fileName === POWERTOYS_COMMAND_REQUEST_FILE) {
+        setTimeout(powertoysTakeCommandRequest, 300);
       }
     });
     // A request written while the app was closed is not acted on: it would restart a fresh start.

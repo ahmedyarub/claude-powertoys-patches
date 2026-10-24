@@ -92,6 +92,7 @@ const POWERTOYS_DEFAULT_SETTINGS = {
   // Hovering a conversation's tab shows its last answer (model, effort, context on top), this opaque (%).
   tabPreview: true,
   taskProgress: true,
+  forceTaskList: true,
   promptQueueKey: true,
   taskEstimateMinutes: 30,
   tabPreviewOpacity: 80,
@@ -120,6 +121,7 @@ const POWERTOYS_SETTINGS_SECTIONS = [
       { key: "groupTabsByProject", label: "Group the open tabs by project", type: "switch" },
       { key: "tabPreview", label: "Hovering a tab previews its last answer (with model, effort and context)", type: "switch" },
       { key: "taskProgress", label: "Task lists show a progress bar, the estimated time left, when they will be done and the total", type: "switch" },
+      { key: "forceTaskList", label: "Every new Code session gets the app's task list (its plan tool, with the wrap-up box), also when the app would leave it out; a tab's menu adds it to an existing session", type: "switch" },
       { key: "taskEstimateMinutes", label: "Recalculate a task list's estimate every this many minutes while the session works (also when a step finishes, and with ↻)", type: "number", min: 1, max: 1440 },
       { key: "tabPreviewOpacity", label: "…the preview's opacity (%)", type: "number", min: 20, max: 100 },
       { key: "restoreSplitsAfterRestart", label: "After a restart from here, reopen the conversations side by side as they were", type: "switch" },

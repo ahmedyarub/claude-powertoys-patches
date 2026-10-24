@@ -1910,6 +1910,16 @@ function powertoysPageMain() {
     });
     svg.style.cursor = "pointer";
   }
+  /** The app's task list for a session that started without it (forceTaskList covers new sessions). */
+  function addTaskList(sessionId) {
+    call("addTaskList", sessionId).then(
+      (outcome) => {
+        flash(outcome === "already" ? "This session already has the task list" : "The task list comes with the next message (Claude reads the conversation again once)");
+        refreshTabExtras();
+      },
+      (caught) => flash(caught.message.replace(/^Error invoking remote method '[^']+': (Error: )?/, "")),
+    );
+  }
   /** Whether a snippet belongs here: no "project", or one naming this conversation's project. */
   function snippetFits(snippet, project) {
     if (!snippet.projects?.length) {
@@ -4937,6 +4947,7 @@ function powertoysPageMain() {
           { label: sessionNotes[row.id] ? "Edit note…" : "Add a note…", onClick: () => editNote(row.id, row.title) },
           { label: `Queued prompts (${promptQueue[row.id]?.length ?? 0})…`, onClick: () => showPromptQueue(row.id, row.title) },
           { label: "Context map…", onClick: () => openContextMap(row.id, row.title) },
+          ...(tabExtras[row.id]?.taskList === false ? [{ label: "Add the task list to this session", onClick: () => addTaskList(row.id) }] : []),
           isMuted(row.id)
             ? { label: "Unmute notifications", onClick: () => call("muteSession", row.id, false) }
             : { label: "Mute notifications", onClick: () => call("muteSession", row.id, true) },

@@ -77,6 +77,11 @@
    "sha256": "ef6cd6d4b51778c39b50bb5cba6583c18234cef30fa40be403f140551075f8d4"
   },
   {
+   "path": "scripts/powertoys-command.mjs",
+   "kind": "add",
+   "sha256": "1d76619263b94e02b86a3dd152455e4c89b9f395c5055a8b4a9ff48ad5347c0e"
+  },
+  {
    "path": "scripts/restart-and-continue.mjs",
    "kind": "add",
    "sha256": "70ae83c9c11fb7c537b9b5560b9b4fddbff038e67480345da77405b2a9179b97"
@@ -272,20 +277,26 @@
    "path": "src/vite/build/ccd-local-sessions-api/0002-local-sessions-api-core.js",
    "kind": "edit",
    "baseSha256": "642ec9d51692d8f1c6e22c13f4df2b8de58a9310489d0249de078072b1f89a0a",
-   "resultSha256": "3a6c7dce60364873d9c607d523dc4825097ec5a753d50a8252220a18b57e9a3b",
+   "resultSha256": "e4e71a1015a5716482c6b827a81cb2911cb29370b8bc270cd7db39f7aee101a2",
    "hunks": [
     {
      "at": 1288,
      "remove": 0,
      "add": [
       [
-       "        // Local change: Powertoys per-project defaults (model, effort) for a new session the person starts.\n"
+       "        // Local change: Powertoys per-project defaults (model, effort) and the task list for a new session the\n"
+      ],
+      [
+       "        // person starts.\n"
       ],
       [
        "        if (!request.scheduledTaskId) {\n"
       ],
       [
        "          mainChunk.powertoysApplyProjectDefaults?.(startOptions);\n"
+      ],
+      [
+       "          mainChunk.powertoysApplyTaskList?.(startOptions);\n"
       ],
       [
        "        }\n"
@@ -4106,7 +4117,7 @@
   {
    "path": "src/vite/build/main/powertoys/0340-powertoys-store.js",
    "kind": "add",
-   "sha256": "b2eb5a15bd5a8edd6c8d6e49289e33dedda9aba684410b800c3dd28808cd390b"
+   "sha256": "e79c1fbfd0d4c0c399366ccc17180f1c680e86d00a7bc98ba4c2250eace7da2e"
   },
   {
    "path": "src/vite/build/main/powertoys/0341-powertoys-transcripts.js",
@@ -4146,12 +4157,12 @@
   {
    "path": "src/vite/build/main/powertoys/0350-powertoys-restart.js",
    "kind": "add",
-   "sha256": "a68adb374bc8f30e1d3f35c2f86bda045f742c2d98763ea4903798861c95ac2b"
+   "sha256": "11168c2d62c0b53ce1a5668daef099826fd4bac09badf53a5f446ad1f9a2659c"
   },
   {
    "path": "src/vite/build/main/powertoys/0351-powertoys-work.js",
    "kind": "add",
-   "sha256": "0aff1ebc9bf11fa0cbe019d1fd259d14376fa32d283c876c2ada81072e9ec955"
+   "sha256": "59bfbc23d284356ad50223b4430d54eb913f3c48f8b0a987804e4e0291b4f33a"
   },
   {
    "path": "src/vite/build/main/settings/0200-supported-features.js",
@@ -4396,7 +4407,7 @@
   {
    "path": "src/vite/build/mainView/0003-powertoys-page.js",
    "kind": "add",
-   "sha256": "ba9121b95bb485af0c485b2081dc190b6068d5440d757811b038650ad8c5feef"
+   "sha256": "1f2b98fb06da3801599c9e6c90162b6658452bf74e4e68601878a9401566d06e"
   },
   {
    "path": "src/vite/build/mainView/0007-window-manager-vm-bridges.js",
