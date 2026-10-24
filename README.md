@@ -165,7 +165,8 @@ pastes). Every feature has a switch in the Powertoys settings window (tray menu 
 - **How it got there:** a stacked chart over every request, with compactions and your messages marked. Hovering
   shows the size, the message it came after and what dominated; clicking goes to that message.
 - **Three lists**, each row going to its message:
-  - the biggest things in the context now;
+  - the biggest things in the context now, added up by kind (for example "Call: Write ×12" or "Result of Bash";
+    click a kind to see its biggest items) or one by one;
   - the biggest jumps between requests, with their cause (a file read, a command's output, tool definitions
     loaded);
   - what each of your messages added.

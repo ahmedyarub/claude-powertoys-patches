@@ -337,6 +337,11 @@ function powertoysPageMain() {
       background: hsl(var(--bg-000, 0 0% 12%)); color: hsl(var(--text-100, 60 14% 97%)); border: 1px solid hsl(var(--border-300, 52 12% 87%) / 0.2); box-shadow: 0 6px 24px rgb(0 0 0 / 0.35); }
     .ctxmap .tip .dim { color: hsl(var(--text-300, 55 9% 74%)); }
     .ctxmap .cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 18px; }
+    .ctxmap .h3row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
+    .ctxmap .h3row h3 { margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .ctxmap .seg { display: inline-flex; flex: none; border: 1px solid hsl(var(--border-300, 52 12% 87%) / 0.2); border-radius: 6px; overflow: hidden; }
+    .ctxmap .seg button { padding: 2px 9px; border: 0; background: transparent; color: inherit; cursor: pointer; font: inherit; font-size: 11.5px; }
+    .ctxmap .seg button.on { background: hsl(var(--accent-100, 212 75% 62%) / 0.85); color: #fff; }
     .ctxmap .rows .r { display: grid; grid-template-columns: 4.4em minmax(0, 1fr) auto; column-gap: 10px; align-items: center; padding: 4px 6px; border-radius: 6px; font-size: 12.5px; }
     .ctxmap .rows .r[title] { cursor: pointer; }
     .ctxmap .rows .r:hover { background: hsl(var(--bg-300, 0 0% 5%)); }
@@ -1572,6 +1577,7 @@ function powertoysPageMain() {
     return node;
   }
   let contextWindowOpen = null;
+  let contextNowMode = "kinds"; // "Biggest things in it now": "kinds" (added up) or "items"
   async function openContextMap(sessionId, title) {
     closePopup();
     if (!sessionId) {
@@ -1700,10 +1706,8 @@ function powertoysPageMain() {
 
     // Lists: what is in it now, the biggest jumps, what each message added.
     let columns = element("div", "cols");
-    let list = (titleText, rows) => {
-      let section = element("div", "section");
-      section.appendChild(element("h3", "", titleText));
-      let container = element("div", "rows");
+    let fillRows = (container, rows) => {
+      container.textContent = "";
       for (let row of rows) {
         let line = element("div", "r");
         let dot = element("span", "swatch");
@@ -1712,7 +1716,10 @@ function powertoysPageMain() {
         label.prepend(dot);
         label.title = row.label;
         line.append(element("span", "size", row.size), label, element("span", "when", row.when));
-        if (row.keys?.length || row.text) {
+        if (row.onClick) {
+          line.addEventListener("click", row.onClick);
+          line.title = row.hint ?? "";
+        } else if (row.keys?.length || row.text) {
           line.addEventListener("click", () => jump(row.keys, row.text));
           line.title = "Go to this message";
         }
@@ -1721,15 +1728,64 @@ function powertoysPageMain() {
       if (rows.length === 0) {
         container.appendChild(element("div", "note", "Nothing"));
       }
+    };
+    let list = (titleText, rows) => {
+      let section = element("div", "section");
+      section.appendChild(element("h3", "", titleText));
+      let container = element("div", "rows");
+      fillRows(container, rows);
       section.appendChild(container);
       return section;
     };
-    columns.appendChild(
-      list(
-        "Biggest things in it now",
-        now.items.map((item) => ({ size: kTokens(item.tokens), label: item.label, kind: item.category, when: whenText(item.at), keys: item.keys, text: item.text })),
-      ),
-    );
+    // What is in it now: added up by kind (click one to see its biggest items), or one by one.
+    let itemRow = (item) => ({ size: kTokens(item.tokens), label: item.label, kind: item.category, when: whenText(item.at), keys: item.keys, text: item.text });
+    let nowList = element("div", "section");
+    let nowHead = element("div", "h3row");
+    let nowTitle = element("h3");
+    let modes = element("div", "seg");
+    let byKind = element("button", "", "By kind");
+    let single = element("button", "", "Individual");
+    modes.append(byKind, single);
+    nowHead.append(nowTitle, modes);
+    let nowRows = element("div", "rows");
+    nowList.append(nowHead, nowRows);
+    let drill = null;
+    let drawNow = () => {
+      let grouped = contextNowMode === "kinds";
+      byKind.classList.toggle("on", grouped);
+      single.classList.toggle("on", !grouped);
+      let group = grouped && drill ? now.groups?.find((each) => each.group === drill) : null;
+      if (group) {
+        nowTitle.textContent = `${group.group}: ${kTokens(group.tokens)} in ${group.count} item${group.count === 1 ? "" : "s"}`;
+        fillRows(nowRows, [
+          { size: "", label: "← All kinds", when: "", onClick: () => ((drill = null), drawNow()), hint: "Back to the kinds" },
+          ...group.items.map(itemRow),
+        ]);
+        if (group.count > group.items.length) {
+          nowRows.appendChild(element("div", "note", `The biggest ${group.items.length} of ${group.count}`));
+        }
+      } else if (grouped) {
+        nowTitle.textContent = "Biggest things in it now, by kind";
+        fillRows(
+          nowRows,
+          (now.groups ?? []).map((each) => ({
+            size: kTokens(each.tokens),
+            label: `${each.group}${each.count > 1 ? ` ×${each.count}` : ""}`,
+            kind: each.category,
+            when: `${Math.round((100 * each.tokens) / now.context)}%`,
+            onClick: () => ((drill = each.group), drawNow()),
+            hint: "Show its biggest items",
+          })),
+        );
+      } else {
+        nowTitle.textContent = "Biggest things in it now";
+        fillRows(nowRows, now.items.map(itemRow));
+      }
+    };
+    byKind.addEventListener("click", () => ((contextNowMode = "kinds"), drawNow()));
+    single.addEventListener("click", () => ((contextNowMode = "items"), (drill = null), drawNow()));
+    drawNow();
+    columns.appendChild(nowList);
     columns.appendChild(
       list(
         "Biggest jumps (from one request to the next)",

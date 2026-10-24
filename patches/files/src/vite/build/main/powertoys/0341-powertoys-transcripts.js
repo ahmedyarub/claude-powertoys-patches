@@ -687,6 +687,15 @@ function powertoysTranscriptWorkerMain() {
     }
     return 0;
   }
+  /** The kind an item adds up under: "Call: Write", "Result of Read", "Your messages", "Reminder: skill listing", … */
+  function groupOf(category, label) {
+    let tool = /^(?:Call: |Result of )([^:]+)/.exec(label);
+    if (tool && (category === "toolCalls" || category === "toolResults")) {
+      return category === "toolCalls" ? `Call: ${tool[1]}` : `Result of ${tool[1]}`;
+    }
+    let names = { prompts: "Your messages", replies: "Claude's text", thinking: "Thinking", images: "Images", summary: "Compaction summaries", instructions: "Instructions (CLAUDE.md, memory)", files: "Attached files" };
+    return names[category] ?? label;
+  }
   async function contextMap(root, cliSessionId) {
     let file = findTranscript(root, cliSessionId);
     if (!file) {
@@ -704,13 +713,13 @@ function powertoysTranscriptWorkerMain() {
     let compactions = [];
     let seenMessages = new Set();
     let model = "";
-    let add = (category, characters, label, at, keys, text) => {
+    let add = (category, characters, label, at, keys, text, group = groupOf(category, label)) => {
       if (characters <= 0) {
         return;
       }
       let tokens = category === "images" ? 1600 * characters : estimateTokens(characters);
       totals[category] += tokens;
-      items.push({ category, tokens, label, at, keys, text: oneLineOf(text, 160) });
+      items.push({ category, tokens, label, at, keys, text: oneLineOf(text, 160), group });
     };
     for await (let line of lines) {
       if (!line) {
@@ -783,7 +792,9 @@ function powertoysTranscriptWorkerMain() {
             add("images", images, "Image", at, keys, "");
           } else if (block?.type === "text" && typeof block.text === "string") {
             let injected = entry.isMeta === true || /^\s*</.test(block.text);
-            add(injected ? "reminders" : "prompts", block.text.length, injected ? `Reminder: ${oneLineOf(block.text.replace(/<[^>]+>/g, " "), 60)}` : `You: ${oneLineOf(block.text, 90)}`, at, keys, block.text);
+            // Injected text adds up by its opening tag (<system-reminder>, <command-name>, …).
+            let tag = injected ? (/^s*<([w-]+)/.exec(block.text)?.[1] ?? "injected text") : "";
+            add(injected ? "reminders" : "prompts", block.text.length, injected ? `Reminder: ${oneLineOf(block.text.replace(/<[^>]+>/g, " "), 60)}` : `You: ${oneLineOf(block.text, 90)}`, at, keys, block.text, injected ? `Reminder: <${tag}>` : undefined);
             if (!injected) {
               turns.push({ at, text: oneLineOf(block.text, 160), keys, point: points.length });
             }
@@ -844,11 +855,24 @@ function powertoysTranscriptWorkerMain() {
     let last = points.at(-1);
     let { result: nowCategories, factor: nowFactor } = scaled(last);
     // What is in the context now: this segment's items up to the last request, biggest first.
-    let nowItems = items
+    let inContext = items
       .slice(segmentStart, last.items)
       .map((item) => ({ ...item, tokens: Math.round(item.tokens * (item.category === "images" ? 1 : nowFactor)) }))
-      .sort((left, right) => right.tokens - left.tokens)
-      .slice(0, 30);
+      .sort((left, right) => right.tokens - left.tokens);
+    let nowItems = inContext.slice(0, 30);
+    // The same, added up by kind (each kind with its own biggest items, to drill into).
+    let byGroup = new Map();
+    for (let item of inContext) {
+      let group = byGroup.get(item.group) ?? { group: item.group, category: item.category, tokens: 0, count: 0, latest: 0, items: [] };
+      group.tokens += item.tokens;
+      group.count++;
+      group.latest = Math.max(group.latest, item.at);
+      if (group.items.length < 25) {
+        group.items.push(item);
+      }
+      byGroup.set(item.group, group);
+    }
+    let nowGroups = [...byGroup.values()].sort((left, right) => right.tokens - left.tokens).slice(0, 40);
     // The biggest jumps between one request and the next, with what came in between.
     let jumps = [];
     for (let index = 1; index < points.length; index++) {
@@ -896,7 +920,7 @@ function powertoysTranscriptWorkerMain() {
     return {
       model,
       categories: CONTEXT_CATEGORIES,
-      now: { at: last.at, context: last.context, categories: nowCategories, items: nowItems, toolGroups, estimateFactor: nowFactor },
+      now: { at: last.at, context: last.context, categories: nowCategories, items: nowItems, groups: nowGroups, toolGroups, estimateFactor: nowFactor },
       points: chartIndexes.map((index) => ({ index, at: points[index].at, context: points[index].context, categories: scaled(points[index]).result, turn: points[index].turn })),
       requests: points.length,
       turns: turnRows,

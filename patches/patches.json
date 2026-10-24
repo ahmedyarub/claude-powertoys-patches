@@ -4111,7 +4111,7 @@
   {
    "path": "src/vite/build/main/powertoys/0341-powertoys-transcripts.js",
    "kind": "add",
-   "sha256": "202ad5d831e1bb9063bb0b3f4b072aff8d02a32f5a21e318dd788363e9b6d69f"
+   "sha256": "7a5b90e144621344e717398538e315f8af4b836ef6749a70821af2f6e2eba89a"
   },
   {
    "path": "src/vite/build/main/powertoys/0342-powertoys-sessions.js",
@@ -4396,7 +4396,7 @@
   {
    "path": "src/vite/build/mainView/0003-powertoys-page.js",
    "kind": "add",
-   "sha256": "544d05ee66b6d00294427d8165bc26c29278e1dc7581753847c60ac13e7870e0"
+   "sha256": "ba9121b95bb485af0c485b2081dc190b6068d5440d757811b038650ad8c5feef"
   },
   {
    "path": "src/vite/build/mainView/0007-window-manager-vm-bridges.js",
