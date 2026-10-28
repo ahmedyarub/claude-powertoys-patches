@@ -749,7 +749,23 @@ function powertoysSessionPrs(view) {
   return bound.flatMap((pr) => {
     let entry = tracked.find((each) => String(each.repo ?? "").toLowerCase() === String(pr.repo).toLowerCase() && each.identifier === String(pr.prNumber));
     let state = String(entry?.details?.state ?? pr.state ?? "").toUpperCase();
-    return state && state !== "OPEN" ? [] : [{ number: pr.prNumber, repo: pr.repo, url: pr.url ?? entry?.url ?? "", checks: entry?.details?.checks ?? "" }];
+    let details = entry?.details ?? {};
+    return state && state !== "OPEN"
+      ? []
+      : [
+          {
+            number: pr.prNumber,
+            repo: pr.repo,
+            url: pr.url ?? entry?.url ?? "",
+            checks: details.checks ?? "",
+            draft: details.isDraft === true || pr.isDraft === true,
+            review: details.reviewDecision ?? "",
+            mergeable: details.mergeable ?? "",
+            additions: details.additions ?? null,
+            deletions: details.deletions ?? null,
+            comments: typeof details.openReviewComments === "number" ? details.openReviewComments : (details.openReviewComments?.count ?? null),
+          },
+        ];
   });
 }
 /** "Bash", "WebFetch", "github: create pull request" for mcp__github__create_pull_request. */
@@ -780,7 +796,40 @@ function powertoysWaitReason(view, state = powertoysStateOf(view)) {
   }
   return "";
 }
-/** For the page's tabs: { [sessionId]: { prs, reason, queued, todos } }. */
+/**
+ * The Notion ticket a conversation is about, from the pages it fetched (see trackTopic): the one whose ID is in the
+ * session's title, else the one whose ID the person mentions most, else the first one fetched with an ID; with no
+ * fetched ticket, an ID in the title alone.
+ */
+function powertoysPickTicket(topic, title) {
+  let property = (page, pattern) => Object.entries(page.properties ?? {}).find(([key]) => pattern.test(key))?.[1];
+  let idOf = (page) => {
+    let value = property(page, /(^|:)ID$/i);
+    return typeof value === "string" && /^[A-Z][A-Z0-9]{1,9}-\d+$/.test(value) ? value : "";
+  };
+  let mentions = topic?.mentions ?? {};
+  let tickets = (topic?.pages ?? []).map((page) => ({ page, id: idOf(page) })).filter((ticket) => ticket.id);
+  let chosen =
+    tickets.find((ticket) => title.includes(ticket.id)) ??
+    [...tickets].sort((left, right) => (mentions[right.id] ?? 0) - (mentions[left.id] ?? 0) || left.page.order - right.page.order)[0];
+  if (!chosen) {
+    let id = /\b[A-Z][A-Z0-9]{1,9}-\d{1,6}\b/.exec(title)?.[0];
+    return id ? { id, title: "", url: "", status: "", read: false } : null;
+  }
+  let text = (value) => (typeof value === "string" ? value : Array.isArray(value) ? value.filter((each) => typeof each === "string" && !/^https?:/.test(each)).join(", ") : "");
+  return {
+    id: chosen.id,
+    title: chosen.page.title,
+    url: chosen.page.url ?? "",
+    status: text(property(chosen.page, /^status$/i)),
+    priority: text(property(chosen.page, /^priority$/i)),
+    type: text(property(chosen.page, /^type$/i)),
+    description: text(property(chosen.page, /^description$/i)).slice(0, 600),
+    read: true,
+    at: chosen.page.updatedAt ?? chosen.page.seenAt,
+  };
+}
+/** For the page's tabs: { [sessionId]: { prs, reason, queued, todos, taskList, topic } }. */
 async function powertoysTabExtras(sessionIds) {
   let manager = powertoysSessionManager();
   let waiting = new Map(powertoysStatusSnapshot.waiting.map((item) => [item.sessionId, item]));
@@ -794,17 +843,46 @@ async function powertoysTabExtras(sessionIds) {
       }
       let state = powertoysStateOf(view);
       let cliSessionId = manager?.sessions.get(sessionId)?.cliSessionId;
-      let todos = cliSessionId ? await powertoysTranscripts("todos", { cliSessionId }).catch(() => null) : null;
+      let [todos, topic] = cliSessionId
+        ? await Promise.all([powertoysTranscripts("todos", { cliSessionId }).catch(() => null), powertoysTranscripts("topic", { cliSessionId }).catch(() => null)])
+        : [null, null];
       result[sessionId] = {
         prs: powertoysSessionPrs(view),
         reason: waiting.get(sessionId)?.reason ?? powertoysWaitReason(view, state),
         queued: queue[sessionId]?.length ?? 0,
         taskList: manager?.sessions.get(sessionId)?.turnBoxMounted === true || manager?.sessions.get(sessionId)?.turnBoxDeclared === true,
         todos: todos?.items.length ? { ...todos, state } : null,
+        topic: { ticket: powertoysPickTicket(topic, powertoysSessionTitle(view)), recap: topic?.recap ?? null },
       };
     }),
   );
   return result;
+}
+/**
+ * A prompt from outside the app (Slack Powertoys' "Share with Claude", scripts/powertoys-command.mjs) for a session,
+ * named by its id or by its Claude Code session id (the transcript's name): it joins the session's prompt queue,
+ * so it is sent now when the session is idle, else when its turn ends, as a message the app shows.
+ */
+function powertoysQueuePromptFromRequest(request) {
+  let manager = powertoysSessionManager();
+  let text = typeof request?.text === "string" ? request.text.trim() : "";
+  if (!text) {
+    throw Error("No prompt text");
+  }
+  let sessionId = typeof request.sessionId === "string" && manager?.sessions.has(request.sessionId) ? request.sessionId : null;
+  if (!sessionId && typeof request.cliSessionId === "string" && request.cliSessionId) {
+    sessionId =
+      [...(manager?.sessions.values() ?? [])].find((record) => record.cliSessionId === request.cliSessionId || record.unarchivedCliSessionId === request.cliSessionId)
+        ?.sessionId ?? null;
+  }
+  if (!sessionId) {
+    throw Error(`No Claude Desktop session has ${request.cliSessionId ? `Claude Code session ${request.cliSessionId}` : `id ${request.sessionId}`}`);
+  }
+  let queue = powertoysQueueChange(sessionId, "add", text);
+  powertoysLog(`prompt queue: ${text.length} characters queued for ${sessionId} by a command request`);
+  // Not awaited: the answer goes back at once; sending waits for the session.
+  powertoysSendQueued(sessionId, "queued by a command request");
+  return { sessionId, queued: queue[sessionId]?.length ?? 0 };
 }
 /** Sends a session's next queued prompt when its turn is over and nothing waits for an answer. */
 const powertoysQueueSending = new Set();
@@ -890,38 +968,23 @@ function powertoysSavePaste(text) {
   powertoysLog(`paste: ${text.length} characters saved to ${file}`);
   return file;
 }
-/** Files outside a session's folders the person allowed to be opened (from the "Couldn't find this file" view). */
-function powertoysOutsideFiles() {
-  let list = powertoysReadJson("outside-files.json", []);
-  return Array.isArray(list) ? list.filter((file) => typeof file === "string") : [];
-}
 /**
  * The root a file outside the session's folders may be read from, or null: Powertoys' own pastes
- * folder, or a file the person allowed. Read only (the session manager treats it as a temp root).
+ * folder, or, when the person is viewing it in the file pane, any file. Read only (the session
+ * manager treats it as a temp root).
  * Called by the session manager's containToGrantedRoots (ccd-local-session-manager).
  */
-function powertoysOutsideReadRoot(realAbs) {
+function powertoysOutsideReadRoot(realAbs, viewing) {
   if (typeof realAbs !== "string") {
     return null;
   }
-  let lower = realAbs.toLowerCase();
-  let pastes = powertoysPath.join(powertoysDir(), "pastes");
-  if (lower.startsWith(`${pastes.toLowerCase()}${powertoysPath.sep}`)) {
-    return pastes;
+  if (viewing) {
+    return powertoysPath.dirname(realAbs);
   }
-  return powertoysOutsideFiles().some((file) => file.toLowerCase() === lower) ? powertoysPath.dirname(realAbs) : null;
+  let pastes = powertoysPath.join(powertoysDir(), "pastes");
+  return realAbs.toLowerCase().startsWith(`${pastes.toLowerCase()}${powertoysPath.sep}`) ? pastes : null;
 }
 Object.defineProperty(exports, "powertoysOutsideReadRoot", { enumerable: true, get: () => powertoysOutsideReadRoot });
-function powertoysAllowOutsideFile(filePath) {
-  if (typeof filePath !== "string" || !powertoysPath.isAbsolute(filePath)) {
-    throw Error("Not a file path");
-  }
-  let real = powertoysFs.realpathSync(filePath);
-  let list = powertoysOutsideFiles().filter((file) => file.toLowerCase() !== real.toLowerCase());
-  powertoysWriteJson("outside-files.json", [...list, real]);
-  powertoysLog(`outside file allowed: ${real}`);
-  return real;
-}
 /**
  * Token use and estimated cost over the last `days` days (today included), per project (a worktree
  * counts as its repository) and per session, most expensive first. Local sessions only.
@@ -1006,6 +1069,14 @@ Object.defineProperty(exports, "powertoysApplyProjectDefaults", { enumerable: tr
 // --- The app's task list (its plan tool, mcp__ccd_turn__update_plan, with the wrap-up box) ---------------------
 // The page asks for it per new session only while two of its server flags allow it, and a session keeps the tool
 // set it started with, so some sessions have no task list at all (nor Claude Code's own task tools).
+/** Added to the plan tool's description (setting agentEstimates): ask for an estimate per step. */
+function powertoysPlanToolNote() {
+  if (powertoysSetting("agentEstimates") === false) {
+    return "";
+  }
+  return "\n\nGive every step an estimate: the minutes you expect it to take you, judged from the work it involves (what to read and change, builds, deploys, tests, waiting for CI or reviews). Whenever you send the whole plan again, re-estimate the steps not done yet from what you have learned. The app shows the user the time left and when you will be done from these estimates, so make them your honest best guess.";
+}
+Object.defineProperty(exports, "powertoysPlanToolNote", { enumerable: true, get: () => powertoysPlanToolNote });
 /** A new session the person starts asks for the task list when the setting is on. */
 function powertoysApplyTaskList(startOptions) {
   if (powertoysSetting("forceTaskList") === false || !startOptions || startOptions.turnBox === true || startOptions.violinBow) {
@@ -1116,7 +1187,6 @@ try {
   powertoysHandle("knownModels", () => powertoysKnownModels());
   powertoysHandle("usageReport", (event, days) => powertoysUsageReport(days));
   powertoysHandle("savePaste", (event, text) => powertoysSavePaste(text));
-  powertoysHandle("allowOutsideFile", (event, filePath) => powertoysAllowOutsideFile(filePath));
   powertoysHandle("setNote", (event, sessionId, text) => powertoysSetNote(String(sessionId ?? ""), text));
 } catch (caught) {
   logger.error("[powertoys] registering the tab preview IPC failed: %o", caught);

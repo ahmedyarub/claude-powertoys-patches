@@ -337,6 +337,9 @@ function powertoysPageMain() {
       background: hsl(var(--bg-000, 0 0% 12%)); color: hsl(var(--text-100, 60 14% 97%)); border: 1px solid hsl(var(--border-300, 52 12% 87%) / 0.2); box-shadow: 0 6px 24px rgb(0 0 0 / 0.35); }
     .ctxmap .tip .dim { color: hsl(var(--text-300, 55 9% 74%)); }
     .ctxmap .cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 18px; }
+    .history.topic { inset: 8vh 18vw; }
+    .ctxmap a.link { color: hsl(var(--accent-100, 212 75% 62%)); text-decoration: none; cursor: pointer; }
+    .ctxmap a.link:hover { text-decoration: underline; }
     .ctxmap .h3row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
     .ctxmap .h3row h3 { margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .ctxmap .seg { display: inline-flex; flex: none; border: 1px solid hsl(var(--border-300, 52 12% 87%) / 0.2); border-radius: 6px; overflow: hidden; }
@@ -704,12 +707,15 @@ function powertoysPageMain() {
   }
   const EDGE_PX = 12;
   let peekArmed = true;
+  // Only a maximized (or full-screen) window's left edge is the screen's: elsewhere the pointer crosses it on its way
+  // to other windows (powertoys:window from the main process).
+  let windowMaximized = true;
   /** The collapsed sidebar's "Show sidebar" button; absent while the sidebar is docked. */
   function showSidebarButton() {
     return [...document.querySelectorAll('button[aria-label="Show sidebar"]')].find(isShown) ?? null;
   }
   function onPointerMoveForSidebar(event) {
-    if (!settings?.autoHideSidebar || event.pointerType !== "mouse" || !event.isTrusted) {
+    if (!settings?.autoHideSidebar || !windowMaximized || event.pointerType !== "mouse" || !event.isTrusted) {
       return;
     }
     if (event.clientX > EDGE_PX + 30) {
@@ -751,6 +757,7 @@ function powertoysPageMain() {
         note && `✎ ${note}`,
         item.folder,
         stateText,
+        extra?.topic?.ticket ? `🎫 ${extra.topic.ticket.id}` : "",
         item.sessionId ? taskShort(item.sessionId) : "",
         ci?.checks ? `${CI_GLYPHS[ci.checks]} ${ciText(ci)}` : "",
         extra?.queued ? `⏭ ${extra.queued} queued` : "",
@@ -1186,45 +1193,16 @@ function powertoysPageMain() {
     },
     true,
   );
-  // "Couldn't find this file" (a file outside the session's folders): a button to open it anyway, which
-  // allows that one file (read only) and tries again.
-  function decorateOutsideFileViews() {
-    for (let explorer of document.querySelectorAll("button")) {
-      if (explorer.textContent.trim() !== "Show in Explorer" || explorer.parentElement?.querySelector("[data-pt-open-anyway]")) {
-        continue;
-      }
-      let view = explorer.closest("div")?.parentElement?.parentElement ?? explorer.parentElement;
-      let text = view?.innerText ?? "";
-      if (!/Couldn.t find this file/.test(text) || !/outside the working directory/.test(text)) {
-        continue;
-      }
-      let filePath = /[A-Za-z]:\\[^\n]+/.exec(text.slice(text.search(/outside the working directory/)))?.[0]?.trim();
-      if (!filePath) {
-        continue;
-      }
-      let button = explorer.cloneNode(false);
-      button.textContent = "Open anyway";
-      button.title = `Allow this file (read only), outside the session's folders: ${filePath}`;
-      button.setAttribute("data-pt-open-anyway", "");
-      button.addEventListener("click", (event) => {
-        event.preventDefault();
-        event.stopPropagation();
-        call("allowOutsideFile", filePath).then(
-          () => [...explorer.parentElement.querySelectorAll("button")].find((other) => other.textContent.trim() === "Try again")?.click(),
-          (caught) => flash(caught.message),
-        );
-      });
-      explorer.after(button);
-    }
-  }
   // --- Task lists: progress, time left, when done and the total ----------------------------------------
   // The page draws its plan and TodoWrite / Task lists without times; the transcript has them (todoProgress). The list
-  // on screen is found by its items' text, and a bar with the estimate goes under it. The pace is the time per step
-  // so far, from when the list began; nothing is estimated before the first step is done. The estimate is a snapshot:
-  // the time left counts down to its finish time, and it is recalculated every settings.taskEstimateMinutes while the
-  // session works, when a step finishes, when the session starts or stops working, and with the bar's ↻.
+  // on screen is found by its items' text, and a bar with the estimate goes under it. The time left is Claude's own:
+  // the plan tool takes an estimate per step (agentEstimates), and a step without one counts as the average of
+  // those with one. The time left counts down to the finish time; it is worked out again when a step's status or
+  // estimate changes, and the bar's button asks Claude for new estimates.
   const taskLists = new Map(); // sessionId -> { at, data }
   const taskEstimates = new Map(); // sessionId -> the estimate shown (see estimateTasks)
+  const REESTIMATE_PROMPT =
+    'Re-estimate your task list: send the whole plan again with update_plan (scope "continuation"), the steps as they are, with an estimate in minutes for every step not done yet, from what you know now about the work left. Only update the plan: this message is not a request for other work.';
   function fetchTaskList(sessionId) {
     return call("todoProgress", sessionId).then(
       (data) => taskLists.set(sessionId, { at: Date.now(), data }),
@@ -1247,30 +1225,49 @@ function powertoysPageMain() {
     return total < 1 ? "<1 min" : total < 60 ? `${total} min` : `${Math.floor(total / 60)} h ${total % 60} min`;
   }
   const clock = (at) => new Date(at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  const estimateSignature = (data) => data.items.map((item) => `${item.status}:${item.estimate ?? ""}`).join("|");
   function estimateTasks(data, now) {
     let items = data.items;
-    let done = items.filter((item) => item.status === "completed");
     let current = items.find((item) => item.status === "in_progress");
     let began = data.startedAt || Math.min(...items.map((item) => item.createdAt || now));
-    let estimate = { at: now, done: done.length, working: data.state === "working", began, pace: 0, left: 0 };
-    if (done.length === 0 || done.length === items.length) {
+    let estimate = {
+      at: now,
+      signature: estimateSignature(data),
+      working: data.state === "working",
+      began,
+      left: 0,
+      estimated: false,
+      missing: 0,
+      planned: 0,
+      after: 0, // the steps after the current one
+    };
+    let open = items.filter((item) => item.status !== "completed");
+    let known = items.filter((item) => item.estimate > 0);
+    estimate.planned = known.reduce((sum, item) => sum + item.estimate * 60000, 0);
+    if (open.length === 0 || !open.some((item) => item.estimate > 0)) {
       return estimate;
     }
-    let lastDone = Math.max(...done.map((item) => item.doneAt || began));
-    let currentFor = current ? now - (current.startedAt || lastDone) : 0;
-    // A step still running already took this long, so it counts too.
-    estimate.pace = Math.max(1000, (lastDone - began) / done.length, current ? (now - began) / (done.length + 1) : 0);
-    let waiting = items.length - done.length - (current ? 1 : 0);
-    estimate.left = waiting * estimate.pace + (current ? Math.max(estimate.pace - currentFor, estimate.pace * 0.1) : 0);
+    let average = estimate.planned / known.length;
+    estimate.estimated = true;
+    for (let item of open) {
+      let planned = item.estimate > 0 ? item.estimate * 60000 : average;
+      if (!(item.estimate > 0)) {
+        estimate.missing++;
+      }
+      if (item === current) {
+        let spent = now - (item.startedAt || now);
+        estimate.left += Math.max(planned - spent, 0);
+      } else {
+        estimate.left += planned;
+        estimate.after += planned;
+      }
+    }
     return estimate;
   }
-  /** The estimate to show: the last one, or a new one when it is due. */
+  /** The estimate to show: the last one, or a new one when a step's status or estimate changed. */
   function currentEstimate(sessionId, data, now) {
     let last = taskEstimates.get(sessionId);
-    let done = data.items.filter((item) => item.status === "completed").length;
-    let working = data.state === "working";
-    let every = Math.max(1, Number(settings?.taskEstimateMinutes) || 30) * 60000;
-    if (!last || last.done !== done || last.working !== working || (working && now - last.at >= every)) {
+    if (!last || last.signature !== estimateSignature(data) || last.working !== (data.state === "working")) {
       last = estimateTasks(data, now);
       taskEstimates.set(sessionId, last);
     }
@@ -1283,27 +1280,34 @@ function powertoysPageMain() {
     let summary = { total: items.length, done: done.length, partial: 0, text: "" };
     if (done.length === items.length) {
       let finished = Math.max(...done.map((item) => item.doneAt || estimate.began));
-      summary.text = `All ${items.length} done in ${minutes(finished - estimate.began)}`;
+      summary.text = `All ${items.length} done in ${minutes(finished - estimate.began)}${estimate.planned ? ` (Claude estimated ${minutes(estimate.planned)})` : ""}`;
       return summary;
     }
-    if (done.length === 0) {
-      summary.text = `0 of ${items.length} done · time left is estimated after the first one`;
+    if (!estimate.estimated) {
+      summary.text = `${done.length} of ${items.length} done · no estimate from Claude yet`;
       return summary;
     }
-    if (current && estimate.pace) {
-      let lastDone = Math.max(...done.map((item) => item.doneAt || estimate.began));
-      summary.partial = Math.min(0.9, (now - (current.startedAt || lastDone)) / estimate.pace);
+    if (current?.estimate > 0) {
+      summary.partial = Math.min(0.95, (now - (current.startedAt || now)) / (current.estimate * 60000));
     }
-    let finish = estimate.at + estimate.left;
+    // A step running past its estimate pushes the finish back: the steps after it still take their time.
+    let finish = estimate.working ? Math.max(estimate.at + estimate.left, now + estimate.after) : estimate.at + estimate.left;
     let parts = [`${done.length} of ${items.length} done`];
     if (!estimate.working) {
       parts.push(`~${minutes(estimate.left)} left`, "paused");
     } else if (finish > now) {
       parts.push(`~${minutes(finish - now)} left`, `done ≈ ${clock(finish)}`);
     } else {
-      parts.push(`${minutes(now - finish)} past the estimate`);
+      parts.push("finishing the last step, past its estimate");
     }
-    parts.push(`~${minutes(finish - estimate.began)} in all`, `estimated ${clock(estimate.at)}`);
+    let over = current?.estimate > 0 ? now - (current.startedAt || now) - current.estimate * 60000 : 0;
+    if (over > 60000) {
+      parts.push(`this step ${minutes(over)} over its estimate`);
+    }
+    if (estimate.missing) {
+      parts.push(`${estimate.missing} step${estimate.missing === 1 ? "" : "s"} not estimated`);
+    }
+    parts.push(`~${minutes(Math.max(finish, now) - estimate.began)} in all`);
     summary.text = parts.join(" · ");
     return summary;
   }
@@ -1341,28 +1345,25 @@ function powertoysPageMain() {
     line.style.cssText = "display: flex; align-items: center; gap: 6px;";
     let text = document.createElement("span");
     let update = document.createElement("button");
-    update.textContent = "↻";
-    update.title = "Update the estimate";
-    update.style.cssText = "border: none; background: none; color: inherit; cursor: pointer; padding: 0 4px; font-size: 13px; border-radius: 4px;";
+    update.textContent = "↻ re-estimate";
+    update.title = "Ask Claude to estimate the steps left again (sent now when the session is idle, else when its turn ends)";
+    update.style.cssText = "border: none; background: none; color: inherit; cursor: pointer; padding: 0 4px; font-size: 12px; border-radius: 4px; opacity: 0.8;";
     update.addEventListener("click", (event) => {
       event.preventDefault();
       event.stopPropagation();
       let sessionId = bar.dataset.session;
-      let before = taskEstimates.get(sessionId);
       update.disabled = true;
-      update.textContent = "…";
-      fetchTaskList(sessionId).finally(() => {
-        taskEstimates.delete(sessionId);
-        update.disabled = false;
-        update.textContent = "↻";
-        decorateTaskLists();
-        let after = taskEstimates.get(sessionId);
-        let finish = (estimate) => (estimate ? estimate.at + estimate.left : 0);
-        let change = !before || !after ? "" : Math.abs(finish(after) - finish(before)) < 60000 ? " (no change)" : ` (was done ≈ ${clock(finish(before))})`;
-        let text = after?.left ? `Estimate updated: ~${minutes(after.left)} left, done ≈ ${clock(finish(after))}${change}` : "Estimate updated";
-        flash(text);
-        log(`task estimate for ${sessionId}: ${text}`);
-      });
+      call("queue", sessionId, "add", REESTIMATE_PROMPT).then(
+        (queue) => {
+          update.disabled = false;
+          flash((queue[sessionId]?.length ?? 0) ? "Asked: Claude re-estimates when its turn ends" : "Asked: Claude is re-estimating now");
+          log(`task estimate: asked ${sessionId} to re-estimate`);
+        },
+        (caught) => {
+          update.disabled = false;
+          flash(caught.message);
+        },
+      );
     });
     line.append(text, update);
     bar.append(track, line);
@@ -1399,7 +1400,8 @@ function powertoysPageMain() {
         if (text.textContent !== summary.text) {
           text.textContent = summary.text;
         }
-        bar.lastChild.lastChild.hidden = summary.done === 0 || summary.done === summary.total;
+        // Asking for new estimates needs the plan tool (a TodoWrite list has no estimates).
+        bar.lastChild.lastChild.hidden = summary.done === summary.total || data.source !== "plan";
         keep.add(bar);
       }
     }
@@ -1919,6 +1921,213 @@ function powertoysPageMain() {
       },
       (caught) => flash(caught.message.replace(/^Error invoking remote method '[^']+': (Error: )?/, "")),
     );
+  }
+  // --- Conversation topic: its Notion ticket, implementation and testing progress, its PR --------------------
+  // The ticket comes from the Notion pages the conversation fetched (and the status changes it made); progress from
+  // its task list (steps about testing count as testing) and its last end-of-turn recap; the PR from the app's
+  // tracker (tabExtras). A chip in the status row sums it up; it opens the whole topic.
+  const TEST_STEP = /\b(test|tests|tested|testing|verify|verified|verification|QA|repro|reproduce|e2e|smoke)\b/i;
+  const PR_REVIEW = { APPROVED: "approved", CHANGES_REQUESTED: "changes requested", REVIEW_REQUIRED: "review required" };
+  function topicParts(sessionId) {
+    let extra = tabExtras[sessionId];
+    let ticket = extra?.topic?.ticket;
+    let parts = [];
+    if (ticket) {
+      parts.push(ticket.status ? `🎫 ${ticket.id} · ${ticket.status}` : `🎫 ${ticket.id}`);
+    }
+    let items = taskLists.get(sessionId)?.data?.items ?? [];
+    if (items.length >= 2) {
+      let done = items.filter((item) => item.status === "completed").length;
+      parts.push(`☑ ${done}/${items.length}`);
+      let tests = items.filter((item) => TEST_STEP.test(item.content));
+      if (tests.length) {
+        parts.push(`🧪 ${tests.filter((item) => item.status === "completed").length}/${tests.length}`);
+      }
+    }
+    for (let pr of extra?.prs ?? []) {
+      parts.push(`PR #${pr.number}${pr.draft ? " (draft)" : ""}${pr.checks ? ` ${CI_GLYPHS[pr.checks] ?? ""}` : ""}`);
+    }
+    return parts;
+  }
+  let topicWindowOpen = null;
+  async function openTopic(sessionId, title) {
+    closePopup();
+    if (!sessionId) {
+      flash("No session here");
+      return;
+    }
+    topicWindowOpen?.shut();
+    let backdrop = element("div", "backdrop");
+    let panel = element("div", "panel history ctxmap topic");
+    let head = element("div", "head");
+    let heading = element("span", "", `Topic · ${title || "this session"}`);
+    heading.style.cssText = "flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;";
+    let refresh = element("button", "iconbtn", "↻");
+    refresh.title = "Read the conversation again";
+    let close = element("button", "iconbtn", "✕");
+    head.append(heading, refresh, close);
+    let body = element("div", "body");
+    panel.append(head, body);
+    ui().append(backdrop, panel);
+    let shut = () => {
+      backdrop.remove();
+      panel.remove();
+      keyWindows.delete(windowState);
+      topicWindowOpen = null;
+    };
+    let windowState = {
+      shut,
+      onKey(event) {
+        if (event.type === "keydown" && event.code === "Escape" && !popup) {
+          shut();
+          return true;
+        }
+        return false;
+      },
+    };
+    keyWindows.add(windowState);
+    topicWindowOpen = windowState;
+    close.addEventListener("click", shut);
+    backdrop.addEventListener("mousedown", shut);
+    let load = async () => {
+      let fresh = await call("tabExtras", [sessionId]).catch(() => null);
+      if (topicWindowOpen !== windowState) {
+        return;
+      }
+      if (fresh?.[sessionId]) {
+        tabExtras[sessionId] = fresh[sessionId];
+        if (fresh[sessionId].todos) {
+          taskLists.set(sessionId, { at: Date.now(), data: fresh[sessionId].todos });
+        }
+      }
+      renderTopic(body, sessionId, shut);
+    };
+    refresh.addEventListener("click", load);
+    body.appendChild(element("div", "empty", "Reading the conversation…"));
+    await load();
+  }
+  function renderTopic(body, sessionId, shut) {
+    body.textContent = "";
+    let extra = tabExtras[sessionId] ?? {};
+    let section = (titleText) => {
+      let node = element("div", "section");
+      node.appendChild(element("h3", "", titleText));
+      body.appendChild(node);
+      return node;
+    };
+    let link = (text, url) => {
+      let node = element("a", "link", text);
+      node.href = "#";
+      node.addEventListener("click", (event) => {
+        event.preventDefault();
+        call("openUrl", url).catch((caught) => flash(caught.message));
+      });
+      return node;
+    };
+    // The ticket.
+    let ticket = extra.topic?.ticket;
+    let ticketSection = section("Ticket");
+    if (!ticket) {
+      ticketSection.appendChild(element("div", "note", "No Notion ticket in this conversation (none was fetched, and the title names none)."));
+    } else {
+      let line = element("div", "summary");
+      let label = `${ticket.id}${ticket.title ? ` · ${ticket.title}` : ""}`;
+      line.appendChild(ticket.url && /^https:/.test(ticket.url) ? link(label, ticket.url) : element("strong", "", label));
+      ticketSection.appendChild(line);
+      let facts = [ticket.status && `Status: ${ticket.status}`, ticket.priority && `Priority: ${ticket.priority}`, ticket.type && `Type: ${ticket.type}`].filter(Boolean);
+      if (facts.length) {
+        ticketSection.appendChild(element("div", "", facts.join(" · ")));
+      }
+      if (ticket.description) {
+        ticketSection.appendChild(element("div", "note", ticket.description));
+      }
+      if (!ticket.read) {
+        ticketSection.appendChild(element("div", "note", "Its Notion page was not read in this conversation, so only its ID is known."));
+      } else if (ticket.at) {
+        ticketSection.appendChild(element("div", "note", `As of ${whenText(ticket.at)} in this conversation`));
+      }
+    }
+    // Implementation and testing, from the task list.
+    let data = taskLists.get(sessionId)?.data;
+    let items = data?.items ?? [];
+    let steps = (rows) => {
+      let container = element("div", "rows");
+      for (let item of rows) {
+        let line = element("div", "r");
+        let glyph = item.status === "completed" ? "✓" : item.status === "in_progress" ? "●" : "○";
+        let label = element("span", "label", item.status === "in_progress" && item.activeForm ? item.activeForm : item.content);
+        label.title = item.content;
+        if (item.status === "completed") {
+          label.style.opacity = "0.65";
+        }
+        let estimated = item.estimate > 0 ? minutes(item.estimate * 60000) : "";
+        let when =
+          item.status === "completed"
+            ? item.startedAt && item.doneAt
+              ? `took ${minutes(item.doneAt - item.startedAt)}${estimated ? ` (est. ${estimated})` : ""}`
+              : estimated && `est. ${estimated}`
+            : item.status === "in_progress"
+              ? [item.startedAt && `since ${whenText(item.startedAt)}`, estimated && `est. ${estimated}`].filter(Boolean).join(" · ")
+              : estimated && `~${estimated}`;
+        line.append(element("span", "size", glyph), label, element("span", "when", when || ""));
+        container.appendChild(line);
+      }
+      return container;
+    };
+    let implementation = section("Implementation");
+    if (items.length === 0) {
+      implementation.appendChild(element("div", "note", "No task list in this conversation."));
+      if (extra.taskList === false) {
+        let add = element("a", "link", "Add the task list to this session");
+        add.href = "#";
+        add.addEventListener("click", (event) => {
+          event.preventDefault();
+          shut();
+          addTaskList(sessionId);
+        });
+        implementation.appendChild(add);
+      }
+    } else {
+      let now = Date.now();
+      implementation.appendChild(element("div", "summary", taskSummary(data, currentEstimate(sessionId, data, now), now).text));
+      implementation.appendChild(steps(items));
+    }
+    let tests = items.filter((item) => TEST_STEP.test(item.content));
+    let testing = section("Testing");
+    if (tests.length === 0) {
+      testing.appendChild(element("div", "note", items.length ? "No testing steps in the task list." : "No task list to read testing from."));
+    } else {
+      testing.appendChild(element("div", "summary", `${tests.filter((item) => item.status === "completed").length} of ${tests.length} testing steps done`));
+      testing.appendChild(steps(tests));
+    }
+    // The last end-of-turn recap.
+    let recap = extra.topic?.recap;
+    let recapSection = section("Where it stands (the last turn's recap)");
+    if (recap) {
+      recapSection.appendChild(element("div", "", recap.text));
+      recapSection.appendChild(element("div", "note", whenText(recap.at)));
+    } else {
+      recapSection.appendChild(element("div", "note", "No recap yet (the app writes one at the end of a turn when the session has its task list)."));
+    }
+    // The PR.
+    let prSection = section("Pull request");
+    if (!(extra.prs ?? []).length) {
+      prSection.appendChild(element("div", "note", "No open PR for this session."));
+    }
+    for (let pr of extra.prs ?? []) {
+      let line = element("div", "summary");
+      line.appendChild(pr.url && /^https:/.test(pr.url) ? link(`#${pr.number} · ${pr.repo}`, pr.url) : element("strong", "", `#${pr.number} · ${pr.repo}`));
+      prSection.appendChild(line);
+      let facts = [
+        pr.draft ? "draft" : "open",
+        pr.checks ? `checks ${CI_NAMES[pr.checks]?.replace(/^checks /, "") ?? pr.checks}` : "no checks yet",
+        pr.review ? `review: ${PR_REVIEW[pr.review] ?? pr.review.toLowerCase()}` : "",
+        pr.mergeable === "CONFLICTING" ? "merge conflicts" : pr.mergeable === "MERGEABLE" ? "mergeable" : "",
+        typeof pr.comments === "number" && pr.comments > 0 ? `${pr.comments} open review comment${pr.comments === 1 ? "" : "s"}` : "",
+        pr.additions != null ? `+${pr.additions} −${pr.deletions ?? 0}` : "",
+      ].filter(Boolean);
+      prSection.appendChild(element("div", "", facts.join(" · ")));
+    }
   }
   /** Whether a snippet belongs here: no "project", or one naming this conversation's project. */
   function snippetFits(snippet, project) {
@@ -3207,6 +3416,10 @@ function powertoysPageMain() {
       ["Snippets", showSnippets, "Ctrl+Shift+Space"],
       ["Quick send to a session", () => call("quickSend")],
       ["Token use and cost by project (last 7 days)", () => showUsageReport(7)],
+      ["Topic: this conversation's ticket, progress and PR", () => {
+        let sessionId = paneSessionId(activePane());
+        openTopic(sessionId, tabRows.find((row) => row.kind === "code" && row.id === sessionId)?.title);
+      }],
       ["Context map: what fills this session's context, and how it grew", () => {
         let sessionId = paneSessionId(activePane());
         openContextMap(sessionId, tabRows.find((row) => row.kind === "code" && row.id === sessionId)?.title);
@@ -3486,6 +3699,13 @@ function powertoysPageMain() {
       }
       parts.push(node);
     };
+    let topic = info.sessionId ? topicParts(info.sessionId) : [];
+    if (topic.length) {
+      part([topic.join(" · ")], "This conversation's topic: its ticket, progress and PR (click for all of it)", true);
+      let node = parts.at(-1);
+      node.style.cursor = "pointer";
+      node.addEventListener("click", () => openTopic(info.sessionId, tabRows.find((row) => row.kind === "code" && row.id === info.sessionId)?.title));
+    }
     if (info.profile && show.profile) {
       part([`👤 ${info.profile}`], `Profile${sharedNote}`, true);
     }
@@ -3574,7 +3794,7 @@ function powertoysPageMain() {
           // After the permission mode (the row's first item), before the model on the right.
           row.firstElementChild ? row.firstElementChild.after(node) : row.appendChild(node);
         }
-        let signature = JSON.stringify([info, show]);
+        let signature = JSON.stringify([info, show, info.sessionId ? topicParts(info.sessionId) : []]);
         if (node.dataset.signature !== signature) {
           node.dataset.signature = signature;
           node.replaceChildren(...statusContent(info, show));
@@ -4757,6 +4977,7 @@ function powertoysPageMain() {
     let extra = tabExtras[row.id];
     let meta = [
       state ? STATE_NAMES[state] + (extra?.reason && state !== "working" ? `: ${extra.reason}` : "") : "",
+      extra?.topic?.ticket ? `🎫 ${extra.topic.ticket.id}${extra.topic.ticket.status ? ` · ${extra.topic.ticket.status}` : ""}` : "",
       ciText(ciOf(extra)),
       taskShort(row.id),
       extra?.queued ? `⏭ ${extra.queued} queued` : "",
@@ -4946,6 +5167,7 @@ function powertoysPageMain() {
           "-",
           { label: sessionNotes[row.id] ? "Edit note…" : "Add a note…", onClick: () => editNote(row.id, row.title) },
           { label: `Queued prompts (${promptQueue[row.id]?.length ?? 0})…`, onClick: () => showPromptQueue(row.id, row.title) },
+          { label: "Topic: ticket, progress, PR…", onClick: () => openTopic(row.id, row.title) },
           { label: "Context map…", onClick: () => openContextMap(row.id, row.title) },
           ...(tabExtras[row.id]?.taskList === false ? [{ label: "Add the task list to this session", onClick: () => addTaskList(row.id) }] : []),
           isMuted(row.id)
@@ -5457,6 +5679,9 @@ function powertoysPageMain() {
     openTabs = next?.open ?? null;
     tabsKey = "";
   });
+  ipc.on("powertoys:window", (event, next) => {
+    windowMaximized = next?.maximized === true;
+  });
   ipc.on("powertoys:queue", (event, next) => {
     promptQueue = next ?? {};
     refreshTabExtras();
@@ -5522,6 +5747,7 @@ function powertoysPageMain() {
     openTabs = state.tabs?.open ?? null;
     sessionNotes = state.notes ?? {};
     promptQueue = state.queue ?? {};
+    windowMaximized = state.window?.maximized !== false;
     applySettings(state.settings);
     collapseSidebarGroupsAtStart();
     refreshKnownModels();
@@ -5539,7 +5765,6 @@ function powertoysPageMain() {
         decorateTitleBars();
         foldTitleBarButtons();
         decorateRewindButtons();
-        decorateOutsideFileViews();
       } catch (caught) {
         log(`decorating failed: ${caught.message}`);
       }

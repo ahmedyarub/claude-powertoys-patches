@@ -1,8 +1,8 @@
 # Claude Powertoys patches
 
 Patches that add **Powertoys** to Claude Desktop for Windows: browser-like tabs, a session switcher,
-side-by-side work, prompt history and search, bookmarks, snippets, a prompt queue, task-list progress with time
-estimates, a context map, PR check status on tabs, actionable notifications, and more. This repository holds **only the
+side-by-side work, prompt history and search, bookmarks, snippets, a prompt queue, task-list progress with Claude's
+own time estimates, a context map, the conversation's topic (ticket, progress, PR), PR check status on tabs, actionable notifications, and more. This repository holds **only the
 patches and the patcher**. It contains no code from Claude Desktop.
 
 > Not affiliated with or endorsed by Anthropic. "Claude" and "Claude Desktop" are Anthropic's. The patches are
@@ -36,8 +36,8 @@ patches/files/...           files that are entirely new (written for Powertoys),
   - `scripts/restart-and-continue.mjs`, `scripts/swap-and-launch.mjs`, `scripts/check-syntax.mjs`:
     restarting the app from inside it, then continuing the session.
   - `scripts/powertoys-command.mjs`: asks the running app, from a session, to do what a page action does
-    (for now, add the task list to a session).
-- **25 edits** (`"kind": "edit"`) to the app's own files: the small hooks that call into
+    (add the task list to a session) or queue a prompt in one.
+- **26 edits** (`"kind": "edit"`) to the app's own files: the small hooks that call into
   Powertoys, a rewrite of the Windows notification code, and two build manifests that list the new files.
   They are described one by one [below](#every-change-to-the-apps-own-files).
 
@@ -131,7 +131,8 @@ pastes). Every feature has a switch in the Powertoys settings window (tray menu 
   the tab menu or the command palette) takes a prompt back into the box to edit, or removes it.
 - **Large pastes:** pasted text over 3,000 characters goes in as an attachment. It is saved to a file, so the
   message stays short; Ctrl+Shift+V pastes the text itself.
-- **Files outside the session's folders:** "Open anyway" allows one such file, read only.
+- **Files outside the session's folders:** the file pane opens any file, read only. Claude's own tools (open in
+  your editor, show in Explorer, send a file) still stay inside the session's folders.
 - **Keys and pickers:**
   - Snippets with Ctrl+Shift+Space, per project.
   - Alt+Up shows earlier prompts.
@@ -156,10 +157,13 @@ pastes). Every feature has a switch in the Powertoys settings window (tray menu 
   a tab's menu adds it to a session that started without it, from its next message.
 - **Task lists:** under a session's task list (its plan or TodoWrite list), a progress bar and an estimate, for
   example "3 of 7 done · ~25 min left · done ≈ 21:10 · ~1 h in all":
-  - **How it's estimated:** from the time per finished step, read from the transcript.
-  - **When it's recalculated:** every 30 minutes while the session works (configurable), when a step finishes,
-    and with a ↻ button.
+  - **How it's estimated:** by Claude itself. The plan tool takes an estimate in minutes for each step (a
+    setting, on by default), and a step without one counts as the average of those with one. A step running
+    past its estimate pushes the finish time back.
+  - **Re-estimating:** the ↻ button asks Claude to send the plan again with new estimates.
   - The tab preview and Ctrl+Tab show the short form, "☑ 3/7 · done ≈ 21:10".
+- **Conversation topic:** a chip in the status row with what the session is about, read from its transcript: the
+  Notion ticket it works on (title, status, link), implementation and testing progress, and its PR.
 
 **Context map**
 
@@ -198,7 +202,7 @@ pastes). Every feature has a switch in the Powertoys settings window (tray menu 
   - Declutter switches.
   - Conversation text size, font and full width.
   - Right-to-left text per paragraph.
-  - Sidebar auto-hide, with projects collapsed at start.
+  - Sidebar auto-hide while the window is maximized, with projects collapsed at start.
   - Your own CSS and JS mods (`powertoys\mods\`).
 - **Cowork:** its background service can be switched off, its VM image moved, and it can run without the Store
   install.
@@ -214,7 +218,8 @@ Each hook is marked `Local change` in the patched code.
 | `main/app/0202-session-notifications.js` | +552 −71 | Builds Windows notifications here instead of through Electron, so they can carry the in-app card's buttons (Allow once, Always allow …, Deny; a button per question option, a reply box, Skip, Submit). Can keep them on screen, respects Windows' settings, and records them in the Powertoys inbox. |
 | `ccd-local-session-manager/0026-ccd.js` | +14 −1 | A slash command the app handles itself (`/remote-control`) no longer stays "queued" in the page. |
 | `ccd-local-session-manager/0048-ccd.js` | +5 −1 | That command's echo uses the id the page sent it under, once. |
-| `ccd-local-session-manager/session-core/0035-session-clearing-events.js` | +10 | Files outside the session's folders: Powertoys' pastes folder, and files you allowed with "Open anyway". |
+| `ccd-host-core/mcp-tools/0001-mcp-tool-prefix-sanitizers.js` | +6 −1 | The plan tool takes an estimate in minutes per step, and its description asks for them when the setting is on. |
+| `ccd-local-session-manager/session-core/0035-session-clearing-events.js` | +15 −1 | Files outside the session's folders, read only: Powertoys' pastes folder, and any file you view in the file pane. |
 | `ccd-local-sessions-api/0002-local-sessions-api-core.js` | +6 | Per-project model and effort defaults for a session you start, and the task list when the Powertoys setting is on. |
 | `git-worktree-manager/0003-worktree-trash-tombstones.js` | +19 | Background fetches keep your global `core.sshCommand` (with batch mode) instead of replacing it. |
 | `git-worktree-manager/0004-create-worktree-guards.js` | +1 −1 | Uses the above. |

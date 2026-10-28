@@ -474,6 +474,7 @@ function powertoysTranscriptWorkerMain() {
         let at = timestampOf(entry);
         if (entry.isSidechain !== true) {
           trackTodos(state, entry, at);
+          trackTopic(state, entry, at);
         }
         if (entry.type === "assistant") {
           let message = entry.message ?? {};
@@ -574,6 +575,8 @@ function powertoysTranscriptWorkerMain() {
           let before = previous.find((item) => item.content === todo.content);
           let item = before ? { ...before } : { content: todo.content, status: "pending", createdAt: at };
           item.activeForm = typeof todo.activeForm === "string" ? todo.activeForm : item.activeForm;
+          // The agent's estimate in minutes (the plan tool); a list sent again without one keeps the last.
+          item.estimate = typeof todo.estimate === "number" && todo.estimate > 0 ? todo.estimate : item.estimate;
           setStatus(item, todo.status, at);
           next.set(`todo-${index}`, item);
         }
@@ -583,10 +586,12 @@ function powertoysTranscriptWorkerMain() {
         todos.items = next;
       };
       if (block.name === "TodoWrite") {
+        todos.source = "todo";
         replaceList(Array.isArray(input.todos) ? input.todos : [], false);
       } else if (block.name === "mcp__ccd_turn__update_plan") {
         // The app's plan: a whole list (scope first_task / new_task / continuation), "advance" (the current step
         // is done and the next one starts), or steps by number from 1 (done: [2, 3], start: 4).
+        todos.source = "plan";
         let list = [...todos.items.values()];
         if (Array.isArray(input.items)) {
           replaceList(input.items, input.scope === "first_task" || input.scope === "new_task");
@@ -929,7 +934,79 @@ function powertoysTranscriptWorkerMain() {
     };
   }
 
+  /**
+   * What a conversation is about, from its transcript: the Notion pages it fetched (a ticket's ID, name, status,
+   * priority, type, description, with later status changes it made through notion-update-page), the ticket IDs
+   * in the person's messages, and the last end-of-turn recap (the app's wrap-up box).
+   */
+  const TICKET_ID = /\b[A-Z][A-Z0-9]{1,9}-\d{1,6}\b/g;
+  const notionPageId = (text) => /([0-9a-f]{32})(?![0-9a-f])/i.exec(String(text ?? "").replace(/-/g, ""))?.[1]?.toLowerCase() ?? null;
+  function trackTopic(state, entry, at) {
+    let topic = (state.topic ??= { pages: new Map(), calls: new Map(), mentions: new Map(), recap: null });
+    let content = Array.isArray(entry.message?.content) ? entry.message.content : typeof entry.message?.content === "string" ? [{ type: "text", text: entry.message.content }] : [];
+    if (entry.type === "user") {
+      for (let block of content) {
+        if (block?.type === "tool_result" && topic.calls.has(block.tool_use_id)) {
+          topic.calls.delete(block.tool_use_id);
+          let text = typeof block.content === "string" ? block.content : (Array.isArray(block.content) ? block.content : []).map((part) => part?.text ?? "").join("");
+          let page;
+          try {
+            page = JSON.parse(text);
+          } catch {
+            continue;
+          }
+          let id = notionPageId(page?.url);
+          let properties = null;
+          try {
+            properties = JSON.parse(/<properties>\s*([\s\S]*?)\s*<\/properties>/.exec(page?.text ?? "")?.[1] ?? "null");
+          } catch {}
+          if (id && page?.title) {
+            let known = topic.pages.get(id);
+            topic.pages.set(id, { id, title: page.title, url: page.url, properties: properties ?? known?.properties ?? {}, fetchedAt: known?.fetchedAt ?? at, seenAt: at, order: known?.order ?? topic.pages.size });
+          }
+        } else if (block?.type === "text" && typeof block.text === "string" && entry.isMeta !== true && !/^\s*</.test(block.text)) {
+          for (let match of block.text.matchAll(TICKET_ID)) {
+            topic.mentions.set(match[0], (topic.mentions.get(match[0]) ?? 0) + 1);
+          }
+        }
+      }
+      return;
+    }
+    if (entry.type !== "assistant") {
+      return;
+    }
+    for (let block of content) {
+      if (block?.type !== "tool_use") {
+        continue;
+      }
+      let name = String(block.name ?? "");
+      if (/notion.*fetch/i.test(name)) {
+        topic.calls.set(block.id, true);
+      } else if (/notion.*update-page/i.test(name) && block.input?.properties && typeof block.input.properties === "object") {
+        let page = topic.pages.get(notionPageId(block.input.page_id ?? block.input.url ?? ""));
+        if (page) {
+          page.properties = { ...page.properties, ...block.input.properties };
+          page.updatedAt = at;
+        }
+      } else if (/__wrap_up$/.test(name)) {
+        let text = block.input?.recap ?? block.input?.outcome;
+        if (typeof text === "string" && text.trim()) {
+          topic.recap = { at, text: text.trim().slice(0, 1200) };
+        }
+      }
+    }
+  }
+
   const methods = {
+    /** What the conversation is about (see trackTopic). */
+    topic({ root, cliSessionId }) {
+      let file = findTranscript(root, cliSessionId);
+      if (!file) {
+        return null;
+      }
+      let topic = statsOf(file).topic;
+      return topic ? { pages: [...topic.pages.values()], mentions: Object.fromEntries(topic.mentions), recap: topic.recap } : null;
+    },
     /** Where the session's context went, and how it grew (see contextMap). */
     contextMap: ({ root, cliSessionId }) => contextMap(root, cliSessionId),
     /** The session's task list with its items' times (see trackTodos); null without a transcript. */
@@ -939,7 +1016,7 @@ function powertoysTranscriptWorkerMain() {
         return null;
       }
       let todos = statsOf(file).todos;
-      return { startedAt: todos?.startedAt ?? 0, items: todos ? [...todos.items.values()] : [] };
+      return { startedAt: todos?.startedAt ?? 0, items: todos ? [...todos.items.values()] : [], source: todos?.source ?? "" };
     },
     /** Per session: usage by day and model, edited files (newest first), and activity after `since`. */
     stats({ root, cliSessionIds, since = 0 }) {

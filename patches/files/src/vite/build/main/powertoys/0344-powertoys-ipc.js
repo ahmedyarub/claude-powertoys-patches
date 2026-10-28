@@ -73,6 +73,7 @@ function powertoysRegisterIpc() {
       tabs: powertoysTabs.read(),
       notes: powertoysNotes(),
       queue: powertoysPromptQueue(),
+      window: powertoysWindowState(),
       status: powertoysStatusSnapshot,
     };
   });

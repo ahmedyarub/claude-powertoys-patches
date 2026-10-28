@@ -333,11 +333,13 @@ function powertoysTakeRestartRequest() {
     source: "request file",
   }).catch((caught) => powertoysWarn(`restart request failed: ${caught.message}`));
 }
-// Command requests (scripts/powertoys-command.mjs): { id, command, sessionId }, answered in command-result.json
-// as { id, ok, result | error }. For what a session in this app asks the app to do (a page action, by name).
+// Command requests (scripts/powertoys-command.mjs, Slack Powertoys): { id, command, sessionId | cliSessionId, … },
+// answered in command-result.json as { id, ok, result | error }. For what another program or a session asks the app
+// to do (a page action, by name).
 const POWERTOYS_COMMAND_REQUEST_FILE = "command-request.json";
 const POWERTOYS_COMMANDS = {
   addTaskList: (request) => powertoysAddTaskList(String(request.sessionId ?? "")),
+  queuePrompt: (request) => powertoysQueuePromptFromRequest(request),
 };
 function powertoysTakeCommandRequest() {
   let file = powertoysFile(POWERTOYS_COMMAND_REQUEST_FILE);

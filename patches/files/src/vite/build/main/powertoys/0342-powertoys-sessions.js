@@ -242,6 +242,10 @@ function powertoysStartSessionTracking() {
     for (let eventName of ["focus", "blur", "show", "hide"]) {
       mainWindow.on(eventName, powertoysScheduleStatus);
     }
+    // The page's sidebar auto-hide works only while the window is maximized (or full screen).
+    for (let eventName of ["maximize", "unmaximize", "restore", "enter-full-screen", "leave-full-screen"]) {
+      mainWindow.on(eventName, () => powertoysBroadcast("powertoys:window", powertoysWindowState()));
+    }
     let webContents = mainView?.webContents;
     if (webContents && !webContents.isDestroyed()) {
       let noteRoute = () => {
@@ -269,6 +273,10 @@ function powertoysStartSessionTracking() {
   }, 1500).unref();
   // Keeps "working 12 min" in the tooltip current.
   setInterval(() => powertoysStatusSnapshot.working.length > 0 && powertoysRenderBadge(), 30000).unref();
+}
+function powertoysWindowState() {
+  let usable = mainWindow && !mainWindow.isDestroyed();
+  return { maximized: !!(usable && (mainWindow.isMaximized() || mainWindow.isFullScreen())) };
 }
 function powertoysTitleFromPage(pageTitle) {
   return String(pageTitle ?? "")

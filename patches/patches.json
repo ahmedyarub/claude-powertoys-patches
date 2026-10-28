@@ -79,7 +79,7 @@
   {
    "path": "scripts/powertoys-command.mjs",
    "kind": "add",
-   "sha256": "1d76619263b94e02b86a3dd152455e4c89b9f395c5055a8b4a9ff48ad5347c0e"
+   "sha256": "5eba76fecd3731fdd90a2f2644eeefb7f8a3532febc3ca6ea428db3f46c230af"
   },
   {
    "path": "scripts/restart-and-continue.mjs",
@@ -90,6 +90,50 @@
    "path": "scripts/swap-and-launch.mjs",
    "kind": "add",
    "sha256": "b83f8c6f7cb0e3d8de004f225422f0a82ca741b84380d7b97b779e1e3eaf7f6b"
+  },
+  {
+   "path": "src/vite/build/ccd-host-core/mcp-tools/0001-mcp-tool-prefix-sanitizers.js",
+   "kind": "edit",
+   "baseSha256": "a009a21d568da2d62875730b300121614afef2d49c32ffd220ee45e9effcc6c3",
+   "resultSha256": "f7c7837b30238e135679f11f6b56bf37d107db0095c0b89ab5cbd8832aa314b0",
+   "hunks": [
+    {
+     "at": 667,
+     "remove": 0,
+     "add": [
+      [
+       "          // Local change: Powertoys shows the time left and the finish time from these (see powertoysPlanToolNote).\n"
+      ],
+      [
+       "          estimate: {\n"
+      ],
+      [
+       "            type: \"number\",\n"
+      ],
+      [
+       "            description: \"Minutes you expect this step to take you, judged from the work it involves.\",\n"
+      ],
+      [
+       "          },\n"
+      ]
+     ]
+    },
+    {
+     "at": 1063,
+     "remove": 1,
+     "removeSha256": "5825340eb3dc0309f709b14d3786e8066356d1a59e61517f3cb5e858bb2a98d6",
+     "add": [
+      [
+       [
+        1063,
+        0,
+        71
+       ],
+       " + (mainChunk.powertoysPlanToolNote?.() ?? \"\"),\n"
+      ]
+     ]
+    }
+   ]
   },
   {
    "path": "src/vite/build/ccd-local-session-manager/0026-ccd.js",
@@ -221,20 +265,29 @@
    "path": "src/vite/build/ccd-local-session-manager/session-core/0035-session-clearing-events.js",
    "kind": "edit",
    "baseSha256": "acc6807c6bebfc0e494cb830446906b2931ae7418d6a4fcc9fad1923bfd53ca3",
-   "resultSha256": "23209cd35c204d7deb6490ec917a3de3e1024f9541e11921a230d53f5220246d",
+   "resultSha256": "a0c97da0ca5acc2ff2733d3ecc1926e0fd0eae52e1aaa24f9b2ce2fdf25486dc",
    "hunks": [
     {
      "at": 1645,
      "remove": 0,
      "add": [
       [
-       "        // Local change: Powertoys' pastes folder and files the person allowed from the \"Couldn't find this\n"
+       "        // Local change: Powertoys' pastes folder, and any file the person views in the file pane (a text\n"
       ],
       [
-       "        // file\" view open outside the session's folders, read only (like the CLI's temp folders).\n"
+       "        // read or a data URL preview), open outside the session's folders, read only (like the CLI's temp\n"
       ],
       [
-       "        let outsideRoot = mainChunk.powertoysOutsideReadRoot?.(realAbs);\n"
+       "        // folders). Paths Claude's own tools resolve (open in editor, reveal, send a file) do not.\n"
+      ],
+      [
+       "        let viewing =\n"
+      ],
+      [
+       "          options?.powertoysView === true || [\"image_dataurl\", \"media_dataurl\", \"document_dataurl\"].includes(options?.lane);\n"
+      ],
+      [
+       "        let outsideRoot = mainChunk.powertoysOutsideReadRoot?.(realAbs, viewing);\n"
       ],
       [
        "        if (outsideRoot) {\n"
@@ -268,6 +321,30 @@
       ],
       [
        "        }\n"
+      ]
+     ]
+    },
+    {
+     "at": 1891,
+     "remove": 0,
+     "add": [
+      [
+       "      powertoysView: i?.powertoysView === true,\n"
+      ]
+     ]
+    },
+    {
+     "at": 2097,
+     "remove": 1,
+     "removeSha256": "3623f31126ec85759c24dad1e515aefe96c7761ea058c95e39a21f84de2090b4",
+     "add": [
+      [
+       [
+        2097,
+        0,
+        78
+       ],
+       ", { powertoysView: true });\n"
       ]
      ]
     }
@@ -4117,17 +4194,17 @@
   {
    "path": "src/vite/build/main/powertoys/0340-powertoys-store.js",
    "kind": "add",
-   "sha256": "e79c1fbfd0d4c0c399366ccc17180f1c680e86d00a7bc98ba4c2250eace7da2e"
+   "sha256": "9ca7262c4e3bedf80d760cae31106750d69cb79d4b83d5c5e84988df78dbd75f"
   },
   {
    "path": "src/vite/build/main/powertoys/0341-powertoys-transcripts.js",
    "kind": "add",
-   "sha256": "7a5b90e144621344e717398538e315f8af4b836ef6749a70821af2f6e2eba89a"
+   "sha256": "618c04976c4269ba92bf2b513743ef39bfffc0d8aea6433eb5fa2d2e6f2e83b8"
   },
   {
    "path": "src/vite/build/main/powertoys/0342-powertoys-sessions.js",
    "kind": "add",
-   "sha256": "f047cab0e81b29757aaac0dd0775f060aea685f4ab84ee3f150c1d131ba87c48"
+   "sha256": "0da4ab90586d2059367a55647267c4c78c54fd1e6ec2a31f2434c4ba4de4291f"
   },
   {
    "path": "src/vite/build/main/powertoys/0343-powertoys-hotkeys-menus.js",
@@ -4137,7 +4214,7 @@
   {
    "path": "src/vite/build/main/powertoys/0344-powertoys-ipc.js",
    "kind": "add",
-   "sha256": "978442afd646b92a2258478e885e31535781fef37af25a6d6c3745e77a92e9f6"
+   "sha256": "3d8b824b2859f5a30da3993b81a4f27abd5db19fe2cab22c441a209b7f8c8805"
   },
   {
    "path": "src/vite/build/main/powertoys/0345-powertoys-system.js",
@@ -4157,12 +4234,12 @@
   {
    "path": "src/vite/build/main/powertoys/0350-powertoys-restart.js",
    "kind": "add",
-   "sha256": "11168c2d62c0b53ce1a5668daef099826fd4bac09badf53a5f446ad1f9a2659c"
+   "sha256": "9de4a9a76132457b038a30231e4887904b6c950e3ed7da69d1bb89cc81a2cae0"
   },
   {
    "path": "src/vite/build/main/powertoys/0351-powertoys-work.js",
    "kind": "add",
-   "sha256": "59bfbc23d284356ad50223b4430d54eb913f3c48f8b0a987804e4e0291b4f33a"
+   "sha256": "f869a5b312447d4bb6a9f18e0b8115e80a1f83fb6f1b07aac8db9ba788052c18"
   },
   {
    "path": "src/vite/build/main/settings/0200-supported-features.js",
@@ -4407,7 +4484,7 @@
   {
    "path": "src/vite/build/mainView/0003-powertoys-page.js",
    "kind": "add",
-   "sha256": "1f2b98fb06da3801599c9e6c90162b6658452bf74e4e68601878a9401566d06e"
+   "sha256": "c58b9ddf46c3b25d4be3a18e93770f21c2bd6cea652bbdea528c55a01bce8b5b"
   },
   {
    "path": "src/vite/build/mainView/0007-window-manager-vm-bridges.js",
