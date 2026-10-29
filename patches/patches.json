@@ -383,6 +383,62 @@
    ]
   },
   {
+   "path": "src/vite/build/claude-json-workspace-trust-config.js",
+   "kind": "edit",
+   "baseSha256": "09cad1de0ad0c5c4dec303b68666ea859fdd2ffe0ead784036221782e783667f",
+   "resultSha256": "bbcb2fd0a2a7c77d24ce17355e1c010e9dca937ca5c6aecfe92f435d8d548cf3",
+   "hunks": [
+    {
+     "at": 996,
+     "remove": 0,
+     "add": [
+      [
+       "  // Local change: with Powertoys' folder trust off (disableFolderTrust) every folder counts as trusted.\n"
+      ],
+      [
+       "  if (mainChunk.powertoysFolderTrustDisabled?.(folderPath) === true) {\n"
+      ],
+      [
+       "    ",
+       [
+        1005,
+        4,
+        16
+       ],
+       "\n"
+      ],
+      [
+       "  }\n"
+      ]
+     ]
+    },
+    {
+     "at": 1029,
+     "remove": 0,
+     "add": [
+      [
+       "  // Local change: with Powertoys' folder trust off (disableFolderTrust) every folder counts as trusted.\n"
+      ],
+      [
+       "  if (mainChunk.powertoysFolderTrustDisabled?.(folderPath) === true) {\n"
+      ],
+      [
+       "    ",
+       [
+        490,
+        2,
+        73
+       ],
+       "\n"
+      ],
+      [
+       "  }\n"
+      ]
+     ]
+    }
+   ]
+  },
+  {
    "path": "src/vite/build/git-worktree-manager/0003-worktree-trash-tombstones.js",
    "kind": "edit",
    "baseSha256": "4d43b89a26c99d1f1ae17acb39027106bf4342a2ef13c289972250b37bd3bec4",
@@ -4194,7 +4250,7 @@
   {
    "path": "src/vite/build/main/powertoys/0340-powertoys-store.js",
    "kind": "add",
-   "sha256": "9ca7262c4e3bedf80d760cae31106750d69cb79d4b83d5c5e84988df78dbd75f"
+   "sha256": "1ba799e7af4181d42dc7dae9d2778ee5cd14970b60402a8347e3a40355bbf2cf"
   },
   {
    "path": "src/vite/build/main/powertoys/0341-powertoys-transcripts.js",
@@ -4214,7 +4270,7 @@
   {
    "path": "src/vite/build/main/powertoys/0344-powertoys-ipc.js",
    "kind": "add",
-   "sha256": "3d8b824b2859f5a30da3993b81a4f27abd5db19fe2cab22c441a209b7f8c8805"
+   "sha256": "16a82229e2dee3e5a80f4c7963586a356c92c6ad17b4448a04ec758ed4578bee"
   },
   {
    "path": "src/vite/build/main/powertoys/0345-powertoys-system.js",
@@ -4484,7 +4540,7 @@
   {
    "path": "src/vite/build/mainView/0003-powertoys-page.js",
    "kind": "add",
-   "sha256": "c58b9ddf46c3b25d4be3a18e93770f21c2bd6cea652bbdea528c55a01bce8b5b"
+   "sha256": "c673aa6a57d6710d5249a61cffcdcdf4993366bd0f54674753662dd32ca487a7"
   },
   {
    "path": "src/vite/build/mainView/0007-window-manager-vm-bridges.js",

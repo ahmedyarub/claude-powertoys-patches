@@ -27,6 +27,10 @@ function powertoysBroadcast(channel, payload) {
     }
   }
 }
+// Read synchronously by the page module at preload time (before the page's own scripts).
+electron.ipcMain.on("powertoys:folderTrustDisabled", (event) => {
+  event.returnValue = powertoysIsTrustedSender(event) && powertoysFolderTrustDisabled();
+});
 function powertoysHandle(name, handler) {
   electron.ipcMain.handle(`powertoys:${name}`, async (event, ...args) => {
     if (!powertoysIsTrustedSender(event)) {

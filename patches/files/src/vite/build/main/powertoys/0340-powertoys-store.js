@@ -95,6 +95,8 @@ const POWERTOYS_DEFAULT_SETTINGS = {
   forceTaskList: true,
   promptQueueKey: true,
   agentEstimates: true,
+  // Folder trust off: every folder counts as trusted, so "Trust this workspace?" never comes up.
+  disableFolderTrust: true,
   tabPreviewOpacity: 80,
   // A restart requested here reopens the conversations side by side as they were.
   restoreSplitsAfterRestart: true,
@@ -182,6 +184,7 @@ const POWERTOYS_SETTINGS_SECTIONS = [
     title: "System",
     items: [
       { key: "waitingBadge", label: "Waiting-sessions badge on the tray and taskbar", type: "switch" },
+      { key: "disableFolderTrust", label: "Turn folder trust off: every folder counts as trusted and \"Trust this workspace?\" never comes up, also for folders a claude:// link opens (applies after a restart)", type: "switch" },
       { key: "notificationsStayOnScreen", label: "Notifications stay on screen until dismissed (they then show through Do Not Disturb and Focus)", type: "switch" },
       { key: "awaySummaryMinutes", label: "\"While you were away\" summary after this many minutes away (0 = off)", type: "number", min: 0, max: 1440 },
       { key: "scratchArchiveDays", label: "Archive scratch-folder sessions idle for this many days (0 = never)", type: "number", min: 0, max: 365 },
@@ -282,6 +285,23 @@ function powertoysSettings() {
   }
   return powertoysSettingsCache;
 }
+/** Folder trust off (disableFolderTrust): read by claude-json-workspace-trust-config.js and the page's IPC. */
+const powertoysTrustOffLogged = new Set();
+function powertoysFolderTrustDisabled(folderPath) {
+  try {
+    if (powertoysSetting("disableFolderTrust") !== true) {
+      return false;
+    }
+  } catch {
+    return false;
+  }
+  if (typeof folderPath === "string" && !powertoysTrustOffLogged.has(folderPath)) {
+    powertoysTrustOffLogged.add(folderPath);
+    powertoysLog(`folder trust off: ${folderPath} counts as trusted`);
+  }
+  return true;
+}
+Object.defineProperty(exports, "powertoysFolderTrustDisabled", { enumerable: true, get: () => powertoysFolderTrustDisabled });
 function powertoysSetting(key) {
   return powertoysSettings()[key];
 }

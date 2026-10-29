@@ -37,7 +37,7 @@ patches/files/...           files that are entirely new (written for Powertoys),
     restarting the app from inside it, then continuing the session.
   - `scripts/powertoys-command.mjs`: asks the running app, from a session, to do what a page action does
     (add the task list to a session) or queue a prompt in one.
-- **26 edits** (`"kind": "edit"`) to the app's own files: the small hooks that call into
+- **27 edits** (`"kind": "edit"`) to the app's own files: the small hooks that call into
   Powertoys, a rewrite of the Windows notification code, and two build manifests that list the new files.
   They are described one by one [below](#every-change-to-the-apps-own-files).
 
@@ -133,6 +133,10 @@ pastes). Every feature has a switch in the Powertoys settings window (tray menu 
   message stays short; Ctrl+Shift+V pastes the text itself.
 - **Files outside the session's folders:** the file pane opens any file, read only. Claude's own tools (open in
   your editor, show in Explorer, send a file) still stay inside the session's folders.
+- **Folder trust off** (a setting, on by default): every folder counts as trusted, so "Trust this workspace?"
+  never comes up. That includes a folder a `claude://code/new?folder=` link opens (for example from Slack): the
+  page asks for those every time unless its own flag for skipping trusted folders is on, so Powertoys turns
+  that flag on in the page's bootstrap response before the page's scripts run.
 - **Keys and pickers:**
   - Snippets with Ctrl+Shift+Space, per project.
   - Alt+Up shows earlier prompts.
@@ -218,6 +222,7 @@ Each hook is marked `Local change` in the patched code.
 | `main/app/0202-session-notifications.js` | +552 −71 | Builds Windows notifications here instead of through Electron, so they can carry the in-app card's buttons (Allow once, Always allow …, Deny; a button per question option, a reply box, Skip, Submit). Can keep them on screen, respects Windows' settings, and records them in the Powertoys inbox. |
 | `ccd-local-session-manager/0026-ccd.js` | +14 −1 | A slash command the app handles itself (`/remote-control`) no longer stays "queued" in the page. |
 | `ccd-local-session-manager/0048-ccd.js` | +5 −1 | That command's echo uses the id the page sent it under, once. |
+| `claude-json-workspace-trust-config.js` | +8 | Folder trust off: the trust lookups count every folder as trusted while the Powertoys setting is on. |
 | `ccd-host-core/mcp-tools/0001-mcp-tool-prefix-sanitizers.js` | +6 −1 | The plan tool takes an estimate in minutes per step, and its description asks for them when the setting is on. |
 | `ccd-local-session-manager/session-core/0035-session-clearing-events.js` | +15 −1 | Files outside the session's folders, read only: Powertoys' pastes folder, and any file you view in the file pane. |
 | `ccd-local-sessions-api/0002-local-sessions-api-core.js` | +6 | Per-project model and effort defaults for a session you start, and the task list when the Powertoys setting is on. |

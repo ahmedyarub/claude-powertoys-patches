@@ -19,6 +19,14 @@ function powertoysPageMain() {
   const log = (message) => {
     call("log", message).catch(() => undefined);
   };
+  // Folder trust off (disableFolderTrust): before the page's own scripts run, so its first bootstrap is covered.
+  if (ipc.sendSync("powertoys:folderTrustDisabled") === true) {
+    try {
+      electron.contextBridge.executeInMainWorld({ func: powertoysSkipTrustedFolderPromptInMainWorld, args: [] });
+    } catch (caught) {
+      log(`folder trust: the bootstrap hook failed: ${caught?.message ?? caught}`);
+    }
+  }
   let settings = null;
   let snippets = [];
   let bookmarkData = { folders: [], bookmarks: [] };
@@ -5786,6 +5794,48 @@ function powertoysPageMain() {
   } else {
     start();
   }
+}
+
+/**
+ * Runs in the page's main world, before the page's scripts (contextBridge.executeInMainWorld); must not use
+ * anything outside itself. A folder a claude://code/new?folder= link opens goes through the page's
+ * "external folder" step, which asks "Trust this workspace?" every time unless its web flag
+ * ccd_deeplink_trusted_folder_skip_main is on; then it asks the app (LocalSessions.checkStoredTrust) and
+ * skips the question for a trusted folder. That flag comes in the bootstrap response's growthbook.features,
+ * keyed by the djb2 hash of its name (growthbook.hashing_algorithm); this turns it on there. With folder
+ * trust off every folder counts as trusted (claude-json-workspace-trust-config.js), so it never asks.
+ */
+function powertoysSkipTrustedFolderPromptInMainWorld() {
+  let djb2 = (text) => {
+    let hash = 0;
+    for (let index = 0; index < text.length; index++) {
+      hash = ((hash << 5) - hash + text.charCodeAt(index)) | 0;
+    }
+    return String(hash);
+  };
+  let flag = djb2("ccd_deeplink_trusted_folder_skip_main");
+  let pageFetch = window.fetch;
+  window.fetch = async function (...args) {
+    let response = await pageFetch.apply(this, args);
+    let url = typeof args[0] === "string" ? args[0] : args[0]?.url ?? String(args[0]);
+    if (!/\/bootstrap(\/[^/?]+\/app_start)?\?[^#]*growthbook_format=sdk/.test(url) || !response.ok) {
+      return response;
+    }
+    try {
+      let body = await response.clone().json();
+      let growthbook = body?.growthbook;
+      if (growthbook?.hashing_algorithm !== "djb2" || typeof growthbook.features !== "object" || !growthbook.features) {
+        console.warn("[powertoys] folder trust: the bootstrap has no djb2 growthbook features; the link prompt stays");
+        return response;
+      }
+      growthbook.features[flag] = { defaultValue: true };
+      console.info("[powertoys] folder trust: ccd_deeplink_trusted_folder_skip_main on in the bootstrap");
+      return new Response(JSON.stringify(body), { status: response.status, statusText: response.statusText, headers: response.headers });
+    } catch (caught) {
+      console.warn("[powertoys] folder trust: reading the bootstrap failed", caught);
+      return response;
+    }
+  };
 }
 
 /** Runs in the page's main world (contextBridge.executeInMainWorld); must not use anything outside itself. */
