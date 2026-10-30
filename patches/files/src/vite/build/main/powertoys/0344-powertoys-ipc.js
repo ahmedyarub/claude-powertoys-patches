@@ -107,7 +107,8 @@ function powertoysRegisterIpc() {
     return !!dispatcher;
   });
   powertoysHandle("openPath", (event, routePath) => {
-    if (typeof routePath !== "string" || !/^\/(epitaxy|chat|project)\/[\w%.-]+(\/[\w%.-]+)?$/.test(routePath)) {
+    // A conversation, or a page that has a tab of its own (New session "/epitaxy", New chat, Settings, …).
+    if (typeof routePath !== "string" || !/^\/(?:(?:epitaxy|chat|project)(?:\/[\w%.-]+){0,2}|new|projects|recents|settings(?:\/[\w%.-]+)*)\/?$/.test(routePath)) {
       throw Error("bad path");
     }
     let dispatcher = Navigation.getDispatcher(event.sender);
@@ -238,6 +239,7 @@ function initPowertoys() {
     powertoysRegisterHotkeys();
     powertoysWatchRestartRequests();
     powertoysStartWork();
+    powertoysStartFlow();
     powertoysContinueAfterRestart().catch((caught) => powertoysWarn(`continue after restart failed: ${caught.message}`));
     powertoysEvents.on("settings", (settings) => {
       powertoysBroadcast("powertoys:settings", settings);

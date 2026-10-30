@@ -563,5 +563,10 @@ function powertoysTrayClicked() {
     powertoysOpenSession(first.sessionId);
     return;
   }
+  // Else the app (trayClickShowsApp), else what the app normally does (its quick-entry box when that is on).
+  if (powertoysSetting("trayClickShowsApp") !== false) {
+    showAndFocusWindow2();
+    return;
+  }
   activateQuickEntryOrShowMainWindow();
 }

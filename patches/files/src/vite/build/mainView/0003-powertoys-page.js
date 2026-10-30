@@ -423,6 +423,14 @@ function powertoysPageMain() {
     .away .row .two > * { white-space: normal; overflow: visible; }
     .palette .row .key { margin-left: auto; color: hsl(var(--text-400, 48 5% 57%)); font-size: 11.5px; }
     .rename { width: 100%; padding: 2px 4px; background: hsl(var(--bg-100, 0 0% 8%)); color: inherit; border: 1px solid hsl(var(--accent-100, 212 75% 62%)); border-radius: 4px; font: inherit; }
+    .timeline-row { display: flex; align-items: center; gap: 8px; margin: 3px 0; }
+    .timeline-name { width: 230px; flex: none; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: pointer; font-size: 12px; }
+    .timeline-bar { position: relative; flex: 1; height: 12px; border-radius: 3px; background: hsl(var(--bg-300, 0 0% 5%) / 0.7); }
+    .timeline-working, .timeline-waiting { position: absolute; top: 0; bottom: 0; border-radius: 2px; }
+    .timeline-working { background: hsl(var(--accent-100, 212 75% 62%)); }
+    .timeline-waiting { background: hsl(30 90% 55%); }
+    .panel textarea.search { width: 100%; min-height: 96px; resize: vertical; font: inherit; }
+    .panel .check { display: flex; gap: 6px; align-items: center; padding: 2px 4px; cursor: pointer; }
     .message-time { position: fixed; pointer-events: none; padding: 1px 7px; border-radius: 7px; font-size: 11px; line-height: 16px; white-space: nowrap; background: hsl(var(--bg-300, 0 0% 5%) / 0.92); color: hsl(var(--text-300, 48 5% 70%)); border: 0.5px solid hsl(var(--border-300, 0 0% 50%) / 0.25); }
   `;
   let layer = null;
@@ -1447,6 +1455,19 @@ function powertoysPageMain() {
       return;
     }
     tabExtras = next;
+    if (Date.now() - tabLimitsAt > 60000) {
+      tabLimitsAt = Date.now();
+      call("sessionLimits", [...ids]).then(
+        (limits) => {
+          let changed = JSON.stringify(Object.entries(limits).map(([id, limit]) => [id, limit.over])) !== JSON.stringify(Object.entries(tabLimits).map(([id, limit]) => [id, limit.over]));
+          tabLimits = limits;
+          if (changed) {
+            tabsKey = "";
+          }
+        },
+        (caught) => log(`session limits failed: ${caught.message}`),
+      );
+    }
     for (let [sessionId, extra] of Object.entries(next)) {
       if (extra.todos) {
         taskLists.set(sessionId, { at: Date.now(), data: extra.todos });
@@ -2412,6 +2433,249 @@ function powertoysPageMain() {
     }
     log("reveal: the page kept moving away from the message");
   }
+
+  // --- Ticket to PR, many sessions at once (main/powertoys/0352-powertoys-flow.js) -----------------------
+  const ipcError = (caught) => String(caught?.message ?? caught).replace(/^Error invoking remote method '[^']+': (Error: )?/, "");
+  const codeTitle = (sessionId) => tabRows.find((row) => row.kind === "code" && row.id === sessionId)?.title ?? "";
+  function activeCodeRow() {
+    let sessionId = paneSessionId(activePane());
+    return tabRows.find((row) => row.kind === "code" && row.id === sessionId) ?? null;
+  }
+  function startFromTicket() {
+    askLine({
+      title: "Start a session from a Notion ticket: it fetches the ticket, branches and plans",
+      placeholder: "ISS-1234, then Enter",
+      onEnter(text) {
+        call("startFromTicket", text, activeCodeRow()?.project?.folder ?? "").then(
+          (started) => flash(started.prefilled ? `${started.id}: the prompt is in the box; send it` : `${started.id}: new session in ${started.folder}`),
+          (caught) => flash(ipcError(caught)),
+        );
+        return true;
+      },
+    });
+  }
+  function fixCi(sessionId) {
+    call("fixCi", sessionId).then(
+      (number) => flash(`Asked it to fix CI on PR #${number}`),
+      (caught) => flash(ipcError(caught)),
+    );
+  }
+  /** "Compact now" is offered while a cost or context warning is set (costWarnUsd, contextWarnPercent). */
+  const compactOffered = () => Number(settings?.costWarnUsd) > 0 || Number(settings?.contextWarnPercent) > 0;
+  function compactNow(sessionId) {
+    call("compactNow", sessionId).then(
+      () => flash("Compacting (now, or when its turn ends)"),
+      (caught) => flash(ipcError(caught)),
+    );
+  }
+  function goToMostUrgent() {
+    call("mostUrgent").then(
+      (next) => (next ? openConversation({ kind: "code", id: next.sessionId }) : flash("Nothing waits for you")),
+      (caught) => flash(ipcError(caught)),
+    );
+  }
+  async function showReviewThreads() {
+    flash("Reading the review comments…");
+    let threads = await call("reviewThreads").catch((caught) => (flash(ipcError(caught)), null));
+    if (!threads) {
+      return;
+    }
+    listPopup({
+      title: "Review comments to answer: Enter sends one to its session, ↗ opens it on GitHub",
+      items: threads.map((thread) => ({
+        value: thread,
+        render: () => {
+          let wrap = element("span", "two");
+          let where = thread.path ? ` · ${thread.path}${thread.line ? `:${thread.line}` : ""}` : "";
+          wrap.appendChild(element("span", "", `${thread.title} · PR #${thread.pr}${where}${thread.outdated ? " (outdated)" : ""}`));
+          wrap.appendChild(element("span", "dim", `${thread.author}: ${thread.body.replace(/\s+/g, " ").slice(0, 170)}${thread.replies ? ` (+${thread.replies} replies)` : ""}`));
+          let open = element("span", "dim", "  ↗ open");
+          open.style.cursor = "pointer";
+          open.addEventListener("mousedown", (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            call("openUrl", thread.url).catch((caught) => flash(ipcError(caught)));
+          });
+          wrap.appendChild(open);
+          return wrap;
+        },
+      })),
+      emptyText: "No unresolved review comments on your sessions' open PRs.",
+      place: placeCentred(0.15),
+      width: 780,
+      onPick: (thread) => call("sendReviewThread", thread).then(() => flash(`Sent to “${thread.title}”`), (caught) => flash(ipcError(caught))),
+    });
+  }
+  /** A text box panel; Ctrl+Enter runs onSave(text), Esc closes. */
+  function askText({ title, value = "", placeholder = "", extra = null, onSave }) {
+    closePopup();
+    let panel = element("div", "panel");
+    panel.style.width = "620px";
+    panel.appendChild(element("div", "title", title));
+    let input = element("textarea", "search");
+    input.placeholder = placeholder;
+    input.value = value;
+    panel.appendChild(input);
+    extra?.(panel);
+    let save = element("button", "action", "Save (Ctrl+Enter)");
+    let run = () => {
+      if (onSave(input.value) !== false) {
+        closePopup();
+      }
+    };
+    save.addEventListener("click", run);
+    panel.appendChild(save);
+    openPopup(panel, {
+      onKey(event) {
+        if (event.type !== "keydown") {
+          return false;
+        }
+        if (event.code === "Escape") {
+          closePopup();
+          return true;
+        }
+        if ((event.code === "Enter" || event.code === "NumpadEnter") && (event.ctrlKey || event.metaKey)) {
+          run();
+          return true;
+        }
+        return false;
+      },
+    });
+    placeCentred(0.15)(panel);
+    let release = holdFocus(input, () => popup?.node === panel);
+    popup.onClose = release;
+  }
+  function broadcastPrompt() {
+    let rows = tabsWanted().list.filter((row) => row.kind === "code");
+    if (rows.length === 0) {
+      flash("No session tabs are open");
+      return;
+    }
+    let boxes = [];
+    askText({
+      title: "One prompt to several sessions: each gets it now, or when its turn ends (Ctrl+Enter sends)",
+      placeholder: "The prompt",
+      extra(panel) {
+        for (let row of rows) {
+          let label = element("label", "check");
+          let box = element("input");
+          box.type = "checkbox";
+          label.append(box, row.title || row.id);
+          panel.appendChild(label);
+          boxes.push([row, box]);
+        }
+      },
+      onSave(text) {
+        let ids = boxes.filter(([, box]) => box.checked).map(([row]) => row.id);
+        if (!text.trim() || ids.length === 0) {
+          flash("Write a prompt and tick the sessions");
+          return false;
+        }
+        call("broadcast", ids, text).then(
+          (count) => flash(`Queued for ${count} session${count === 1 ? "" : "s"}`),
+          (caught) => flash(ipcError(caught)),
+        );
+        return true;
+      },
+    });
+  }
+  function editProjectInstructions(row) {
+    let project = row?.project;
+    if (!project?.folder) {
+      flash("This session has no project folder");
+      return;
+    }
+    let current = projectSetting(settings?.projectInstructions, project.key);
+    askText({
+      title: `Instructions for every new session in ${project.name} (added to its system prompt; empty removes them)`,
+      value: current?.text ?? "",
+      placeholder: "For example: run the tests with …; tickets are ISS-…; never push to main",
+      onSave(text) {
+        call("projectInstructions", project.key, project.folder, text, true).then(
+          () => flash(text.trim() ? `Saved: new sessions in ${project.name} get them` : "Removed"),
+          (caught) => flash(ipcError(caught)),
+        );
+        return true;
+      },
+    });
+  }
+  async function showTimeline() {
+    let data = await call("dayTimeline").catch((caught) => (flash(ipcError(caught)), null));
+    if (!data) {
+      return;
+    }
+    closePopup();
+    let panel = element("div", "panel");
+    panel.style.width = `${Math.min(980, innerWidth - 32)}px`;
+    panel.appendChild(element("div", "title", "Today: when each session worked (blue) and waited for you (orange); click a name to open it"));
+    let start = Math.min(data.now, ...data.sessions.flatMap((item) => item.spans.map((span) => span.from)));
+    let length = Math.max(60000, data.now - start);
+    if (data.sessions.length === 0) {
+      panel.appendChild(element("div", "dim", "Nothing recorded yet today (recording started with this version)."));
+    }
+    for (let item of data.sessions) {
+      let line = element("div", "timeline-row");
+      let name = element("span", "timeline-name", item.title || item.sessionId);
+      name.title = item.title;
+      name.addEventListener("click", () => {
+        closePopup();
+        openConversation({ kind: "code", id: item.sessionId });
+      });
+      let bar = element("span", "timeline-bar");
+      for (let span of item.spans) {
+        let block = element("span", `timeline-${span.state}`);
+        block.style.left = `${((span.from - start) / length) * 100}%`;
+        block.style.width = `${Math.max(0.3, ((span.to - span.from) / length) * 100)}%`;
+        block.title = `${span.state === "working" ? "Working" : "Waiting for you"} ${clock(span.from)}–${clock(span.to)} (${minutes(span.to - span.from)})`;
+        bar.appendChild(block);
+      }
+      line.append(name, bar);
+      panel.appendChild(line);
+    }
+    panel.appendChild(element("div", "dim", `${clock(start)} – ${clock(data.now)}`));
+    openPopup(panel, {
+      onKey(event) {
+        if (event.type === "keydown" && event.code === "Escape") {
+          closePopup();
+          return true;
+        }
+        return false;
+      },
+    });
+    placeCentred(0.12)(panel);
+  }
+  async function showWorktrees() {
+    flash("Checking the worktrees…");
+    let list = await call("worktrees").catch((caught) => (flash(ipcError(caught)), null));
+    if (!list) {
+      return;
+    }
+    let removable = list.filter((worktree) => worktree.dirty === false && worktree.pr?.state === "merged");
+    let age = (at) => (at ? `${Math.max(0, Math.round((Date.now() - at) / 86400000))} d ago` : "?");
+    listPopup({
+      title: "The app's worktrees, least recently used first",
+      items: [
+        ...(removable.length ? [{ value: "remove", label: `Remove the ${removable.length} whose PR is merged and that have no uncommitted changes` }] : []),
+        ...list.map((worktree) => ({
+          value: worktree,
+          label: `${worktree.branch || worktree.name}${worktree.session ? ` · ${worktree.session.title}` : ""}`,
+          detail: `${worktree.pr ? `PR #${worktree.pr.number} ${worktree.pr.state}` : "no PR"} · ${worktree.dirty ? "uncommitted changes" : worktree.dirty === false ? "clean" : "?"} · used ${age(worktree.lastUsed)} · ${worktree.path}`,
+        })),
+      ],
+      emptyText: "The app has no worktrees.",
+      place: placeCentred(0.15),
+      width: 820,
+      onPick: (picked) =>
+        picked === "remove"
+          ? call("removeWorktrees", removable.map((worktree) => worktree.name)).then(
+              (removed) => flash(`Removed ${removed.length} worktree${removed.length === 1 ? "" : "s"}`),
+              (caught) => flash(ipcError(caught)),
+            )
+          : picked.session && openConversation({ kind: "code", id: picked.session.sessionId }),
+    });
+  }
+  let tabLimits = {}; // sessionId -> { cost, contextPercent, over } (sessionLimits, every minute)
+  let tabLimitsAt = 0;
 
   // --- The time a message was sent, above it while the pointer is on it (setting messageTimes) ---------
   let timedRow = null;
@@ -3486,6 +3750,12 @@ function powertoysPageMain() {
         let sessionId = paneSessionId(activePane());
         sessionId ? showPromptQueue(sessionId, tabRows.find((row) => row.kind === "code" && row.id === sessionId)?.title) : flash("No session here");
       }],
+      ["Start a session from a Notion ticket", startFromTicket],
+      ["Review comments to answer on your sessions' PRs", showReviewThreads],
+      ["Send one prompt to several sessions", broadcastPrompt],
+      ["Go to the session that has waited longest for you", goToMostUrgent, "Ctrl+Shift+U"],
+      ["Today's timeline: when each session worked and waited", showTimeline],
+      ["Worktrees: PR state, changes, last use", showWorktrees],
       ["Reopen closed tab", reopenClosedTab, "Ctrl+Shift+T"],
       ["Save tabs and splits as a workspace", saveWorkspace],
       ...workspaces.map((workspace) => [`Workspace: open “${workspace.name}”`, () => call("workspaces", "restore", workspace.name).catch((caught) => flash(caught.message))]),
@@ -3496,6 +3766,9 @@ function powertoysPageMain() {
       commands.push(
         ["This conversation: rebuild Claude, restart and continue here", () => restartAndContinue(sessionId)],
         [sessionNotes[sessionId] ? "This conversation: edit its note" : "This conversation: add a note", () => editNote(sessionId, tabRows.find((row) => row.id === sessionId)?.title)],
+        ["This conversation: fix CI", () => fixCi(sessionId)],
+        ...(compactOffered() ? [["This conversation: compact now", () => compactNow(sessionId)]] : []),
+        ["This project: instructions for new sessions", () => editProjectInstructions(tabRows.find((row) => row.kind === "code" && row.id === sessionId))],
         ["This conversation: export as Markdown", () => exportConversation(pane, "markdown")],
         ["This conversation: export as HTML", () => exportConversation(pane, "html")],
         ["This conversation: export as PDF", () => exportConversation(pane, "pdf")],
@@ -5131,6 +5404,17 @@ function powertoysPageMain() {
       });
       tab.appendChild(queued);
     }
+    let limit = tabLimits[row.id];
+    if (limit?.over?.length) {
+      let warn = element("span", "queued", "⚠");
+      warn.title = `${[limit.over.includes("cost") ? `about $${limit.cost.toFixed(2)} so far` : "", limit.over.includes("context") ? `context ${limit.contextPercent}% full` : ""].filter(Boolean).join(", ")} (click to compact)`;
+      warn.addEventListener("mousedown", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        compactNow(row.id);
+      });
+      tab.appendChild(warn);
+    }
     if (isMuted(row.id)) {
       tab.appendChild(element("span", "muted", "🔕"));
     }
@@ -5254,6 +5538,9 @@ function powertoysPageMain() {
           { label: `Queued prompts (${promptQueue[row.id]?.length ?? 0})…`, onClick: () => showPromptQueue(row.id, row.title) },
           { label: "Topic: ticket, progress, PR…", onClick: () => openTopic(row.id, row.title) },
           { label: "Context map…", onClick: () => openContextMap(row.id, row.title) },
+          ...(ciOf(tabExtras[row.id])?.checks === "failed" ? [{ label: "Fix CI (asks it to read the failing checks' logs)", onClick: () => fixCi(row.id) }] : []),
+          ...(compactOffered() ? [{ label: "Compact now", onClick: () => compactNow(row.id) }] : []),
+          ...(row.project?.folder ? [{ label: `Instructions for new sessions in ${row.project.name}…`, onClick: () => editProjectInstructions(row) }] : []),
           ...(tabExtras[row.id]?.taskList === false ? [{ label: "Add the task list to this session", onClick: () => addTaskList(row.id) }] : []),
           isMuted(row.id)
             ? { label: "Unmute notifications", onClick: () => call("muteSession", row.id, false) }
@@ -5604,6 +5891,11 @@ function powertoysPageMain() {
     if (settings.history && ctrl && !event.shiftKey && code === "KeyH") {
       swallow(event);
       openHistory();
+      return;
+    }
+    if (ctrl && event.shiftKey && !event.altKey && code === "KeyU") {
+      swallow(event);
+      goToMostUrgent();
       return;
     }
     if (settings.search && ctrl && event.shiftKey && code === "KeyS") {

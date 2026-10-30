@@ -4,6 +4,9 @@
 //   addTaskList   give a session the app's task list from its next message (as a tab's menu does)
 //   queuePrompt   queue --text for the session: sent now when it is idle, else when its turn ends
 //                 (other programs may name the session by its Claude Code id: "cliSessionId" in the request)
+//   newSession    a new session in --folder, sent --text, in --mode (default, acceptEdits, plan, auto,
+//                 bypassPermissions, dontAsk); answers { sessionId, cliSessionId, cwd }
+//   selectedSession  the Code conversation on screen: { sessionId, cliSessionId, cwd, title } or null
 //
 // The session defaults to this one (CLAUDE_CODE_HOST_SESSION_ID). Main process: main/powertoys/0350-powertoys-restart.js.
 import fs from 'node:fs';
@@ -25,7 +28,9 @@ const dir = path.join(process.env.APPDATA, profile ? `Claude-${profile}` : 'Clau
 const id = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 const resultFile = path.join(dir, 'command-result.json');
 const text = option('text');
-fs.writeFileSync(path.join(dir, 'command-request.json'), JSON.stringify({ id, command, sessionId, ...(text !== undefined ? { text } : {}) }, null, 2));
+const folder = option('folder');
+const permissionMode = option('mode');
+fs.writeFileSync(path.join(dir, 'command-request.json'), JSON.stringify({ id, command, sessionId, ...(text !== undefined ? { text } : {}), ...(folder !== undefined ? { folder } : {}), ...(permissionMode !== undefined ? { permissionMode } : {}) }, null, 2));
 for (let waited = 0; waited < 20000; waited += 250) {
   try {
     const result = JSON.parse(fs.readFileSync(resultFile, 'utf8'));

@@ -1057,6 +1057,7 @@ function powertoysApplyProjectDefaults(startOptions) {
   if (!cwd) {
     return;
   }
+  powertoysApplyProjectInstructions(startOptions);
   for (let defaults of Object.values(powertoysSetting("projectDefaults") ?? {})) {
     let folder = typeof defaults?.folder === "string" ? powertoysWindowsPath(defaults.folder).toLowerCase() : "";
     if (!folder || (cwd !== folder && !cwd.startsWith(`${folder}\\`) && !cwd.startsWith(`${folder}/`))) {

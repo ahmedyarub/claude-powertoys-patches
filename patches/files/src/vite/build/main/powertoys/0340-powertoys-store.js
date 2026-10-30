@@ -44,12 +44,29 @@ const POWERTOYS_DEFAULT_SETTINGS = {
   /** Comma-separated spellchecker language codes. */
   spellLanguages: "en-US",
   hideSurvey: true,
+  // One click on the tray icon shows the app (else the app's quick-entry box when that is on).
+  trayClickShowsApp: true,
   // The New session page keeps its tab after you switch away, until it is closed or the draft is sent.
   keepDraftTab: true,
   // "Copy path" / "Copy absolute path" copies a Windows path with backslashes.
   copyPathBackslashes: true,
   // The time a message was sent, above it while the pointer is on it.
   messageTimes: true,
+  // The ticket's status follows its PR: the session that owns the PR moves it, with its Notion tools.
+  autoTicketStatus: true,
+  ticketStatusOnReady: "Code Review Pending",
+  ticketStatusOnMerged: "Deployed (Dev)",
+  // { "ISS": "E:\\…\\project" }: the folder a ticket's new session starts in (else the current tab's project).
+  ticketProjects: {},
+  // The first prompt of a session started from a ticket ({id} is the ticket ID); "" uses the built-in one.
+  ticketPrompt: "",
+  // "Finished" notifications held and shown as one summary every this many minutes (0 = one each).
+  finishedDigestMinutes: 10,
+  // A notification once a session passes these (0 = off); "Compact now" is offered only while one is set.
+  costWarnUsd: 0,
+  contextWarnPercent: 0,
+  // { "<project key>": { folder, text, enabled } }: added to every new session's system prompt in that folder.
+  projectInstructions: {},
   hidePromptSuggestions: false,
   hideNextStepBox: false,
   hideCreatePr: false,
@@ -190,7 +207,14 @@ const POWERTOYS_SETTINGS_SECTIONS = [
     title: "System",
     items: [
       { key: "waitingBadge", label: "Waiting-sessions badge on the tray and taskbar", type: "switch" },
+      { key: "trayClickShowsApp", label: "One click on the tray icon shows the app (instead of the quick-entry box)", type: "switch" },
       { key: "disableFolderTrust", label: "Turn folder trust off: every folder counts as trusted and \"Trust this workspace?\" never comes up, also for folders a claude:// link opens (applies after a restart)", type: "switch" },
+      { key: "finishedDigestMinutes", label: "\"Finished\" notifications: one summary every this many minutes (0 = one per session)", type: "number", min: 0, max: 240 },
+      { key: "costWarnUsd", label: "Notify once a session costs more than this many dollars (0 = off)", type: "number", min: 0, max: 10000 },
+      { key: "contextWarnPercent", label: "Notify once a session's context is this full, in % (0 = off)", type: "number", min: 0, max: 100 },
+      { key: "autoTicketStatus", label: "Move a session's Notion ticket when its PR is marked ready or merged (the session does it, with its Notion tools)", type: "switch" },
+      { key: "ticketStatusOnReady", label: "…status when the PR is ready for review", type: "text" },
+      { key: "ticketStatusOnMerged", label: "…status when the PR is merged", type: "text" },
       { key: "notificationsStayOnScreen", label: "Notifications stay on screen until dismissed (they then show through Do Not Disturb and Focus)", type: "switch" },
       { key: "awaySummaryMinutes", label: "\"While you were away\" summary after this many minutes away (0 = off)", type: "number", min: 0, max: 1440 },
       { key: "scratchArchiveDays", label: "Archive scratch-folder sessions idle for this many days (0 = never)", type: "number", min: 0, max: 365 },

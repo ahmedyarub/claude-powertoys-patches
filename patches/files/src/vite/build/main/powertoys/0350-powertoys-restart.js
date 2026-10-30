@@ -270,9 +270,12 @@ async function powertoysContinueOthers(others) {
   }
 }
 /** After a restart: send the remembered message once the conversation is known (up to two minutes). */
-/** This run's arguments without the restart marker, for starting the next one. */
+/**
+ * This run's arguments for starting the next one, without the restart marker and without --startup (a run
+ * started at sign-in has it, and it starts the app hidden in the tray).
+ */
 function powertoysRelaunchArgs() {
-  return process.argv.slice(1).filter((argument) => argument !== "--powertoys-restarted");
+  return process.argv.slice(1).filter((argument) => argument !== "--powertoys-restarted" && argument !== "--startup");
 }
 async function powertoysContinueAfterRestart() {
   // Only a start made by the restart itself continues a conversation (the swap helper sets the
@@ -363,6 +366,10 @@ const POWERTOYS_COMMAND_REQUEST_FILE = "command-request.json";
 const POWERTOYS_COMMANDS = {
   addTaskList: (request) => powertoysAddTaskList(String(request.sessionId ?? "")),
   queuePrompt: (request) => powertoysQueuePromptFromRequest(request),
+  // { folder, text, permissionMode? } -> { sessionId, cliSessionId, cwd }: a new session, sent text (0352).
+  newSession: (request) => powertoysNewSession(request),
+  // -> { sessionId, cliSessionId, cwd, title } of the Code conversation on screen, or null.
+  selectedSession: () => powertoysSelectedSession(),
 };
 function powertoysTakeCommandRequest() {
   let file = powertoysFile(POWERTOYS_COMMAND_REQUEST_FILE);

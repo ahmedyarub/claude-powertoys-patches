@@ -162,6 +162,36 @@ pastes). Every feature has a switch in the Powertoys settings window (tray menu 
 - **Token use and estimated cost** per project and session.
 - **Away summary:** what the sessions did in the last hour or today.
 
+**From ticket to PR**
+
+- **Start from a Notion ticket:** type `ISS-1234` (command palette); a new session in the ticket's project
+  fetches the ticket, creates a branch named after it and plans. A ticket prefix maps to a folder in the settings
+  file (`ticketProjects`), else the current tab's project is used.
+- **Fix CI:** a tab's menu offers it when the session's PR checks fail; the session reads the failing checks' logs
+  and fixes them.
+- **Review comments to answer:** unresolved review comments across your sessions' open PRs, each sent to its
+  session with one key, or opened on GitHub.
+- **The ticket's status follows its PR:** when a session's PR is marked ready for review, and when it is merged,
+  that session moves its Notion ticket to the matching status (settings; the session does it with its own Notion
+  tools, only forwards).
+
+**Many sessions at once**
+
+- **One prompt to several sessions:** tick the sessions; each gets it now, or when its turn ends.
+- **The most urgent session:** Ctrl+Shift+U opens the one that has waited longest for you.
+- **A digest of "finished" notifications:** one summary every few minutes instead of one per session.
+- **Today's timeline:** when each session worked and when it waited for you.
+- **Worktrees:** the app's worktrees with their PR state, uncommitted changes and last use; the merged, clean ones
+  can be removed in one go (through the app).
+- **Cost and context warnings** (off by default): a notification and a ⚠ on the tab once a session passes a cost
+  or a context threshold, with "Compact now".
+- **Project instructions:** text added to every new session's system prompt in a project, from a tab's menu.
+- **Sessions for other programs:** `newSession` starts a session in a folder and a permission mode (for example
+  Slack's "Ask Claude" in Auto mode), sends its first message and answers with its Claude Code session id;
+  `selectedSession` answers with the conversation on screen (command requests, see
+  `scripts/powertoys-command.mjs`). The session is set up like one started in the app (same connectors and
+  servers), from the last session the app started.
+
 **Progress**
 
 - **The task list for every session:** the app gives a session its task list (its plan tool, with the wrap-up
@@ -204,6 +234,7 @@ pastes). Every feature has a switch in the Powertoys settings window (tray menu 
 - **Notification inbox:** replays the buttons of notifications you missed.
 - **Hotkeys:** Win+Alt+C opens the sessions waiting for you, and Win+Alt+N starts a new session in a recent
   folder.
+- **Tray icon:** one click shows the app (or the session waiting for you), instead of the quick-entry box.
 - **Startup and windows:**
   - The most recent conversation opens at launch.
   - Restoring the window keeps it maximized.
@@ -231,7 +262,7 @@ Each hook is marked `Local change` in the patched code.
 
 | File (under `src/vite/build/`) | Lines | What it does |
 |---|---|---|
-| `main/app/0239-session-notifications.js` | +543 −62 | Builds Windows notifications here instead of through Electron, so they can carry the in-app card's buttons (Allow once, Always allow …, Deny; a button per question option, a reply box, Skip, Submit). Can keep them on screen, respects Windows' settings, and records them in the Powertoys inbox. |
+| `main/app/0239-session-notifications.js` | +547 −62 | Builds Windows notifications here instead of through Electron, so they can carry the in-app card's buttons (Allow once, Always allow …, Deny; a button per question option, a reply box, Skip, Submit). Can keep them on screen, respects Windows' settings, records them in the Powertoys inbox, and holds "finished" ones for the digest. |
 | `ccd-local-session-manager/0027-ccd.js` | +14 −1 | A slash command the app handles itself (`/remote-control`) no longer stays "queued" in the page. |
 | `ccd-local-session-manager/0052-ccd.js` | +7 −1 | That command's echo uses the id the page sent it under, once; a restored local session's folders get backslashes. |
 | `ccd-local-session-manager/0016-ccd.js` | +2 | Powertoys' additions to a session's environment (no feedback survey). |
@@ -239,15 +270,15 @@ Each hook is marked `Local change` in the patched code.
 | `ccd-host-core/mcp-tools/0001-mcp-tool-prefix-sanitizers.js` | +5 | The plan tool takes an estimate in minutes per step. |
 | `ccd-host-core/0002-drive-host-fill.js` | +1 −1 | Its description asks for the estimates when the setting is on. |
 | `ccd-local-session-manager/0038-session-file-access.js` | +17 −1 | Files outside the session's folders, read only: Powertoys' pastes folder, and any file you view in the file pane. |
-| `ccd-local-sessions-api/0002-local-sessions-api-core.js` | +6 | Per-project model and effort defaults for a session you start, and the task list when the Powertoys setting is on. |
+| `ccd-local-sessions-api/0002-local-sessions-api-core.js` | +8 | Per-project model and effort defaults for a session you start, the task list when the Powertoys setting is on, and the last start request kept for `newSession`. |
 | `git-worktree-manager/0003-worktree-trash-tombstones.js` | +19 | Background fetches keep your global `core.sshCommand` (with batch mode) instead of replacing it. |
 | `git-worktree-manager/0004-create-worktree-guards.js` | +1 −1 | Uses the above. |
 | `index.pre/telemetry-scrub/0036-error-withholding-breadcrumbs.js` | +10 | `--powertoys-profile=<name>`: a separate data folder (sign-in, sessions, settings, single-instance lock). |
 | `main/0282-support-bundle.js` | +2 | Leaves Ctrl+Tab to the Powertoys switcher while it is on. |
-| `main/app/0333-device-storage-api.js` | +4 −1 | Restoring the window keeps a maximized window maximized. |
+| `main/app/0333-device-storage-api.js` | +8 −2 | Restoring the window keeps a maximized window maximized; Powertoys gets the page's session start call (for `newSession`). |
 | `main/app/0349-app-ipc-preferences.js` | +3 −1 | "Open at login" starts this build (it has no Squirrel stub). |
 | `main/app/0350-main-window-squirrel.js` | +11 −6 | Extra windows reuse the code window's setup; the most recent conversation opens at launch. |
-| `main/app/0351-app-main-tray.js` | +4 −3 | The tray menu refreshes when its submenus (snippets, bookmarks) change. |
+| `main/app/0351-app-main-tray.js` | +10 −4 | The tray menu refreshes when its submenus (snippets, bookmarks) change; one click shows the app. |
 | `main/0284-plan-usage.js` | +3 | The Powertoys menu, and the tray's waiting sessions, snippets, bookmarks and switches. |
 | `main/platform/0028-electron-store-sync-timing.js` | +9 | Compatibility with the npm `electron-store` package. |
 | `main/platform/0242-gpu-state-telemetry.js` | +6 | Calls the network watchdog when the network service dies. |
