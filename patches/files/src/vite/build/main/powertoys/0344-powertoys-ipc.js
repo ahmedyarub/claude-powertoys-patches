@@ -256,7 +256,7 @@ function initPowertoys() {
       notifyNavigationChanged();
     });
     powertoysEvents.on("status", (status) => powertoysBroadcast("powertoys:status", status));
-    powertoysEvents.on("hiddenFolders", () => requestOsEntryPointsRebuildSafe());
+    powertoysEvents.on("hiddenFolders", () => rebuildOsEntryPoints());
     powertoysEvents.on("tabs", (tabs) => powertoysBroadcast("powertoys:tabs", tabs));
     powertoysEvents.on("notes", (notes) => powertoysBroadcast("powertoys:notes", notes));
     powertoysEvents.on("queue", (queue) => powertoysBroadcast("powertoys:queue", queue));

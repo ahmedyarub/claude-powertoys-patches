@@ -37,7 +37,7 @@ patches/files/...           files that are entirely new (written for Powertoys),
     restarting the app from inside it, then continuing the session.
   - `scripts/powertoys-command.mjs`: asks the running app, from a session, to do what a page action does
     (add the task list to a session) or queue a prompt in one.
-- **27 edits** (`"kind": "edit"`) to the app's own files: the small hooks that call into
+- **29 edits** (`"kind": "edit"`) to the app's own files: the small hooks that call into
   Powertoys, a rewrite of the Windows notification code, and two build manifests that list the new files.
   They are described one by one [below](#every-change-to-the-apps-own-files).
 
@@ -73,7 +73,7 @@ nothing of that file is in the patch. The patcher reconstructs the edited file f
 
 ## What the patches apply to
 
-The patches are for **Claude Desktop 3.6556.2 for Windows**, laid out as the paths in `patches.json` show.
+The patches are for **Claude Desktop 4.4212.0 for Windows**, laid out as the paths in `patches.json` show.
 Every edited file is checked by SHA-256, so the patches apply only to byte-identical files and refuse anything
 else.
 
@@ -201,6 +201,9 @@ pastes). Every feature has a switch in the Powertoys settings window (tray menu 
   - Tray-only mode.
   - Extra windows behave like the main one.
 - **Restarts:** "Restart and continue here" restarts the app and continues the session.
+  `restart-and-continue.mjs --update <git ref>` brings in a new release that needs a full build: once the app
+  has quit it fast-forwards the project folder, installs the packages, rebuilds and starts again, going
+  back to the previous commit if a step or the start fails.
   Sessions that were working are continued after the restart, and the waiting-for-you question doesn't block it.
 - **Look:**
   - Declutter switches.
@@ -219,29 +222,30 @@ Each hook is marked `Local change` in the patched code.
 
 | File (under `src/vite/build/`) | Lines | What it does |
 |---|---|---|
-| `main/app/0202-session-notifications.js` | +552 −71 | Builds Windows notifications here instead of through Electron, so they can carry the in-app card's buttons (Allow once, Always allow …, Deny; a button per question option, a reply box, Skip, Submit). Can keep them on screen, respects Windows' settings, and records them in the Powertoys inbox. |
-| `ccd-local-session-manager/0026-ccd.js` | +14 −1 | A slash command the app handles itself (`/remote-control`) no longer stays "queued" in the page. |
-| `ccd-local-session-manager/0048-ccd.js` | +5 −1 | That command's echo uses the id the page sent it under, once. |
+| `main/app/0239-session-notifications.js` | +543 −62 | Builds Windows notifications here instead of through Electron, so they can carry the in-app card's buttons (Allow once, Always allow …, Deny; a button per question option, a reply box, Skip, Submit). Can keep them on screen, respects Windows' settings, and records them in the Powertoys inbox. |
+| `ccd-local-session-manager/0027-ccd.js` | +14 −1 | A slash command the app handles itself (`/remote-control`) no longer stays "queued" in the page. |
+| `ccd-local-session-manager/0052-ccd.js` | +5 −1 | That command's echo uses the id the page sent it under, once. |
 | `claude-json-workspace-trust-config.js` | +8 | Folder trust off: the trust lookups count every folder as trusted while the Powertoys setting is on. |
-| `ccd-host-core/mcp-tools/0001-mcp-tool-prefix-sanitizers.js` | +6 −1 | The plan tool takes an estimate in minutes per step, and its description asks for them when the setting is on. |
-| `ccd-local-session-manager/session-core/0035-session-clearing-events.js` | +15 −1 | Files outside the session's folders, read only: Powertoys' pastes folder, and any file you view in the file pane. |
+| `ccd-host-core/mcp-tools/0001-mcp-tool-prefix-sanitizers.js` | +5 | The plan tool takes an estimate in minutes per step. |
+| `ccd-host-core/0002-drive-host-fill.js` | +1 −1 | Its description asks for the estimates when the setting is on. |
+| `ccd-local-session-manager/0038-session-file-access.js` | +17 −1 | Files outside the session's folders, read only: Powertoys' pastes folder, and any file you view in the file pane. |
 | `ccd-local-sessions-api/0002-local-sessions-api-core.js` | +6 | Per-project model and effort defaults for a session you start, and the task list when the Powertoys setting is on. |
 | `git-worktree-manager/0003-worktree-trash-tombstones.js` | +19 | Background fetches keep your global `core.sshCommand` (with batch mode) instead of replacing it. |
 | `git-worktree-manager/0004-create-worktree-guards.js` | +1 −1 | Uses the above. |
-| `index.pre/telemetry-scrub/0034-error-withholding-breadcrumbs.js` | +10 | `--powertoys-profile=<name>`: a separate data folder (sign-in, sessions, settings, single-instance lock). |
-| `main/0242-support-bundle.js` | +3 | Leaves Ctrl+Tab to the Powertoys switcher while it is on. |
-| `main/app/0296-device-storage-api.js` | +4 −1 | Restoring the window keeps a maximized window maximized. |
-| `main/app/0311-app-ipc-preferences.js` | +3 −1 | "Open at login" starts this build (it has no Squirrel stub). |
-| `main/app/0312-main-window-squirrel.js` | +11 −6 | Extra windows reuse the code window's setup; the most recent conversation opens at launch. |
-| `main/app/0313-app-main-tray.js` | +4 −3 | The tray menu refreshes when its submenus (snippets, bookmarks) change. |
-| `main/chrome/0244-browser-launch-extension-install.js` | +3 | The Powertoys menu, and the tray's waiting sessions, snippets, bookmarks and switches. |
+| `index.pre/telemetry-scrub/0036-error-withholding-breadcrumbs.js` | +10 | `--powertoys-profile=<name>`: a separate data folder (sign-in, sessions, settings, single-instance lock). |
+| `main/0282-support-bundle.js` | +2 | Leaves Ctrl+Tab to the Powertoys switcher while it is on. |
+| `main/app/0333-device-storage-api.js` | +4 −1 | Restoring the window keeps a maximized window maximized. |
+| `main/app/0349-app-ipc-preferences.js` | +3 −1 | "Open at login" starts this build (it has no Squirrel stub). |
+| `main/app/0350-main-window-squirrel.js` | +11 −6 | Extra windows reuse the code window's setup; the most recent conversation opens at launch. |
+| `main/app/0351-app-main-tray.js` | +4 −3 | The tray menu refreshes when its submenus (snippets, bookmarks) change. |
+| `main/0284-plan-usage.js` | +3 | The Powertoys menu, and the tray's waiting sessions, snippets, bookmarks and switches. |
 | `main/platform/0028-electron-store-sync-timing.js` | +9 | Compatibility with the npm `electron-store` package. |
-| `main/platform/0205-gpu-state-telemetry.js` | +6 | Calls the network watchdog when the network service dies. |
-| `main/settings/0200-supported-features.js` | +7 −1 | "Cowork without the Store install": skips only the install-type check. |
-| `main/vm/0148-vm-rpc-client.js` | +8 | Doesn't start the Cowork service when Powertoys has it switched off. |
-| `main/vm/0220-vm-bundle-download.js` | +5 | The Cowork VM image can live in another folder. |
-| `main/windows/0170-session-handoff-activity.js` | +2 −1 | Folders removed from the recent lists stay out of the jump list. |
-| `main/windows/0307-main-view-input-errors.js` | +13 | Extra windows get local session events too. |
+| `main/platform/0242-gpu-state-telemetry.js` | +6 | Calls the network watchdog when the network service dies. |
+| `main/settings/0237-supported-features.js` | +7 −1 | "Cowork without the Store install": skips only the install-type check. |
+| `main/vm/0183-vm-proxy-credentials.js`, `main/vm/0184-vm-rpc-client.js` | +4, +4 | Doesn't start the Cowork service when Powertoys has it switched off. |
+| `main/vm/0258-vm-bundle-download.js` | +5 | The Cowork VM image can live in another folder. |
+| `main/windows/0208-session-handoff-activity.js` | +2 −1 | Folders removed from the recent lists stay out of the jump list. |
+| `main/windows/0344-main-view-input-errors.js` | +13 | Extra windows get local session events too. |
 | `mainView/0007-window-manager-vm-bridges.js` | +1 −1 | A large paste saved by Powertoys reports its file path, so the composer attaches it. |
 | `main/_manifest.json`, `mainView/_manifest.json` | | List the new files, so they are part of the app. |
 | `../../scripts/assemble.mjs` | | `--out <dir>`: builds into a staging folder while the app runs, for the in-app restart. |

@@ -71,6 +71,29 @@ function powertoysRunNode(args, cwd) {
     child.on("close", (code) => resolve({ code, output }));
   });
 }
+/**
+ * A restart that updates the checkout to `ref` (a fast-forward) and runs the full build once the app has
+ * quit (scripts/swap-and-launch.mjs --update): for a release that changes Electron, native add-ons or
+ * vendor/. Checked here first: a clean working tree and a ref that main fast-forwards to.
+ */
+function powertoysPrepareUpdate(ref) {
+  let root = powertoysSourceRoot();
+  if (!root) {
+    return { ok: false, summary: "This build does not run from its project folder, so it cannot update itself." };
+  }
+  let git = (...gitArgs) => require("node:child_process").spawnSync("git", gitArgs, { cwd: root, encoding: "utf8", windowsHide: true });
+  if (git("rev-parse", "--verify", "--quiet", `${ref}^{commit}`).status !== 0) {
+    return { ok: false, summary: `${ref} is not a commit in ${root}.` };
+  }
+  let changes = git("status", "--porcelain", "--untracked-files=no").stdout.trim();
+  if (changes) {
+    return { ok: false, summary: `The checkout has uncommitted changes, so it was not updated:\n${changes.slice(0, 1500)}` };
+  }
+  if (git("merge-base", "--is-ancestor", "HEAD", ref).status !== 0) {
+    return { ok: false, summary: `${ref} is not a fast-forward of the checked-out commit.` };
+  }
+  return { ok: true, update: ref, root, summary: `updating to ${ref} with a full build after quitting` };
+}
 async function powertoysRebuild() {
   let root = powertoysSourceRoot();
   if (!root) {
@@ -100,7 +123,7 @@ async function powertoysRebuild() {
 function powertoysRelaunch(requesterId, build, ask = true) {
   let relaunch = () => {
     powertoysNoteWorkingSessions(requesterId);
-    if (build?.staged) {
+    if (build?.staged || build?.update) {
       let helperEnv = { ...process.env };
       delete helperEnv.ELECTRON_RUN_AS_NODE;
       let helper = require("node:child_process").spawn(
@@ -109,10 +132,9 @@ function powertoysRelaunch(requesterId, build, ask = true) {
           powertoysPath.join(build.root, "scripts", "swap-and-launch.mjs"),
           "--wait-pid",
           String(process.pid),
-          "--staged",
-          build.staged,
-          "--target",
-          powertoysPath.join(build.root, "app", ".vite"),
+          ...(build.update
+            ? ["--update", build.update, "--root", build.root]
+            : ["--staged", build.staged, "--target", powertoysPath.join(build.root, "app", ".vite")]),
           "--exe",
           process.execPath,
           "--args",
@@ -148,7 +170,7 @@ function powertoysRelaunch(requesterId, build, ask = true) {
  * sessionId: the conversation to continue after the restart (optional); message: what to send it.
  * Resolves { ok, summary } when the rebuild fails (the app keeps running); otherwise the app restarts.
  */
-async function powertoysRestartAndContinue({ sessionId = null, message = "", rebuild = true, ask = true, source = "menu" } = {}) {
+async function powertoysRestartAndContinue({ sessionId = null, message = "", rebuild = true, ask = true, source = "menu", update = null } = {}) {
   if (powertoysRestarting) {
     throw Error("A restart is already in progress");
   }
@@ -158,11 +180,11 @@ async function powertoysRestartAndContinue({ sessionId = null, message = "", reb
   powertoysRestarting = true;
   try {
     powertoysLog(`restart requested (${source})${sessionId ? ` to continue ${sessionId}` : ""}${rebuild ? ", rebuilding first" : ""}`);
-    let build = rebuild ? await powertoysRebuild() : { ok: true, summary: "not rebuilt" };
+    let build = update ? powertoysPrepareUpdate(update) : rebuild ? await powertoysRebuild() : { ok: true, summary: "not rebuilt" };
     if (!build.ok) {
       powertoysWarn(`restart cancelled: ${build.summary}`);
       if (sessionId) {
-        await powertoysSendToSession(sessionId, `The Claude Desktop rebuild failed, so it was not restarted.\n\n${build.summary}`);
+        await powertoysSendToSession(sessionId, `The Claude Desktop ${update ? "update" : "rebuild"} failed, so it was not restarted.\n\n${build.summary}`);
       }
       return build;
     }
@@ -330,6 +352,7 @@ function powertoysTakeRestartRequest() {
     message: typeof request.message === "string" ? request.message : "",
     rebuild: request.rebuild !== false,
     ask: request.ask !== false,
+    update: typeof request.update === "string" && request.update ? request.update : null,
     source: "request file",
   }).catch((caught) => powertoysWarn(`restart request failed: ${caught.message}`));
 }

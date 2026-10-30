@@ -118,7 +118,7 @@ function powertoysInboxAnswer(entryId, kind, value) {
     }
   }
   // The pop-up, if Windows still shows it, is answered now.
-  notificationService.actionBackend?.close?.(entry.tag);
+  notificationService.backend?.close?.(entry.tag);
   powertoysLog(`inbox: ${kind} on '${entry.title}'${kind === "action" ? ` (${value})` : ""}`);
   powertoysEvents.emit("inbox");
   return powertoysInboxList();

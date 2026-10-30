@@ -3,7 +3,10 @@
 // session: Claude Desktop gives every session its id in CLAUDE_CODE_HOST_SESSION_ID.
 //
 // Usage: node scripts/restart-and-continue.mjs [--session <local_…>] [--message "<text>"]
-//                                              [--no-rebuild] [--ask] [--profile <name>]
+//                                              [--no-rebuild] [--ask] [--profile <name>] [--update <git ref>]
+//
+// --update <ref>: fast-forward the checkout to <ref> and run the full build once the app has quit (a
+// release that changes Electron, native add-ons or vendor/); a failed step or start goes back.
 //
 // Other conversations still working do not stop the restart (they are continued afterwards); --ask
 // makes the app ask first, as its menu's restart does.
@@ -21,6 +24,7 @@ const option = (name) => {
 const sessionId = option('session') ?? process.env.CLAUDE_CODE_HOST_SESSION_ID ?? null;
 const message = option('message') ?? '';
 const rebuild = !args.includes('--no-rebuild');
+const update = option('update') ?? null;
 const ask = args.includes('--ask');
 const profile = option('profile');
 
@@ -32,7 +36,7 @@ if (!appData) {
 const dir = path.join(appData, profile ? `Claude-${profile}` : 'Claude', 'powertoys');
 const file = path.join(dir, 'restart-request.json');
 fs.mkdirSync(dir, { recursive: true });
-fs.writeFileSync(file, JSON.stringify({ sessionId, message, rebuild, ask, at: Date.now() }, null, 2));
+fs.writeFileSync(file, JSON.stringify({ sessionId, message, rebuild, ask, update, at: Date.now() }, null, 2));
 console.log(`Asked Claude Desktop to ${rebuild ? 'rebuild, ' : ''}restart${sessionId ? ` and continue ${sessionId}` : ''}.`);
 
 // Wait (up to 10 s) for the app to take the request, so a closed app is reported.

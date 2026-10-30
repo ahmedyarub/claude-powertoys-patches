@@ -4,6 +4,12 @@
 //
 // Usage: node scripts/swap-and-launch.mjs --wait-pid <pid> --staged <dir> --target <dir>
 //          --exe <path> [--args <json array>] [--log <file>] [--continue-file <file>] [--ok-file <file>]
+//        node scripts/swap-and-launch.mjs --wait-pid <pid> --update <git ref> --root <repo> --exe <path> ...
+//
+// --update: for a release that changes Electron, native add-ons or vendor/, which only a full build with
+// the app closed brings in. Once the app has quit: fast-forward <repo> to <git ref>, install app-deps,
+// sync them into app/, run the full exploded build, start the app. If a step fails, or the new build
+// does not report that it started, the checkout goes back to the commit it was on and is built again.
 import fs from 'node:fs';
 import path from 'node:path';
 import { spawn, spawnSync } from 'node:child_process';
@@ -14,6 +20,8 @@ const option = (name) => {
   return index >= 0 ? args[index + 1] : undefined;
 };
 const pid = Number(option('wait-pid'));
+const update = option('update');
+const root = option('root');
 const staged = option('staged');
 const target = option('target');
 const exe = option('exe');
@@ -61,8 +69,8 @@ log(`waiting for pid ${pid} to exit`);
 const started = Date.now();
 while (alive(pid)) {
   if (Date.now() - started > WAIT_LIMIT_MS) {
-    log('the app did not quit within 10 minutes (quit cancelled?); discarding the staged build');
-    fs.rmSync(staged, { recursive: true, force: true });
+    log(`the app did not quit within 10 minutes (quit cancelled?); ${update ? 'not updating' : 'discarding the staged build'}`);
+    if (staged) fs.rmSync(staged, { recursive: true, force: true });
     if (continueFile) fs.rmSync(continueFile, { force: true });
     process.exit(0);
   }
@@ -71,9 +79,50 @@ while (alive(pid)) {
 // Its helper processes (GPU, renderers, utility) go with it; give them a moment.
 await sleep(2500);
 
+/** Runs one step in the repository; its output goes to the log. Returns whether it succeeded. */
+const step = (what, command, commandArgs, cwd = root) => {
+  log(`${what}: ${command} ${commandArgs.join(' ')}`);
+  const result = spawnSync(command, commandArgs, { cwd, shell: true, encoding: 'utf8', windowsHide: true, maxBuffer: 64 * 1024 * 1024 });
+  const output = `${result.stdout ?? ''}${result.stderr ?? ''}`.trim();
+  if (output) log(output.split(/\r?\n/).slice(-15).join('\n'));
+  if (result.status !== 0) log(`${what} failed (exit ${result.status ?? result.error?.message})`);
+  return result.status === 0;
+};
+const build = () =>
+  step('installing app-deps', 'npm', ['install', '--no-audit', '--no-fund'], path.join(root, 'app-deps')) &&
+  step('syncing app-deps', 'node', ['scripts/sync-deps.mjs']) &&
+  step('building', 'npm', ['run', 'build:exploded']);
+const tellContinueFile = (text) => {
+  if (!continueFile || !fs.existsSync(continueFile)) return;
+  try {
+    const pending = JSON.parse(fs.readFileSync(continueFile, 'utf8'));
+    pending.message = `${text} ${pending.message ?? ''}`.trim();
+    pending.at = Date.now();
+    fs.writeFileSync(continueFile, JSON.stringify(pending, null, 2));
+  } catch {}
+};
+let updated = false;
+let before = null;
+if (update) {
+  before = spawnSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).stdout.trim();
+  const rollBack = (why) => {
+    log(`${why}; going back to ${before}`);
+    const restored = step('restoring the previous commit', 'git', ['reset', '--keep', before]) && build();
+    tellContinueFile(
+      `The update to ${update} did not work (${why}), so Claude Desktop is back on ${before.slice(0, 8)}${restored ? '' : ', but rebuilding it failed too'}; see ${logFile}.`,
+    );
+  };
+  if (!(step('updating', 'git', ['merge', '--ff-only', update]) && build())) {
+    rollBack('a step failed');
+  } else {
+    updated = true;
+    log(`updated to ${update}; starting the app`);
+  }
+}
+
 const previous = `${target}.previous`;
 let swapped = false;
-try {
+if (!update) try {
   fs.rmSync(previous, { recursive: true, force: true });
   await retry('moving the current build aside', () => fs.renameSync(target, previous));
   try {
@@ -104,7 +153,7 @@ const launch = (extraEnv = {}) => {
   return child;
 };
 
-log(swapped ? 'new build in place; starting the app' : 'starting the app (old build)');
+if (!update) log(swapped ? 'new build in place; starting the app' : 'starting the app (old build)');
 if (okFile) {
   fs.rmSync(okFile, { force: true });
   fs.writeFileSync(pendingFile, String(Date.now()));
@@ -117,7 +166,30 @@ if (continueFile && fs.existsSync(continueFile)) {
   } catch {}
 }
 const child = launch();
-if (!swapped || !okFile) {
+if (updated && okFile) {
+  // The same report as below decides; a failed start goes back to the previous commit.
+  const updatedAt = Date.now();
+  let quit = false;
+  child.on('exit', () => (quit = true));
+  while (Date.now() - updatedAt < START_LIMIT_MS) {
+    if (fs.existsSync(okFile)) {
+      log('the updated build started');
+      fs.rmSync(pendingFile, { force: true });
+      process.exit(0);
+    }
+    if (quit && Date.now() - updatedAt > 30000) break;
+    await sleep(1000);
+  }
+  spawnSync('taskkill', ['/PID', String(child.pid), '/T', '/F'], { stdio: 'ignore' });
+  await sleep(3000);
+  log(`the updated build did not start; going back to ${before}`);
+  const restored = step('restoring the previous commit', 'git', ['reset', '--keep', before]) && build();
+  tellContinueFile(`The updated Claude Desktop did not start, so it went back to ${before.slice(0, 8)}${restored ? '' : ' (rebuilding that failed too)'}; see ${logFile}.`);
+  fs.rmSync(pendingFile, { force: true });
+  launch();
+  process.exit(0);
+}
+if (update || !swapped || !okFile) {
   if (swapped) fs.rmSync(previous, { recursive: true, force: true });
   if (pendingFile) fs.rmSync(pendingFile, { force: true });
   process.exit(0);
