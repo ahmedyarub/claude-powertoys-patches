@@ -4313,7 +4313,7 @@
   {
    "path": "src/vite/build/main/powertoys/0340-powertoys-store.js",
    "kind": "add",
-   "sha256": "823c82eba01dc2987160000a5b3407990c14cfa050bb3785709a5993493dc928"
+   "sha256": "bf4705df7c95ab51f785de47d487e62f50ce9e1e1fdfb6869ea31e31b0a74c36"
   },
   {
    "path": "src/vite/build/main/powertoys/0341-powertoys-transcripts.js",
@@ -4358,12 +4358,12 @@
   {
    "path": "src/vite/build/main/powertoys/0351-powertoys-work.js",
    "kind": "add",
-   "sha256": "4997a58f5ad646d024f5f25d8df54aaf84382f2a135cf97293b1ac2a45a15487"
+   "sha256": "c5491066806ccec7d802a36a26f29385f80924e000b82e65c15373a6be862002"
   },
   {
    "path": "src/vite/build/main/powertoys/0352-powertoys-flow.js",
    "kind": "add",
-   "sha256": "193e3846488765c24055b19bb080a6b7d1168c0c23a3590d2c33d750f0008b18"
+   "sha256": "21e490f2060748ab8e99bceb1ed712197318a7b7904be6c29d71eaf2194a271e"
   },
   {
    "path": "src/vite/build/main/settings/0237-supported-features.js",

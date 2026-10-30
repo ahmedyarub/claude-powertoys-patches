@@ -38,7 +38,7 @@ async function powertoysTicketOf(sessionId) {
   let record = powertoysSessionManager()?.sessions.get(sessionId);
   let cliSessionId = record?.cliSessionId ?? record?.unarchivedCliSessionId;
   let topic = cliSessionId ? await powertoysTranscripts("topic", { cliSessionId }).catch(() => null) : null;
-  return powertoysPickTicket(topic, view ? powertoysSessionTitle(view) : "");
+  return powertoysPickTicket(topic, view ? powertoysSessionTitle(view) : "", view);
 }
 
 // --- New sessions started from outside the page (Slack Powertoys' newSession, Start from ticket) ---------

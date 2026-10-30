@@ -799,21 +799,23 @@ function powertoysWaitReason(view, state = powertoysStateOf(view)) {
 /**
  * The Notion ticket a conversation is about, from the pages it fetched (see trackTopic): the one whose ID is in the
  * session's title, else the one whose ID the person mentions most, else the first one fetched with an ID; with no
- * fetched ticket, an ID in the title alone.
+ * fetched ticket, an ID in the title alone. Only tickets the session's project takes count (powertoysTicketPrefixes).
  */
-function powertoysPickTicket(topic, title) {
+function powertoysPickTicket(topic, title, view) {
+  let prefixes = powertoysTicketPrefixes(view);
+  let takes = (id) => !prefixes || prefixes.includes(id.split("-")[0]);
   let property = (page, pattern) => Object.entries(page.properties ?? {}).find(([key]) => pattern.test(key))?.[1];
   let idOf = (page) => {
     let value = property(page, /(^|:)ID$/i);
     return typeof value === "string" && /^[A-Z][A-Z0-9]{1,9}-\d+$/.test(value) ? value : "";
   };
   let mentions = topic?.mentions ?? {};
-  let tickets = (topic?.pages ?? []).map((page) => ({ page, id: idOf(page) })).filter((ticket) => ticket.id);
+  let tickets = (topic?.pages ?? []).map((page) => ({ page, id: idOf(page) })).filter((ticket) => ticket.id && takes(ticket.id));
   let chosen =
     tickets.find((ticket) => title.includes(ticket.id)) ??
     [...tickets].sort((left, right) => (mentions[right.id] ?? 0) - (mentions[left.id] ?? 0) || left.page.order - right.page.order)[0];
   if (!chosen) {
-    let id = /\b[A-Z][A-Z0-9]{1,9}-\d{1,6}\b/.exec(title)?.[0];
+    let id = title.match(/\b[A-Z][A-Z0-9]{1,9}-\d{1,6}\b/g)?.find(takes);
     return id ? { id, title: "", url: "", status: "", read: false } : null;
   }
   let text = (value) => (typeof value === "string" ? value : Array.isArray(value) ? value.filter((each) => typeof each === "string" && !/^https?:/.test(each)).join(", ") : "");
@@ -828,6 +830,19 @@ function powertoysPickTicket(topic, title) {
     read: true,
     at: chosen.page.updatedAt ?? chosen.page.seenAt,
   };
+}
+/**
+ * The ticket prefixes a session's project takes: with ticketProjects set ({ "ISS": "E:\\…\\lscore" }), those mapped
+ * to its folder (none for any other project); with none set, any (null).
+ */
+function powertoysTicketPrefixes(view) {
+  let mapping = Object.entries(powertoysSetting("ticketProjects") ?? {}).filter(([, folder]) => typeof folder === "string" && folder);
+  if (!mapping.length) {
+    return null;
+  }
+  let key = (folder) => powertoysWindowsPath(String(folder).replace(/[\\/]\.claude[\\/]worktrees[\\/].*$/, "")).toLowerCase();
+  let folder = key(view?.originCwd || view?.cwd || "");
+  return mapping.filter(([, mapped]) => key(mapped) === folder).map(([prefix]) => prefix.toUpperCase());
 }
 /** For the page's tabs: { [sessionId]: { prs, reason, queued, todos, taskList, topic } }. */
 async function powertoysTabExtras(sessionIds) {
@@ -852,7 +867,7 @@ async function powertoysTabExtras(sessionIds) {
         queued: queue[sessionId]?.length ?? 0,
         taskList: manager?.sessions.get(sessionId)?.turnBoxMounted === true || manager?.sessions.get(sessionId)?.turnBoxDeclared === true,
         todos: todos?.items.length ? { ...todos, state } : null,
-        topic: { ticket: powertoysPickTicket(topic, powertoysSessionTitle(view)), recap: topic?.recap ?? null },
+        topic: { ticket: powertoysPickTicket(topic, powertoysSessionTitle(view), view), recap: topic?.recap ?? null },
       };
     }),
   );

@@ -166,7 +166,8 @@ pastes). Every feature has a switch in the Powertoys settings window (tray menu 
 
 - **Start from a Notion ticket:** type `ISS-1234` (command palette); a new session in the ticket's project
   fetches the ticket, creates a branch named after it and plans. A ticket prefix maps to a folder in the settings
-  file (`ticketProjects`), else the current tab's project is used.
+  file (`ticketProjects`), else the current tab's project is used. Once that mapping is set, only its folders link
+  sessions to tickets (in tabs, the topic and the status automation), each to its own prefixes.
 - **Fix CI:** a tab's menu offers it when the session's PR checks fail; the session reads the failing checks' logs
   and fixes them.
 - **Review comments to answer:** unresolved review comments across your sessions' open PRs, each sent to its

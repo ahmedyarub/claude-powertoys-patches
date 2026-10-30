@@ -57,6 +57,7 @@ const POWERTOYS_DEFAULT_SETTINGS = {
   ticketStatusOnReady: "Code Review Pending",
   ticketStatusOnMerged: "Deployed (Dev)",
   // { "ISS": "E:\\…\\project" }: the folder a ticket's new session starts in (else the current tab's project).
+  // Once set, only these folders link sessions to tickets, each to its own prefixes.
   ticketProjects: {},
   // The first prompt of a session started from a ticket ({id} is the ticket ID); "" uses the built-in one.
   ticketPrompt: "",
