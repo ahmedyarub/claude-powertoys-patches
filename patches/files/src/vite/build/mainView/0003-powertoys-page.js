@@ -19,6 +19,11 @@ function powertoysPageMain() {
   const log = (message) => {
     call("log", message).catch(() => undefined);
   };
+  try {
+    electron.contextBridge.executeInMainWorld({ func: powertoysBackslashCopiedPathsInMainWorld, args: [] });
+  } catch (caught) {
+    log(`copy path: the clipboard hook failed: ${caught?.message ?? caught}`);
+  }
   // Folder trust off (disableFolderTrust): before the page's own scripts run, so its first bootstrap is covered.
   if (ipc.sendSync("powertoys:folderTrustDisabled") === true) {
     try {
@@ -418,6 +423,7 @@ function powertoysPageMain() {
     .away .row .two > * { white-space: normal; overflow: visible; }
     .palette .row .key { margin-left: auto; color: hsl(var(--text-400, 48 5% 57%)); font-size: 11.5px; }
     .rename { width: 100%; padding: 2px 4px; background: hsl(var(--bg-100, 0 0% 8%)); color: inherit; border: 1px solid hsl(var(--accent-100, 212 75% 62%)); border-radius: 4px; font: inherit; }
+    .message-time { position: fixed; pointer-events: none; padding: 1px 7px; border-radius: 7px; font-size: 11px; line-height: 16px; white-space: nowrap; background: hsl(var(--bg-300, 0 0% 5%) / 0.92); color: hsl(var(--text-300, 48 5% 70%)); border: 0.5px solid hsl(var(--border-300, 0 0% 50%) / 0.25); }
   `;
   let layer = null;
   function ui() {
@@ -2407,6 +2413,50 @@ function powertoysPageMain() {
     log("reveal: the page kept moving away from the message");
   }
 
+  // --- The time a message was sent, above it while the pointer is on it (setting messageTimes) ---------
+  let timedRow = null;
+  let messageTimeNote = null;
+  let messageTimeFrame = 0;
+  function messageTimeText(at) {
+    let date = new Date(at);
+    let today = new Date();
+    let time = date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    if (date.toDateString() === today.toDateString()) {
+      return time;
+    }
+    let day = date.toLocaleDateString([], { weekday: "short", day: "numeric", month: "short", ...(date.getFullYear() !== today.getFullYear() && { year: "numeric" }) });
+    return `${day}, ${time}`;
+  }
+  function hideMessageTime() {
+    timedRow = null;
+    messageTimeNote?.remove();
+    messageTimeNote = null;
+  }
+  function showMessageTime() {
+    messageTimeFrame = 0;
+    let under = settings?.messageTimes !== false && pointer.x >= 0 ? document.elementFromPoint(pointer.x, pointer.y) : null;
+    let row = under?.closest?.("[data-epitaxy-entry]") ?? null;
+    if (row === timedRow) {
+      return;
+    }
+    hideMessageTime();
+    let pane = row && paneOf(row);
+    let at = pane ? mainWorld("entryTime", pane.transcript, row.getAttribute("data-epitaxy-entry")) : 0;
+    if (!at) {
+      return;
+    }
+    timedRow = row;
+    // Over the message's own bubble when it has one (yours, on the right), else over the row.
+    let anchor = row.querySelector('[data-testid="user-message"]') ?? row;
+    let rect = anchor.getBoundingClientRect();
+    messageTimeNote = element("div", "message-time", messageTimeText(at));
+    ui().appendChild(messageTimeNote);
+    let left = anchor === row ? rect.left : rect.right - messageTimeNote.offsetWidth;
+    messageTimeNote.style.left = `${Math.max(8, Math.min(innerWidth - messageTimeNote.offsetWidth - 8, left))}px`;
+    messageTimeNote.style.top = `${Math.max(4, rect.top - messageTimeNote.offsetHeight - 3)}px`;
+  }
+  window.addEventListener("scroll", hideMessageTime, { capture: true, passive: true });
+
   // --- Bookmarks (right-click a message) ---------------------------------------------------------
   /** The message row under the pointer and the paragraph the pointer is on. */
   function messageAtPointer() {
@@ -3562,6 +3612,7 @@ function powertoysPageMain() {
     return JSON.stringify(String(text));
   }
   function applyLook() {
+    document.documentElement.dataset.ptCopyPathBackslashes = settings.copyPathBackslashes === false ? "0" : "1";
     let rules = [];
     if (settings.hideSurvey) {
       rules.push('.epitaxy-hint-fade-in:has([aria-label="Rate this session"], [aria-label="Feedback follow-up"]) { display: none !important; }');
@@ -4079,6 +4130,9 @@ function powertoysPageMain() {
     [/^\/projects\/?$/, "Projects"],
     [/^\/recents\b/, "Chats"],
   ];
+  // The New session page: its tab stays when you switch away (keepDraftTab), until closed or the draft is sent.
+  const DRAFT_VIEW = "view:/epitaxy";
+  let previousTabKey = null;
   function viewTitle(path) {
     let known = VIEW_TITLES.find(([pattern]) => pattern.test(path));
     return known ? known[1] : document.title.replace(/\s+[-–]\s+Claude(?: Code)?$/, "") || path;
@@ -4200,12 +4254,24 @@ function powertoysPageMain() {
     let mean = (r1 + r2) / 2;
     return Math.sqrt((2 + mean / 256) * (r1 - r2) ** 2 + 4 * (g1 - g2) ** 2 + (2 + (255 - mean) / 256) * (b1 - b2) ** 2);
   }
+  /** A project's entry in a settings map, also under the key it had with forward slashes. */
+  function projectSetting(map, key) {
+    if (!map) {
+      return undefined;
+    }
+    if (key in map) {
+      return map[key];
+    }
+    let slashless = (value) => value.replace(/\//g, "\\").replace(/\\+$/, "");
+    let found = Object.keys(map).find((other) => slashless(other) === slashless(key));
+    return found === undefined ? undefined : map[found];
+  }
   function projectColor(key) {
-    let chosen = settings?.projectColors?.[key];
+    let chosen = projectSetting(settings?.projectColors, key);
     if (typeof chosen === "string" && /^#[0-9a-f]{6}$/i.test(chosen)) {
       return chosen;
     }
-    let assigned = settings?.autoProjectColors?.[key];
+    let assigned = projectSetting(settings?.autoProjectColors, key);
     if (typeof assigned === "string" && /^#[0-9a-f]{6}$/i.test(assigned)) {
       return assigned;
     }
@@ -4290,7 +4356,7 @@ function powertoysPageMain() {
   const EFFORT_LEVELS = ["low", "medium", "high", "xhigh", "max"];
   function projectDefaultsMenu(project) {
     refreshKnownModels(); // for the next time the menu opens; this one uses what is known now
-    let current = settings?.projectDefaults?.[project.key] ?? {};
+    let current = projectSetting(settings?.projectDefaults, project.key) ?? {};
     let set = (change) => {
       let entry = { ...current, name: project.name, folder: project.folder || current.folder || "", ...change };
       if (!entry.folder) {
@@ -4550,11 +4616,22 @@ function powertoysPageMain() {
       wanted = tabRows.filter((row) => row.isStarred || onScreen.has(key(row)) || row.isRunning || isWaiting(row));
       wanted.forEach((row) => reasons.set(key(row), "first tabs"));
     }
-    // A view's tab is not stored (see tabsWanted) unless it is pinned.
-    if (current && !known.has(current) && !current.startsWith("view:")) {
+    // A draft sent from the New session page became a session (a new one, on screen now): its tab goes,
+    // the session's takes over. Opening an older session from that page leaves the draft's tab.
+    if (previousTabKey === DRAFT_VIEW && current?.startsWith("code:") && known.has(DRAFT_VIEW) && !known.has(current)) {
+      let updatedAt = byKey.get(current)?.updatedAt;
+      if (!updatedAt || Date.now() - updatedAt < 60000) {
+        log("tabs: the draft was sent; closing the New session tab");
+        call("tabs", "close", "view", DRAFT_VIEW.slice("view:".length)).catch((caught) => log(`tabs: closing failed: ${caught.message}`));
+      }
+    }
+    previousTabKey = current;
+    // A view's tab is not stored (see tabsWanted) unless it is pinned, or it is the New session page.
+    let keepsView = current === DRAFT_VIEW && settings?.keepDraftTab !== false;
+    if (current && !known.has(current) && (!current.startsWith("view:") || keepsView)) {
       let row = byKey.get(current);
       let [kind, id] = [current.slice(0, current.indexOf(":")), current.slice(current.indexOf(":") + 1)];
-      wanted.push(row ?? { kind, id, title: document.title.replace(/\s+[-–]\s+Claude(?: Code)?$/, "") });
+      wanted.push(row ?? { kind, id, title: kind === "view" ? viewTitle(id) : document.title.replace(/\s+[-–]\s+Claude(?: Code)?$/, "") });
       reasons.set(current, "on screen");
     }
     if (!waitingBaselined && tabRows.length > 0) {
@@ -5661,6 +5738,7 @@ function powertoysPageMain() {
     (event) => {
       pointer = { x: event.clientX, y: event.clientY };
       onPointerMoveForSidebar(event);
+      messageTimeFrame ||= requestAnimationFrame(showMessageTime);
     },
     { capture: true, passive: true },
   );
@@ -5838,6 +5916,50 @@ function powertoysSkipTrustedFolderPromptInMainWorld() {
   };
 }
 
+/**
+ * Runs in the page's main world, before the page's scripts; must not use anything outside itself. "Copy path"
+ * and "Copy absolute path" copy E:/a/b on Windows; a Windows path the page copies right after you pick such an
+ * item goes to the clipboard as E:\a\b (setting copyPathBackslashes, read from a DOM attribute the page module
+ * keeps). Other copies are left alone.
+ */
+function powertoysBackslashCopiedPathsInMainWorld() {
+  let picked = { at: 0, text: "" };
+  let note = (target) => {
+    let item = target?.closest?.('[role="menuitem"], [role="option"], button, a, li') ?? target;
+    picked = { at: Date.now(), text: String(item?.innerText ?? item?.textContent ?? "").trim().slice(0, 80) };
+  };
+  for (let type of ["pointerup", "click"]) {
+    document.addEventListener(type, (event) => note(event.target), true);
+  }
+  document.addEventListener(
+    "keydown",
+    (event) => {
+      if (event.key === "Enter" || event.key === " ") {
+        note(document.activeElement);
+      }
+    },
+    true,
+  );
+  let prototype = window.Clipboard?.prototype;
+  let writeText = prototype?.writeText;
+  if (!writeText) {
+    return;
+  }
+  prototype.writeText = function (text) {
+    if (
+      typeof text === "string" &&
+      document.documentElement.dataset.ptCopyPathBackslashes === "1" &&
+      Date.now() - picked.at < 2000 &&
+      /\bcopy\b.*\bpath\b/i.test(picked.text) &&
+      /^(?:[A-Za-z]:\/|\/\/[^/])/.test(text) &&
+      !/[\r\n]/.test(text)
+    ) {
+      text = text.replace(/\//g, "\\");
+    }
+    return writeText.call(this, text);
+  };
+}
+
 /** Runs in the page's main world (contextBridge.executeInMainWorld); must not use anything outside itself. */
 function powertoysMainWorldOperation(operation, marker, argument) {
   let target = marker ? document.querySelector(`[data-powertoys-target="${marker}"]`) : null;
@@ -5921,6 +6043,10 @@ function powertoysMainWorldOperation(operation, marker, argument) {
                 if (repo?.owner && repo?.name) {
                   return { key: `${repo.owner}/${repo.name}`.toLowerCase(), name: String(repo.name), folder };
                 }
+                // E:/x and E:\x are one project (a session a claude:// link started can have either).
+                if (/^(?:[A-Za-z]:[\\/]|[\\/]{2}[^\\/])/.test(folder)) {
+                  folder = folder.replace(/\//g, "\\").replace(/(?<!^[A-Za-z]:)\\+$/, "");
+                }
                 return folder ? { key: folder.toLowerCase(), name: folder.replace(/[\\/]+$/, "").split(/[\\/]/).pop(), folder } : null;
               })(),
             });
@@ -5988,6 +6114,10 @@ function powertoysMainWorldOperation(operation, marker, argument) {
           at: Date.parse(entry.timestamp ?? "") || 0,
         }))
       : null;
+  }
+  if (operation === "entryTime") {
+    let entry = props?.entries.find((candidate) => String(candidate.id) === argument);
+    return entry ? Date.parse(entry.timestamp ?? "") || 0 : 0;
   }
   if (operation === "scrollTo") {
     if (!props || !props.entries.some((entry) => String(entry.id) === argument)) {

@@ -144,6 +144,26 @@
    ]
   },
   {
+   "path": "src/vite/build/ccd-local-session-manager/0016-ccd.js",
+   "kind": "edit",
+   "baseSha256": "d5e14cdb3f3b47e130a41a38c646ce8e17befa718f25e36666328779a1bf3ed7",
+   "resultSha256": "eee18c757b9c6e1ee071c59019b8a47caa62ff3d3da3593654db38a1dca183f5",
+   "hunks": [
+    {
+     "at": 1347,
+     "remove": 0,
+     "add": [
+      [
+       "  // Local change: Powertoys' additions to the session's environment (no feedback survey).\n"
+      ],
+      [
+       "  mainChunk.powertoysSessionEnv?.(sessionEnv);\n"
+      ]
+     ]
+    }
+   ]
+  },
+  {
    "path": "src/vite/build/ccd-local-session-manager/0027-ccd.js",
    "kind": "edit",
    "baseSha256": "a0f276ea5b3563efa2f9bda110cd95304c96cda96c30a956c54ff83d2da0bb4c",
@@ -327,8 +347,20 @@
    "path": "src/vite/build/ccd-local-session-manager/0052-ccd.js",
    "kind": "edit",
    "baseSha256": "d7a99d21bdd1245472a9a4cf1bd50c9591beb9c833eafaadccc553e0f3ece8e7",
-   "resultSha256": "0d5edbf431c8c881e25bf22ab1bc1c31d59e9a9cc5fa5f3ec111f59496621899",
+   "resultSha256": "2e6a6445a69326cbec7ea48a4e89d0687391558b679bc2d0618ff61b595021fe",
    "hunks": [
+    {
+     "at": 5866,
+     "remove": 0,
+     "add": [
+      [
+       "          // Local change: E:/x and E:\\x are one folder (sessions a claude:// link started were saved with /).\n"
+      ],
+      [
+       "          mainChunk.powertoysNormalizeSessionPaths?.(restoredSession);\n"
+      ]
+     ]
+    },
     {
      "at": 19994,
      "remove": 0,
@@ -4184,7 +4216,7 @@
   {
    "path": "src/vite/build/main/powertoys/0340-powertoys-store.js",
    "kind": "add",
-   "sha256": "1ba799e7af4181d42dc7dae9d2778ee5cd14970b60402a8347e3a40355bbf2cf"
+   "sha256": "4d792a9cfb97205cd9b4928ac032922ab855e670ee9a0b7fa58d8e38a9a7ecb2"
   },
   {
    "path": "src/vite/build/main/powertoys/0341-powertoys-transcripts.js",
@@ -4229,7 +4261,7 @@
   {
    "path": "src/vite/build/main/powertoys/0351-powertoys-work.js",
    "kind": "add",
-   "sha256": "f869a5b312447d4bb6a9f18e0b8115e80a1f83fb6f1b07aac8db9ba788052c18"
+   "sha256": "78b673ed0d2c5b8c51a800cea584017784cd64aa0b4596232a6e1dbc1338d14e"
   },
   {
    "path": "src/vite/build/main/settings/0237-supported-features.js",
@@ -4482,7 +4514,7 @@
   {
    "path": "src/vite/build/mainView/0003-powertoys-page.js",
    "kind": "add",
-   "sha256": "c673aa6a57d6710d5249a61cffcdcdf4993366bd0f54674753662dd32ca487a7"
+   "sha256": "031b079dd63d70572a6621ea98359f3c00676971ab5eaf972031c6c257c7a0e6"
   },
   {
    "path": "src/vite/build/mainView/0007-window-manager-vm-bridges.js",

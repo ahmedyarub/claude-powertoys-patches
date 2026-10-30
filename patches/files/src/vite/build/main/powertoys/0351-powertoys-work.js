@@ -1045,12 +1045,20 @@ function powertoysKnownModels() {
  * (ccd-local-sessions-api) before the session manager normalises the options.
  */
 function powertoysApplyProjectDefaults(startOptions) {
-  let cwd = typeof startOptions?.cwd === "string" ? startOptions.cwd.replace(/[\/]+$/, "").toLowerCase() : "";
+  // A local session's folders with backslashes, as the app's own folder picker gives them (a claude:// link
+  // can give E:/x, which the app would file as another project).
+  if (startOptions && !startOptions.sshConfig && !startOptions.wslConfig) {
+    startOptions.cwd = powertoysWindowsPath(startOptions.cwd);
+    if (Array.isArray(startOptions.additionalDirectories)) {
+      startOptions.additionalDirectories = startOptions.additionalDirectories.map(powertoysWindowsPath);
+    }
+  }
+  let cwd = typeof startOptions?.cwd === "string" ? powertoysWindowsPath(startOptions.cwd).toLowerCase() : "";
   if (!cwd) {
     return;
   }
   for (let defaults of Object.values(powertoysSetting("projectDefaults") ?? {})) {
-    let folder = typeof defaults?.folder === "string" ? defaults.folder.replace(/[\/]+$/, "").toLowerCase() : "";
+    let folder = typeof defaults?.folder === "string" ? powertoysWindowsPath(defaults.folder).toLowerCase() : "";
     if (!folder || (cwd !== folder && !cwd.startsWith(`${folder}\\`) && !cwd.startsWith(`${folder}/`))) {
       continue;
     }

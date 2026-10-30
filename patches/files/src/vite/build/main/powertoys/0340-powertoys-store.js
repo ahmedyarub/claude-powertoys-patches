@@ -43,7 +43,13 @@ const POWERTOYS_DEFAULT_SETTINGS = {
   spellcheck: true,
   /** Comma-separated spellchecker language codes. */
   spellLanguages: "en-US",
-  hideSurvey: false,
+  hideSurvey: true,
+  // The New session page keeps its tab after you switch away, until it is closed or the draft is sent.
+  keepDraftTab: true,
+  // "Copy path" / "Copy absolute path" copies a Windows path with backslashes.
+  copyPathBackslashes: true,
+  // The time a message was sent, above it while the pointer is on it.
+  messageTimes: true,
   hidePromptSuggestions: false,
   hideNextStepBox: false,
   hideCreatePr: false,
@@ -149,7 +155,7 @@ const POWERTOYS_SETTINGS_SECTIONS = [
   {
     title: "Declutter",
     items: [
-      { key: "hideSurvey", label: "Hide the \"How is Claude doing?\" survey", type: "switch" },
+      { key: "hideSurvey", label: "Never ask for feedback: Claude Code's \"How is Claude doing?\" survey is off for new sessions, and the page's rating card is hidden", type: "switch" },
       { key: "hidePromptSuggestions", label: "Hide prompt suggestions", type: "switch" },
       { key: "hideNextStepBox", label: "Hide the end-of-turn next-step box", type: "switch" },
       { key: "hideCreatePr", label: "Hide the Create PR button", type: "switch" },
@@ -285,6 +291,35 @@ function powertoysSettings() {
   }
   return powertoysSettingsCache;
 }
+/**
+ * A Windows path with backslashes (C:/a/b -> C:\a\b, //server/share -> \\server\share) and no trailing
+ * separator (a drive root keeps its own), so E:/x and E:\x are one folder everywhere Powertoys compares or
+ * files them. Anything else (POSIX paths of SSH and WSL sessions) is returned as it is.
+ */
+function powertoysWindowsPath(value) {
+  if (typeof value !== "string" || !/^(?:[A-Za-z]:[\\/]|[\\/]{2}[^\\/])/.test(value)) {
+    return value;
+  }
+  let path = value.replace(/\//g, "\\");
+  return /^[A-Za-z]:\\$/.test(path) ? path : path.replace(/\\+$/, "");
+}
+Object.defineProperty(exports, "powertoysWindowsPath", { enumerable: true, get: () => powertoysWindowsPath });
+/** A restored local session's folders, the same way (ccd-local-session-manager, at load). */
+function powertoysNormalizeSessionPaths(session) {
+  for (let field of ["cwd", "originCwd", "worktreePath"]) {
+    if (typeof session?.[field] === "string") {
+      session[field] = powertoysWindowsPath(session[field]);
+    }
+  }
+}
+Object.defineProperty(exports, "powertoysNormalizeSessionPaths", { enumerable: true, get: () => powertoysNormalizeSessionPaths });
+/** What Powertoys adds to a Claude Code session's environment (ccd-local-session-manager, at spawn). */
+function powertoysSessionEnv(env) {
+  if (powertoysSetting("hideSurvey") !== false) {
+    env.CLAUDE_CODE_DISABLE_FEEDBACK_SURVEY = "1";
+  }
+}
+Object.defineProperty(exports, "powertoysSessionEnv", { enumerable: true, get: () => powertoysSessionEnv });
 /** Folder trust off (disableFolderTrust): read by claude-json-workspace-trust-config.js and the page's IPC. */
 const powertoysTrustOffLogged = new Set();
 function powertoysFolderTrustDisabled(folderPath) {
