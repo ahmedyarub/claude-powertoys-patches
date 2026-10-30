@@ -19,6 +19,7 @@ const POWERTOYS_DEFAULT_SETTINGS = {
   removeResizeHandle: true,
   sessionSwitcher: true,
   ctrlEnterSendsNow: true,
+  editQueuedKey: true,
   outlineButton: true,
   promptJump: true,
   conversationEnds: true,
@@ -187,6 +188,7 @@ const POWERTOYS_SETTINGS_SECTIONS = [
       { key: "promptJump", label: "Ctrl+Up / Ctrl+Down jump between prompts", type: "switch" },
       { key: "conversationEnds", label: "Ctrl+Home / Ctrl+End: start or end of the conversation", type: "switch" },
       { key: "ctrlEnterSendsNow", label: "Ctrl+Enter sends now (interrupting Claude)", type: "switch" },
+      { key: "editQueuedKey", label: "Ctrl+Up in the prompt box edits the unsent (queued) message", type: "switch" },
       { key: "promptQueueKey", label: "Alt+Enter queues the prompt: queued prompts go one by one as the session's turns end (the tab's ⏭ lists them)", type: "switch" },
       { key: "promptHistory", label: "Alt+Up: earlier prompts", type: "switch" },
       { key: "snippets", label: "Snippets (Ctrl+Shift+Space)", type: "switch" },
@@ -245,6 +247,7 @@ const POWERTOYS_SWITCHES = [
   ["removeResizeHandle", "Remove sidebar resize handle"],
   ["sessionSwitcher", "Ctrl+Tab session switcher"],
   ["ctrlEnterSendsNow", "Ctrl+Enter sends now"],
+  ["editQueuedKey", "Ctrl+Up edits the queued message"],
   ["outlineButton", "Conversation outline button"],
   ["promptJump", "Ctrl+Up/Down jumps between prompts"],
   ["conversationEnds", "Ctrl+Home/End: start or end of the conversation"],
@@ -464,7 +467,7 @@ function powertoysPromptQueue() {
   );
 }
 /** change: "add" (argument: the text), "remove" / "first" (argument: an item's id), "clear". */
-function powertoysQueueChange(sessionId, change, argument) {
+function powertoysQueueChange(sessionId, change, argument, model) {
   if (typeof sessionId !== "string" || !sessionId) {
     throw Error("A queued prompt needs a session");
   }
@@ -475,7 +478,7 @@ function powertoysQueueChange(sessionId, change, argument) {
     if (!text) {
       throw Error("Nothing to queue");
     }
-    list.push({ id: `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`, text, at: Date.now() });
+    list.push({ id: `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`, text, at: Date.now(), ...(model ? { model } : {}) });
   } else if (change === "remove") {
     list = list.filter((item) => item.id !== argument);
   } else if (change === "first") {

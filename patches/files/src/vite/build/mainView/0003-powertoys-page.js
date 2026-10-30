@@ -902,6 +902,29 @@ function powertoysPageMain() {
     setTimeout(poll, 60);
   }
 
+  // --- Ctrl+Up in the prompt box: edit the unsent message ---------------------------------------
+  /**
+   * Takes the last message waiting to be sent back into the prompt box: the app's queued one (its own "Edit in
+   * composer"), else this session's last Powertoys-queued prompt. False when nothing waits.
+   */
+  function editLastQueued() {
+    let pane = activePane();
+    let label = (node) => node.getAttribute("aria-label") || node.getAttribute("title") || node.textContent.trim();
+    let button = [...(pane?.root ?? document).querySelectorAll('button, [role="menuitem"]')].filter((node) => isShown(node) && label(node) === "Edit in composer").at(-1);
+    if (button) {
+      button.click();
+      log("Ctrl+Up: pressed Edit in composer");
+      return true;
+    }
+    let sessionId = paneSessionId(pane);
+    let item = sessionId ? (promptQueue[sessionId] ?? []).at(-1) : null;
+    if (item) {
+      editQueued(sessionId, item);
+      return true;
+    }
+    return false;
+  }
+
   // --- Prompt jumps (Ctrl+Up/Down) and conversation ends (Ctrl+Home/End) ---------------------
   // The page has its own prompt jump (Alt+Up), but it is switched off by a flag; this one steps
   // through the user entries of the loaded window, loading earlier / later messages at its ends.
@@ -1266,10 +1289,11 @@ function powertoysPageMain() {
     let open = items.filter((item) => item.status !== "completed");
     let known = items.filter((item) => item.estimate > 0);
     estimate.planned = known.reduce((sum, item) => sum + item.estimate * 60000, 0);
+    estimate.average = known.length ? estimate.planned / known.length : 0;
     if (open.length === 0 || !open.some((item) => item.estimate > 0)) {
       return estimate;
     }
-    let average = estimate.planned / known.length;
+    let average = estimate.average;
     estimate.estimated = true;
     for (let item of open) {
       let planned = item.estimate > 0 ? item.estimate * 60000 : average;
@@ -1299,8 +1323,9 @@ function powertoysPageMain() {
     let items = data.items;
     let done = items.filter((item) => item.status === "completed");
     let current = items.find((item) => item.status === "in_progress");
-    let summary = { total: items.length, done: done.length, partial: 0, text: "" };
+    let summary = { total: items.length, done: done.length, fraction: done.length / items.length, text: "" };
     if (done.length === items.length) {
+      summary.fraction = 1;
       let finished = Math.max(...done.map((item) => item.doneAt || estimate.began));
       summary.text = `All ${items.length} done in ${minutes(finished - estimate.began)}${estimate.planned ? ` (Claude estimated ${minutes(estimate.planned)})` : ""}`;
       return summary;
@@ -1309,11 +1334,16 @@ function powertoysPageMain() {
       summary.text = `${done.length} of ${items.length} done · no estimate from Claude yet`;
       return summary;
     }
-    if (current?.estimate > 0) {
-      summary.partial = Math.min(0.95, (now - (current.startedAt || now)) / (current.estimate * 60000));
-    }
     // A step running past its estimate pushes the finish back: the steps after it still take their time.
     let finish = estimate.working ? Math.max(estimate.at + estimate.left, now + estimate.after) : estimate.at + estimate.left;
+    // The bar is time: what the steps took so far (a done step's real time, else its estimate) against that plus
+    // the time left; short of full until the last step is done.
+    let spent = done.reduce((sum, item) => sum + (item.startedAt && item.doneAt ? item.doneAt - item.startedAt : item.estimate > 0 ? item.estimate * 60000 : estimate.average), 0);
+    if (current?.startedAt) {
+      spent += Math.max((estimate.working ? now : estimate.at) - current.startedAt, 0);
+    }
+    let left = estimate.working ? Math.max(finish - now, 0) : estimate.left;
+    summary.fraction = spent + left > 0 ? Math.min(spent / (spent + left), 0.97) : summary.fraction;
     let parts = [`${done.length} of ${items.length} done`];
     if (!estimate.working) {
       parts.push(`~${minutes(estimate.left)} left`, "paused");
@@ -1352,8 +1382,20 @@ function powertoysPageMain() {
     while (list && !rest.every((row) => list.contains(row))) {
       list = list.parentElement;
     }
-    return list;
+    return list ? { list, rows } : null;
   }
+  /** A step's time: a done step's real time, the current one's time so far, else the estimate. */
+  function stepTime(item, estimate, now) {
+    let planned = item.estimate > 0 ? minutes(item.estimate * 60000) : "";
+    if (item.status === "completed" && item.startedAt && item.doneAt) {
+      return `${minutes(item.doneAt - item.startedAt)}${planned ? ` (est. ${planned})` : ""}`;
+    }
+    if (item.status === "in_progress" && item.startedAt) {
+      return `${minutes((estimate.working ? now : estimate.at) - item.startedAt)}${planned ? ` of ~${planned}` : ""}`;
+    }
+    return planned ? `~${planned}` : "";
+  }
+  let stepTimes = [];
   function taskBar(sessionId) {
     let bar = document.createElement("div");
     bar.setAttribute("data-pt-task-progress", "");
@@ -1406,18 +1448,38 @@ function powertoysPageMain() {
         }
         let labels = data.items.map((item) => [item.content, item.activeForm].filter(Boolean));
         // The list is in the conversation or in the session's side panel.
-        let list = taskListElement(pane.root, labels) ?? taskListElement(document.body, labels);
-        if (!list) {
+        let found = taskListElement(pane.root, labels) ?? taskListElement(document.body, labels);
+        if (!found) {
           continue;
         }
+        let list = found.list;
         let bar = list.nextElementSibling?.hasAttribute("data-pt-task-progress") ? list.nextElementSibling : null;
         if (!bar) {
           bar = taskBar(sessionId);
           list.after(bar);
         }
         bar.dataset.session = sessionId;
-        let summary = taskSummary(data, currentEstimate(sessionId, data, now), now);
-        bar.firstChild.firstChild.style.width = `${(100 * (summary.done + summary.partial)) / summary.total}%`;
+        let estimate = currentEstimate(sessionId, data, now);
+        let summary = taskSummary(data, estimate, now);
+        bar.firstChild.firstChild.style.width = `${100 * summary.fraction}%`;
+        // Each step's time beside it.
+        for (let [index, row] of found.rows) {
+          let time = stepTime(data.items[index], estimate, now);
+          let span = row.querySelector(":scope > [data-pt-step-time]");
+          if (!time) {
+            continue;
+          }
+          if (!span) {
+            span = document.createElement("span");
+            span.setAttribute("data-pt-step-time", "");
+            span.style.cssText = "margin-left: 8px; font-size: 11px; opacity: 0.65; white-space: nowrap; font-variant-numeric: tabular-nums;";
+            row.appendChild(span);
+          }
+          if (span.textContent !== time) {
+            span.textContent = time;
+          }
+          keep.add(span);
+        }
         let text = bar.lastChild.firstChild;
         if (text.textContent !== summary.text) {
           text.textContent = summary.text;
@@ -1427,12 +1489,13 @@ function powertoysPageMain() {
         keep.add(bar);
       }
     }
-    for (let bar of taskBars) {
-      if (!keep.has(bar)) {
-        bar.remove();
+    for (let node of [...taskBars, ...stepTimes]) {
+      if (!keep.has(node)) {
+        node.remove();
       }
     }
-    taskBars = [...keep];
+    taskBars = [...keep].filter((node) => node.hasAttribute("data-pt-task-progress"));
+    stepTimes = [...keep].filter((node) => node.hasAttribute("data-pt-step-time"));
   }
   // --- Tab extras: a PR's checks, why a session waits, its task list, its queued prompts ------------------
   let tabExtras = {}; // sessionId -> { prs, reason, queued, todos } (tabExtras, every 5 s for the open tabs)
@@ -3884,6 +3947,26 @@ function powertoysPageMain() {
   function cssString(text) {
     return JSON.stringify(String(text));
   }
+  /** The page's "How is Claude doing this session?" bar (Bad / Fine / Good), found by its text: hidden, never answered. */
+  function hideSurveyBars() {
+    if (!settings?.hideSurvey) {
+      return;
+    }
+    for (let good of document.querySelectorAll("button")) {
+      if (good.textContent.trim() !== "Good" || good.closest("[data-pt-survey]")) {
+        continue;
+      }
+      let bar = good.parentElement;
+      while (bar && bar !== document.body && !bar.textContent.includes("How is Claude doing")) {
+        bar = bar.parentElement;
+      }
+      if (bar && bar !== document.body && bar.textContent.length < 300) {
+        bar.setAttribute("data-pt-survey", "");
+        bar.style.setProperty("display", "none", "important");
+        log("survey: hid the rating bar");
+      }
+    }
+  }
   function applyLook() {
     document.documentElement.dataset.ptCopyPathBackslashes = settings.copyPathBackslashes === false ? "0" : "1";
     let rules = [];
@@ -5023,6 +5106,19 @@ function powertoysPageMain() {
       flash("No closed tab to reopen");
     }
   }
+  /** A session being deleted: its tab closes first and another one opens (the New session page when none is left). */
+  function closeDeletedTab(sessionId) {
+    let { list, current, key } = tabsWanted();
+    let gone = `code:${sessionId}`;
+    let row = list.find((each) => key(each) === gone);
+    let others = list.filter((each) => key(each) !== gone && !(each.kind === "view" && key(each) === current));
+    log(`tabs: session ${sessionId} is being deleted${row ? "; closing its tab" : ""}`);
+    if (row) {
+      closeTab(row);
+    } else if (current === gone) {
+      openConversation(others[0] ?? { kind: "view", id: DRAFT_VIEW.slice("view:".length) });
+    }
+  }
   function closeTab(row) {
     let { list, current, key } = tabsWanted();
     let index = list.findIndex((other) => key(other) === key(row));
@@ -5033,9 +5129,8 @@ function powertoysPageMain() {
       for (let step = 1; step < list.length && !neighbour; step++) {
         neighbour = [list[index + step], list[index - step]].find(free) ?? null;
       }
-      if (neighbour) {
-        openConversation(neighbour);
-      }
+      // The last tab: a new conversation, else the closed one stays on screen and its tab comes back.
+      openConversation(neighbour ?? { kind: "view", id: DRAFT_VIEW.slice("view:".length) });
     }
     call("tabs", "close", row.kind, row.id).catch((caught) => log(`tabs: closing failed: ${caught.message}`));
   }
@@ -5999,6 +6094,10 @@ function powertoysPageMain() {
       }
       return;
     }
+    if (settings.editQueuedKey && ctrl && !event.shiftKey && code === "ArrowUp" && inPromptBox() && editLastQueued()) {
+      swallow(event);
+      return;
+    }
     if (settings.promptJump && ctrl && !event.shiftKey && (code === "ArrowUp" || code === "ArrowDown")) {
       swallow(event);
       jumpPrompt(code === "ArrowUp" ? -1 : 1);
@@ -6059,6 +6158,11 @@ function powertoysPageMain() {
   });
   ipc.on("powertoys:window", (event, next) => {
     windowMaximized = next?.maximized === true;
+  });
+  ipc.on("powertoys:sessionDeleting", (event, sessionId) => {
+    if (typeof sessionId === "string") {
+      closeDeletedTab(sessionId);
+    }
   });
   ipc.on("powertoys:queue", (event, next) => {
     promptQueue = next ?? {};
@@ -6143,6 +6247,7 @@ function powertoysPageMain() {
         decorateTitleBars();
         foldTitleBarButtons();
         decorateRewindButtons();
+        hideSurveyBars();
       } catch (caught) {
         log(`decorating failed: ${caught.message}`);
       }

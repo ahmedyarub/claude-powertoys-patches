@@ -118,7 +118,7 @@
    "path": "src/vite/build/ccd-host-core/mcp-tools/0001-mcp-tool-prefix-sanitizers.js",
    "kind": "edit",
    "baseSha256": "78eb5e96202d030962dbd6fc89739ad6d0390d61fc6d88e4cfa67bca3fc1222c",
-   "resultSha256": "c514c1884f08f7ba40fec006911b766c8de9737362fa4b30e480b932a1f7e3d8",
+   "resultSha256": "35f549321251de1e0023bddd6240ad260389bb6301143fcbeb1d448ea3f2ff4a",
    "hunks": [
     {
      "at": 1289,
@@ -138,6 +138,60 @@
       ],
       [
        "          },\n"
+      ]
+     ]
+    },
+    {
+     "at": 1508,
+     "remove": 0,
+     "add": [
+      [
+       "        // Local change: Powertoys times each step against its estimate and reports the finished ones.\n"
+      ],
+      [
+       "        let stepTimes = mainChunk.powertoysPlanFeedback?.(i.sessionId, toolInput) ?? \"\";\n"
+      ]
+     ]
+    },
+    {
+     "at": 1509,
+     "remove": 1,
+     "removeSha256": "44d0c07933d3c6133566fd8544da4693650c680d1c9fe5a4116244ffbc9181fe",
+     "add": [
+      [
+       [
+        1509,
+        0,
+        317
+       ],
+       "${stepTimes}`,\n"
+      ]
+     ]
+    },
+    {
+     "at": 1521,
+     "remove": 0,
+     "add": [
+      [
+       "      // Local change: Powertoys times each step against its estimate and reports the finished ones.\n"
+      ],
+      [
+       "      let stepTimes = mainChunk.powertoysPlanFeedback?.(i.sessionId, toolInput) ?? \"\";\n"
+      ]
+     ]
+    },
+    {
+     "at": 1524,
+     "remove": 1,
+     "removeSha256": "f0677fcdc1555df821f460b9d16db022d2e13c8be31efaa8fa601420447e6ebf",
+     "add": [
+      [
+       [
+        1524,
+        0,
+        127
+       ],
+       "${stepTimes}`,\n"
       ]
      ]
     }
@@ -400,7 +454,7 @@
    "path": "src/vite/build/ccd-local-sessions-api/0002-local-sessions-api-core.js",
    "kind": "edit",
    "baseSha256": "de00f6856e8c572615e91c558e21917264b2d0deeae844f751003d86b256deae",
-   "resultSha256": "505de221e1cc1caa664132b5f467ce158b9599d749ca6756987962a6c646ad7f",
+   "resultSha256": "ac77266fc328ba6721207681e3ded6a58297a3bf101512261abdfba1042711f4",
    "hunks": [
     {
      "at": 1297,
@@ -435,6 +489,18 @@
       ],
       [
        "        }\n"
+      ]
+     ]
+    },
+    {
+     "at": 1836,
+     "remove": 0,
+     "add": [
+      [
+       "      // Local change: Powertoys closes the session's tab first (and goes to another one).\n"
+      ],
+      [
+       "      mainChunk.powertoysSessionDeleting?.(sessionId);\n"
       ]
      ]
     }
@@ -4313,7 +4379,7 @@
   {
    "path": "src/vite/build/main/powertoys/0340-powertoys-store.js",
    "kind": "add",
-   "sha256": "bf4705df7c95ab51f785de47d487e62f50ce9e1e1fdfb6869ea31e31b0a74c36"
+   "sha256": "5d1814f2c8c97d6c792eec03a73061e422669ccdf7ff0cff4bcb0af5f77c0760"
   },
   {
    "path": "src/vite/build/main/powertoys/0341-powertoys-transcripts.js",
@@ -4323,7 +4389,7 @@
   {
    "path": "src/vite/build/main/powertoys/0342-powertoys-sessions.js",
    "kind": "add",
-   "sha256": "e330b24271ad32a1ef70381c1a9f3bea9f5893c870d3fdf3c6ee9002d06981c8"
+   "sha256": "6076c8b31c47728b10c487d2bbc6483787bd181363692801814dc5c9ade323c6"
   },
   {
    "path": "src/vite/build/main/powertoys/0343-powertoys-hotkeys-menus.js",
@@ -4358,7 +4424,7 @@
   {
    "path": "src/vite/build/main/powertoys/0351-powertoys-work.js",
    "kind": "add",
-   "sha256": "c5491066806ccec7d802a36a26f29385f80924e000b82e65c15373a6be862002"
+   "sha256": "c8498de6d79db8d739aba363091cae9efc73eac7e0c0fdf876791bb94d22f663"
   },
   {
    "path": "src/vite/build/main/powertoys/0352-powertoys-flow.js",
@@ -4616,7 +4682,7 @@
   {
    "path": "src/vite/build/mainView/0003-powertoys-page.js",
    "kind": "add",
-   "sha256": "5eaf0682e1d1b6a1c1ccfbddcdbce1dbd6543c73b3f93430a845a64022eec54c"
+   "sha256": "a94cdc7eeb14e649d28baab73e58ceca2e86803e294aa91fa53e022cc23d69b4"
   },
   {
    "path": "src/vite/build/mainView/0007-window-manager-vm-bridges.js",

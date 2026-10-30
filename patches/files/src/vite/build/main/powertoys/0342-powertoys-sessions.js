@@ -229,7 +229,10 @@ function powertoysStartSessionTracking() {
       powertoysTurnEndedAt.set(sessionId, Date.now());
       powertoysScheduleStatus();
       // The next queued prompt, once the session has settled (a permission prompt or an error holds it).
-      setTimeout(() => powertoysSendQueued(sessionId, "turn ended"), 2000);
+      // A turn queued on its own model first returns the session to its model.
+      powertoysRestoreTurnModel(sessionId)
+        .catch((caught) => powertoysWarn(`prompt queue: putting ${sessionId} back on its model failed: ${caught.message}`))
+        .finally(() => setTimeout(() => powertoysSendQueued(sessionId, "turn ended"), 2000));
     });
     // PR checks change without a session event.
     getForgeStateTracker().subscribe(() => powertoysScheduleStatus());
@@ -556,6 +559,11 @@ function powertoysRenderBadge() {
   powertoysLastBadgeCount = count;
 }
 /** Left click on the tray: the first waiting session, else what the app normally does. */
+/** A session is being deleted (LocalSessions.delete): the page closes its tab first and goes to another one. */
+function powertoysSessionDeleting(sessionId) {
+  powertoysBroadcast("powertoys:sessionDeleting", sessionId);
+}
+Object.defineProperty(exports, "powertoysSessionDeleting", { enumerable: true, get: () => powertoysSessionDeleting });
 function powertoysTrayClicked() {
   let first = powertoysStatusSnapshot.waiting[0];
   if (first) {

@@ -99,7 +99,8 @@ pastes). Every feature has a switch in the Powertoys settings window (tray menu 
 **Tabs and sessions**
 
 - **Tabs in the title bar** for open and pinned conversations, restored at start:
-  - **Opening and closing:** × or middle-click closes; right-click pins.
+  - **Opening and closing:** × or middle-click closes; right-click pins. Closing the last tab opens a new
+    conversation, and deleting a session closes its tab first (then another tab, or a new conversation).
   - **Organizing:** tabs are grouped and colored by project (16 distinct colors), and the strip scrolls
     sideways when they don't fit.
   - **Moving around:** Ctrl+1…9, Ctrl+Shift+T to reopen in the same position, Ctrl+Shift+PageUp/PageDown to
@@ -139,7 +140,8 @@ pastes). Every feature has a switch in the Powertoys settings window (tray menu 
 - **Message times:** hovering a message shows when it was sent, just above it.
 - **Copy path with backslashes:** "Copy path" and "Copy absolute path" copy Windows paths as `E:\a\b`.
 - **No feedback survey** (on by default): new sessions start with Claude Code's "How is Claude doing?" survey
-  off (`CLAUDE_CODE_DISABLE_FEEDBACK_SURVEY=1`), and the page's rating card is hidden.
+  off (`CLAUDE_CODE_DISABLE_FEEDBACK_SURVEY=1`), and the page's rating card and its "How is Claude doing this
+  session?" bar are hidden.
 - **Files outside the session's folders:** the file pane opens any file, read only. Claude's own tools (open in
   your editor, show in Explorer, send a file) still stay inside the session's folders.
 - **Folder trust off** (a setting, on by default): every folder counts as trusted, so "Trust this workspace?"
@@ -150,6 +152,8 @@ pastes). Every feature has a switch in the Powertoys settings window (tray menu 
   - Snippets with Ctrl+Shift+Space, per project.
   - Alt+Up shows earlier prompts.
   - Ctrl+Up/Down jumps between prompts, and Ctrl+Home/End goes to the start or end of the conversation.
+  - Ctrl+Up in the prompt box takes the queued (unsent) message back to edit, when there is one (a setting, on
+    by default).
   - Ctrl+Enter sends now, interrupting Claude.
   - "Edit message" rewinds to a message and puts it back in the box.
 
@@ -189,7 +193,8 @@ pastes). Every feature has a switch in the Powertoys settings window (tray menu 
 - **Project instructions:** text added to every new session's system prompt in a project, from a tab's menu.
 - **Sessions for other programs:** `newSession` starts a session in a folder and a permission mode (for example
   Slack's "Ask Claude" in Auto mode), sends its first message and answers with its Claude Code session id;
-  `selectedSession` answers with the conversation on screen (command requests, see
+  `selectedSession` answers with the conversation on screen, and `queuePrompt` queues a prompt for a session,
+  optionally on another model (`haiku`, `sonnet`, `opus` or a model id) for that one turn (command requests, see
   `scripts/powertoys-command.mjs`). The session is set up like one started in the app (same connectors and
   servers), from the last session the app started.
 
@@ -204,6 +209,12 @@ pastes). Every feature has a switch in the Powertoys settings window (tray menu 
   - **How it's estimated:** by Claude itself. The plan tool takes an estimate in minutes for each step (a
     setting, on by default), and a step without one counts as the average of those with one. A step running
     past its estimate pushes the finish time back.
+  - **Each step's time:** beside every step, "4 min (est. 5 min)" once done, "3 min of ~5 min" while in
+    progress, "~10 min" still to come.
+  - **The bar follows time, not steps:** it fills by the time spent against the time spent plus the time left.
+  - **Estimates that learn:** when a step ends, the plan tool tells Claude how long it really took. Far off
+    (over twice, or under half, the estimate), Claude is asked to keep a note in its memory. Real times are kept
+    in `estimates.json`, and once there are enough, new sessions are told how far past estimates were off.
   - **Re-estimating:** the ↻ button asks Claude to send the plan again with new estimates.
   - The tab preview and Ctrl+Tab show the short form, "☑ 3/7 · done ≈ 21:10".
 - **Conversation topic:** a chip in the status row with what the session is about, read from its transcript: the
@@ -268,10 +279,10 @@ Each hook is marked `Local change` in the patched code.
 | `ccd-local-session-manager/0052-ccd.js` | +7 −1 | That command's echo uses the id the page sent it under, once; a restored local session's folders get backslashes. |
 | `ccd-local-session-manager/0016-ccd.js` | +2 | Powertoys' additions to a session's environment (no feedback survey). |
 | `claude-json-workspace-trust-config.js` | +8 | Folder trust off: the trust lookups count every folder as trusted while the Powertoys setting is on. |
-| `ccd-host-core/mcp-tools/0001-mcp-tool-prefix-sanitizers.js` | +5 | The plan tool takes an estimate in minutes per step. |
+| `ccd-host-core/mcp-tools/0001-mcp-tool-prefix-sanitizers.js` | +11 −2 | The plan tool takes an estimate in minutes per step, and its answer reports how long finished steps really took. |
 | `ccd-host-core/0002-drive-host-fill.js` | +1 −1 | Its description asks for the estimates when the setting is on. |
 | `ccd-local-session-manager/0038-session-file-access.js` | +17 −1 | Files outside the session's folders, read only: Powertoys' pastes folder, and any file you view in the file pane. |
-| `ccd-local-sessions-api/0002-local-sessions-api-core.js` | +8 | Per-project model and effort defaults for a session you start, the task list when the Powertoys setting is on, and the last start request kept for `newSession`. |
+| `ccd-local-sessions-api/0002-local-sessions-api-core.js` | +10 | Per-project model and effort defaults for a session you start, the task list when the Powertoys setting is on, the last start request kept for `newSession`, and a deleted session's tab closed first. |
 | `git-worktree-manager/0003-worktree-trash-tombstones.js` | +19 | Background fetches keep your global `core.sshCommand` (with batch mode) instead of replacing it. |
 | `git-worktree-manager/0004-create-worktree-guards.js` | +1 −1 | Uses the above. |
 | `index.pre/telemetry-scrub/0036-error-withholding-breadcrumbs.js` | +10 | `--powertoys-profile=<name>`: a separate data folder (sign-in, sessions, settings, single-instance lock). |

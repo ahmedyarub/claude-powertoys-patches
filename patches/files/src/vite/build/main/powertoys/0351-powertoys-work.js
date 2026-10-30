@@ -876,7 +876,8 @@ async function powertoysTabExtras(sessionIds) {
 /**
  * A prompt from outside the app (Slack Powertoys' "Share with Claude", scripts/powertoys-command.mjs) for a session,
  * named by its id or by its Claude Code session id (the transcript's name): it joins the session's prompt queue,
- * so it is sent now when the session is idle, else when its turn ends, as a message the app shows.
+ * so it is sent now when the session is idle, else when its turn ends, as a message the app shows. With a model
+ * ("haiku", "sonnet", "opus" or an id the model picker offers) that one turn runs on it (powertoysSendQueued).
  */
 function powertoysQueuePromptFromRequest(request) {
   let manager = powertoysSessionManager();
@@ -893,11 +894,47 @@ function powertoysQueuePromptFromRequest(request) {
   if (!sessionId) {
     throw Error(`No Claude Desktop session has ${request.cliSessionId ? `Claude Code session ${request.cliSessionId}` : `id ${request.sessionId}`}`);
   }
-  let queue = powertoysQueueChange(sessionId, "add", text);
-  powertoysLog(`prompt queue: ${text.length} characters queued for ${sessionId} by a command request`);
+  let model = request.model === undefined || request.model === null || request.model === "" ? null : powertoysPickModel(request.model);
+  let queue = powertoysQueueChange(sessionId, "add", text, model);
+  powertoysLog(`prompt queue: ${text.length} characters queued for ${sessionId} by a command request${model ? ` (on ${model})` : ""}`);
   // Not awaited: the answer goes back at once; sending waits for the session.
   powertoysSendQueued(sessionId, "queued by a command request");
-  return { sessionId, queued: queue[sessionId]?.length ?? 0 };
+  return { sessionId, queued: queue[sessionId]?.length ?? 0, ...(model ? { model } : {}) };
+}
+/** A model the model picker offers, by id (date suffix optional) or by family ("haiku" -> its newest); unknown ones throw. */
+function powertoysPickModel(name) {
+  let wanted = typeof name === "string" ? name.trim() : "";
+  let models = powertoysSessionManager()?.getAvailableCodeModels() ?? [];
+  if (!models.length) {
+    throw Error("The app has not reported its model list yet; try again in a moment");
+  }
+  let family = wanted.toLowerCase();
+  let newest = (list) => list.sort((a, b) => b.localeCompare(a, undefined, { numeric: true }))[0];
+  let model =
+    models.find((each) => each === wanted) ??
+    models.find((each) => stripModelDateSuffix(each) === stripModelDateSuffix(wanted)) ??
+    (/^[a-z]+$/.test(family) ? newest(models.filter((each) => each.toLowerCase().split("-").includes(family))) : undefined);
+  if (!model) {
+    throw Error(`Unknown model "${wanted}" (available: ${models.join(", ")}, or haiku, sonnet, opus)`);
+  }
+  return model;
+}
+/** Sessions running one queued prompt on its own model: sessionId -> { model, back }, the model to return to. */
+const powertoysTurnModels = new Map();
+/** After that turn: back to the session's own model, unless someone picked another meanwhile. */
+async function powertoysRestoreTurnModel(sessionId) {
+  let turn = powertoysTurnModels.get(sessionId);
+  if (!turn) {
+    return;
+  }
+  powertoysTurnModels.delete(sessionId);
+  let current = powertoysSessionManager()?.sessions.get(sessionId)?.model;
+  if (current && stripModelDateSuffix(current) !== stripModelDateSuffix(turn.model)) {
+    powertoysLog(`prompt queue: ${sessionId} was moved to ${current} during its ${turn.model} turn; left there`);
+    return;
+  }
+  await powertoysSessionManager().setModel(sessionId, turn.back);
+  powertoysLog(`prompt queue: ${sessionId} is back on ${turn.back ?? "the default model"} after a turn on ${turn.model}`);
 }
 /** Sends a session's next queued prompt when its turn is over and nothing waits for an answer. */
 const powertoysQueueSending = new Set();
@@ -916,11 +953,17 @@ async function powertoysSendQueued(sessionId, why) {
   }
   powertoysQueueSending.add(sessionId);
   try {
-    let result = await powertoysSessionManager()
-      .sendMessage(sessionId, list[0].text)
-      .catch((caught) => ({ delivered: false, reason: caught.message }));
+    let manager = powertoysSessionManager();
+    let own = manager.sessions.get(sessionId)?.model;
+    if (list[0].model && (!own || stripModelDateSuffix(own) !== stripModelDateSuffix(list[0].model))) {
+      await manager.setModel(sessionId, list[0].model);
+      powertoysTurnModels.set(sessionId, { model: list[0].model, back: own });
+      powertoysLog(`prompt queue: ${sessionId} runs its next turn on ${list[0].model} (its own: ${own ?? "the default model"})`);
+    }
+    let result = await manager.sendMessage(sessionId, list[0].text).catch((caught) => ({ delivered: false, reason: caught.message }));
     if (result?.delivered === false) {
       powertoysWarn(`prompt queue: the next prompt to ${sessionId} was not delivered: ${result.reason}`);
+      await powertoysRestoreTurnModel(sessionId);
       return;
     }
     powertoysQueueChange(sessionId, "remove", list[0].id);
@@ -1093,13 +1136,112 @@ Object.defineProperty(exports, "powertoysApplyProjectDefaults", { enumerable: tr
 // --- The app's task list (its plan tool, mcp__ccd_turn__update_plan, with the wrap-up box) ---------------------
 // The page asks for it per new session only while two of its server flags allow it, and a session keeps the tool
 // set it started with, so some sessions have no task list at all (nor Claude Code's own task tools).
-/** Added to the plan tool's description (setting agentEstimates): ask for an estimate per step. */
+/**
+ * Added to the plan tool's description (setting agentEstimates): ask for an estimate per step, with how the last
+ * finished steps went against theirs (estimates.json) and Claude's memory to learn from.
+ */
 function powertoysPlanToolNote() {
   if (powertoysSetting("agentEstimates") === false) {
     return "";
   }
-  return "\n\nGive every step an estimate: the minutes you expect it to take you, judged from the work it involves (what to read and change, builds, deploys, tests, waiting for CI or reviews). Whenever you send the whole plan again, re-estimate the steps not done yet from what you have learned. The app shows the user the time left and when you will be done from these estimates, so make them your honest best guess.";
+  let steps = powertoysEstimateHistory().slice(-100);
+  let calibration = "";
+  if (steps.length >= 5) {
+    let ratios = steps.map((step) => step.actual / step.estimate).sort((left, right) => left - right);
+    let median = ratios[Math.floor(ratios.length / 2)];
+    calibration = ` Measured on your last ${steps.length} finished steps: they took a median of ${median.toFixed(1)}× your estimate, so correct for that unless you know why this work differs.`;
+  }
+  return (
+    "\n\nGive every step an estimate: the minutes you expect it to take you, judged from the work it involves (what to read and change, builds, deploys, tests, waiting for CI or reviews). Whenever you send the whole plan again, re-estimate the steps not done yet from what you have learned. The app shows the user the time left and when you will be done from these estimates, so make them your honest best guess." +
+    calibration +
+    " Learn from your memory: before estimating, use what it says about how long similar work took. When this tool tells you a finished step took under half or over double its estimate, save or update a short memory note (the kind of work and how long it really took) so your next estimates are better."
+  );
 }
+// --- Estimates that learn: each finished step's real time against its estimate ----------------------------
+const powertoysPlanSteps = new Map(); // sessionId -> [{ content, estimate, status, startedAt }]
+/** The finished steps with an estimate: [{ project, content, estimate, actual, at }] (minutes; the last 300). */
+function powertoysEstimateHistory() {
+  try {
+    let steps = JSON.parse(powertoysFs.readFileSync(powertoysPath.join(powertoysDir(), "estimates.json"), "utf8")).steps;
+    return Array.isArray(steps) ? steps : [];
+  } catch {
+    return [];
+  }
+}
+/**
+ * Called by the plan tool (update_plan) on each call that changes the plan: notes when each step starts and, for
+ * the steps this call finished, keeps their real time in estimates.json and returns it for the tool's result, so
+ * Claude sees how its estimates went (and can note it in its memory).
+ */
+function powertoysPlanFeedback(sessionId, input) {
+  if (powertoysSetting("agentEstimates") === false || !input || typeof input !== "object") {
+    return "";
+  }
+  let now = Date.now();
+  let steps = powertoysPlanSteps.get(sessionId) ?? [];
+  let finished = [];
+  let setStatus = (step, status) => {
+    if (status === "in_progress" && step.status !== "in_progress") {
+      step.startedAt = now;
+    }
+    if (status === "completed" && step.status === "in_progress" && step.startedAt) {
+      finished.push(step);
+    }
+    if (status === "pending" || status === "in_progress" || status === "completed") {
+      step.status = status;
+    }
+  };
+  if (Array.isArray(input.items)) {
+    let fresh = input.scope === "first_task" || input.scope === "new_task";
+    steps = input.items
+      .filter((item) => typeof item?.content === "string" && item.content)
+      .map((item) => {
+        let before = fresh ? undefined : steps.find((step) => step.content === item.content);
+        let step = { content: item.content, estimate: item.estimate > 0 ? item.estimate : before?.estimate, status: before?.status ?? "pending", startedAt: before?.startedAt };
+        setStatus(step, item.status);
+        return step;
+      });
+  } else {
+    if (input.advance === true) {
+      let current = steps.findIndex((step) => step.status === "in_progress");
+      if (current >= 0) {
+        setStatus(steps[current], "completed");
+        let next = steps.slice(current + 1).find((step) => step.status === "pending");
+        if (next) {
+          setStatus(next, "in_progress");
+        }
+      }
+    }
+    for (let number of Array.isArray(input.done) ? input.done : []) {
+      if (steps[number - 1]) {
+        setStatus(steps[number - 1], "completed");
+      }
+    }
+    if (Number.isInteger(input.start) && steps[input.start - 1]) {
+      setStatus(steps[input.start - 1], "in_progress");
+    }
+  }
+  powertoysPlanSteps.set(sessionId, steps);
+  let timed = finished.filter((step) => step.estimate > 0).map((step) => ({ ...step, actual: Math.round((now - step.startedAt) / 6000) / 10 }));
+  if (!timed.length) {
+    return "";
+  }
+  let record = powertoysSessionManager()?.sessions.get(sessionId);
+  let project = powertoysWindowsPath(String(record?.originCwd || record?.cwd || "").replace(/[\\/]\.claude[\\/]worktrees[\\/].*$/, ""));
+  try {
+    let history = [...powertoysEstimateHistory(), ...timed.map((step) => ({ project, content: step.content.slice(0, 200), estimate: step.estimate, actual: step.actual, at: now }))].slice(-300);
+    powertoysFs.writeFileSync(powertoysPath.join(powertoysDir(), "estimates.json"), JSON.stringify({ steps: history }, null, 1));
+  } catch (caught) {
+    powertoysLog(`estimates: not saved: ${caught.message}`);
+  }
+  let far = timed.some((step) => step.actual > 2 * step.estimate || step.actual < step.estimate / 2);
+  return (
+    " Step times: " +
+    timed.map((step) => `“${step.content.slice(0, 80)}” took ${step.actual} min (you estimated ${step.estimate})`).join("; ") +
+    (far ? ". That is far from the estimate: note in your memory what made it take that long." : ".")
+  );
+}
+Object.defineProperty(exports, "powertoysPlanFeedback", { enumerable: true, get: () => powertoysPlanFeedback });
 Object.defineProperty(exports, "powertoysPlanToolNote", { enumerable: true, get: () => powertoysPlanToolNote });
 /** A new session the person starts asks for the task list when the setting is on. */
 function powertoysApplyTaskList(startOptions) {
