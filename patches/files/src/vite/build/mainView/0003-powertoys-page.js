@@ -306,6 +306,146 @@ function powertoysPageMain() {
     .tab-preview { position: fixed; z-index: 2147483000; pointer-events: none; width: min(480px, calc(100vw - 32px)); max-height: 55vh; overflow: hidden;
       padding: 10px 12px; border-radius: 10px; border: 1px solid hsl(var(--border-300, 52 12% 87%) / 0.25); background: hsl(var(--bg-000, 60 2% 12%));
       color: hsl(var(--text-100, 60 14% 97%)); box-shadow: 0 6px 24px rgb(0 0 0 / 0.45); font-size: 12.5px; line-height: 1.45; }
+    /* A link's preview (showLinkHover), in the linked app's dark theme; it takes the pointer, so the wheel scrolls it. */
+    .lp { position: fixed; z-index: 2147483000; pointer-events: auto; width: min(640px, calc(100vw - 32px)); max-height: 72vh; overflow-y: auto;
+      border-radius: 12px; box-shadow: 0 16px 48px rgb(0 0 0 / 0.6); font-size: 14px; line-height: 1.5; overflow-wrap: anywhere; }
+    .lp img { max-width: 100%; height: auto; }
+    .lp a { text-decoration: none; cursor: pointer; }
+    .lp a:hover { text-decoration: underline; }
+    .lp table { border-collapse: collapse; margin: 8px 0 12px; display: block; overflow-x: auto; max-width: 100%; }
+    .lp :where(p, ul, ol, blockquote, pre, figure, details) { margin: 0 0 10px; }
+    .lp :where(ul, ol) { padding-inline-start: 24px; }
+    .lp details > summary { cursor: pointer; }
+    .lp details > summary > :where(h1, h2, h3, h4) { display: inline; }
+    .lp .pt-missing-image { opacity: 0.7; font-size: 12px; }
+    .lp-state { padding: 14px 16px; background: hsl(var(--bg-000, 60 2% 12%)); color: hsl(var(--text-100, 60 14% 97%)); border: 1px solid hsl(var(--border-300, 52 12% 87%) / 0.2); }
+    .lp-state .lp-url { font-weight: 600; margin-bottom: 4px; }
+    .lp-state .lp-note { color: hsl(var(--text-300, 55 9% 74%)); font-size: 13px; }
+    .lp :where(code, pre, kbd), .lp :where(code, pre) * { font-family: ui-monospace, SFMono-Regular, "Cascadia Mono", Consolas, "Liberation Mono", monospace; }
+    .lp pre { white-space: pre-wrap; padding: 10px 12px; border-radius: 6px; font-size: 12.5px; line-height: 1.45; }
+    .lp-initial { display: inline-flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; flex: none; }
+
+    /* GitHub, dark default */
+    .lp-gh { background: #0d1117; color: #f0f6fc; border: 1px solid #3d444d; padding: 16px 18px; }
+    .lp-gh, .lp-gh :where(*:not(code, pre, kbd)) { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif; }
+    .lp-gh a { color: #4493f8; }
+    .lp-gh .gh-repo { color: #9198a1; font-size: 12.5px; margin-bottom: 2px; }
+    .lp-gh .gh-title { font-size: 20px; line-height: 1.3; font-weight: 400; margin-bottom: 10px; }
+    .lp-gh .gh-number { color: #9198a1; font-weight: 300; }
+    .lp-gh .gh-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; color: #9198a1; font-size: 14px; padding-bottom: 12px; border-bottom: 1px solid #3d444d; margin-bottom: 10px; }
+    .lp-gh .gh-state { display: inline-flex; align-items: center; gap: 4px; padding: 4px 12px; border-radius: 2em; color: #fff; font-weight: 500; font-size: 14px; margin-inline-end: 4px; }
+    .lp-gh .gh-open { background: #238636; } .lp-gh .gh-merged { background: #8957e5; } .lp-gh .gh-closed { background: #da3633; } .lp-gh .gh-draft { background: #656c76; }
+    .lp-gh .gh-avatar { width: 20px; height: 20px; border-radius: 50%; font-size: 11px; }
+    .lp-gh .gh-author { color: #f0f6fc; font-weight: 600; }
+    .lp-gh .gh-ref { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 12px; color: #4493f8; background: rgb(56 139 253 / 0.1); padding: 1px 6px; border-radius: 6px; }
+    .lp-gh .gh-labels { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 10px; }
+    .lp-gh .gh-label { padding: 0 10px; border: 1px solid; border-radius: 2em; font-size: 12px; font-weight: 500; line-height: 22px; }
+    .lp-gh .gh-stats { display: flex; flex-wrap: wrap; gap: 4px 14px; color: #9198a1; font-size: 13px; margin-bottom: 14px; }
+    .lp-gh .gh-add, .lp-gh .gh-pass { color: #3fb950; } .lp-gh .gh-del, .lp-gh .gh-fail { color: #f85149; } .lp-gh .gh-pending { color: #d29922; }
+    .lp-gh .gh-add, .lp-gh .gh-del { font-weight: 600; }
+    .lp-gh .gh-empty { color: #9198a1; font-style: italic; }
+    .lp-gh .markdown-body { font-size: 14px; line-height: 1.5; }
+    .lp-gh .markdown-body :where(h1, h2) { padding-bottom: 0.3em; border-bottom: 1px solid #3d444d; }
+    .lp-gh .markdown-body :where(h1, h2, h3, h4, h5, h6) { margin: 18px 0 10px; font-weight: 600; line-height: 1.25; }
+    .lp-gh .markdown-body h1 { font-size: 1.6em; } .lp-gh .markdown-body h2 { font-size: 1.35em; } .lp-gh .markdown-body h3 { font-size: 1.15em; } .lp-gh .markdown-body h4 { font-size: 1em; }
+    .lp-gh .markdown-body > :first-child { margin-top: 0; }
+    .lp-gh .markdown-body code { background: rgb(101 108 118 / 0.2); padding: 0.2em 0.4em; border-radius: 6px; font-size: 85%; }
+    .lp-gh .markdown-body pre { background: #151b23; }
+    .lp-gh .markdown-body pre code { background: none; padding: 0; font-size: 100%; }
+    .lp-gh .markdown-body blockquote { padding: 0 1em; color: #9198a1; border-left: 0.25em solid #3d444d; }
+    .lp-gh .markdown-body :where(th, td) { padding: 6px 13px; border: 1px solid #3d444d; }
+    .lp-gh .markdown-body th { font-weight: 600; }
+    .lp-gh .markdown-body tr:nth-child(2n) { background: #151b23; }
+    .lp-gh .markdown-body hr { height: 0.25em; padding: 0; margin: 16px 0; background: #3d444d; border: 0; }
+    .lp-gh .markdown-body img { border-radius: 6px; background: transparent; }
+    .lp-gh .markdown-body .task-list-item { list-style: none; } .lp-gh .markdown-body .task-list-item input { margin: 0 0.3em 0.25em -1.4em; vertical-align: middle; }
+    .lp-gh .markdown-body :where(.user-mention, .team-mention) { font-weight: 600; color: #f0f6fc; }
+    .lp-gh .markdown-body .markdown-alert { padding: 8px 16px; margin-bottom: 14px; border-left: 0.25em solid #3d444d; }
+    .lp-gh .markdown-body .markdown-alert-title { font-weight: 500; margin-bottom: 4px; }
+    .lp-gh .markdown-body .markdown-alert-note { border-left-color: #1f6feb; } .lp-gh .markdown-body .markdown-alert-note .markdown-alert-title { color: #4493f8; }
+    .lp-gh .markdown-body .markdown-alert-tip { border-left-color: #238636; } .lp-gh .markdown-body .markdown-alert-tip .markdown-alert-title { color: #3fb950; }
+    .lp-gh .markdown-body .markdown-alert-important { border-left-color: #8957e5; } .lp-gh .markdown-body .markdown-alert-important .markdown-alert-title { color: #ab7df8; }
+    .lp-gh .markdown-body .markdown-alert-warning { border-left-color: #9e6a03; } .lp-gh .markdown-body .markdown-alert-warning .markdown-alert-title { color: #d29922; }
+    .lp-gh .markdown-body .markdown-alert-caution { border-left-color: #da3633; } .lp-gh .markdown-body .markdown-alert-caution .markdown-alert-title { color: #f85149; }
+    .lp-gh .markdown-body :where(.pl-k, .pl-smi + .pl-k) { color: #ff7b72; } .lp-gh .markdown-body :where(.pl-s, .pl-pds, .pl-sr) { color: #a5d6ff; }
+    .lp-gh .markdown-body :where(.pl-c) { color: #9198a1; } .lp-gh .markdown-body :where(.pl-en, .pl-e) { color: #d2a8ff; } .lp-gh .markdown-body :where(.pl-c1, .pl-v) { color: #79c0ff; } .lp-gh .markdown-body :where(.pl-ent) { color: #7ee787; }
+    .lp-gh .markdown-body :where(.pl-mi1) { color: #aff5b4; background: #033a16; } .lp-gh .markdown-body :where(.pl-md) { color: #ffdcd7; background: #67060c; }
+
+    /* Notion, dark */
+    .lp-notion { background: #191919; color: rgb(255 255 255 / 0.81); border: 1px solid rgb(255 255 255 / 0.094); padding: 20px 24px; font-size: 14.5px; }
+    .lp-notion, .lp-notion :where(*:not(code, pre, kbd)) { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif; }
+    .lp-notion a { color: inherit; text-decoration: underline; text-decoration-color: rgb(255 255 255 / 0.3); text-underline-offset: 2px; }
+    .lp-notion .n-title { font-size: 26px; font-weight: 700; line-height: 1.2; color: rgb(255 255 255 / 0.9); margin-bottom: 14px; }
+    .lp-notion .n-icon { margin-inline-end: 8px; }
+    .lp-notion .n-props { display: flex; flex-direction: column; gap: 2px; padding-bottom: 14px; margin-bottom: 14px; border-bottom: 1px solid rgb(255 255 255 / 0.094); font-size: 14px; }
+    .lp-notion .n-prop { display: flex; gap: 8px; align-items: baseline; min-height: 28px; padding: 3px 0; }
+    .lp-notion .n-prop-name { flex: none; width: 150px; color: rgb(255 255 255 / 0.46); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .lp-notion .n-tag { display: inline-block; padding: 0 6px; margin: 0 4px 2px 0; border-radius: 3px; background: rgb(255 255 255 / 0.094); font-size: 13px; line-height: 20px; }
+    .lp-notion .n-status { display: inline-flex; align-items: center; gap: 5px; padding: 0 8px; border-radius: 10px; font-size: 13px; line-height: 20px; }
+    .lp-notion .n-dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+    .lp-notion .n-status-green { background: #243d30; color: #6fbf8e; } .lp-notion .n-status-blue { background: #143a4e; color: #7aa7e0; }
+    .lp-notion .n-status-red { background: #522e2a; color: #ec7c71; } .lp-notion .n-status-gray { background: #2f2f2f; color: #b4b4b4; }
+    .lp-notion .n-content > :first-child { margin-top: 0; }
+    .lp-notion .n-content :where(h1, h2, h3, h4) { font-weight: 600; line-height: 1.3; color: rgb(255 255 255 / 0.9); margin: 1.1em 0 4px; }
+    .lp-notion .n-content h1 { font-size: 1.75em; } .lp-notion .n-content h2 { font-size: 1.4em; } .lp-notion .n-content h3 { font-size: 1.2em; } .lp-notion .n-content h4 { font-size: 1.05em; }
+    .lp-notion .n-content :where(p) { margin: 2px 0 6px; }
+    .lp-notion .n-content :where(li) { margin: 2px 0; }
+    .lp-notion .n-content code { color: #ff7369; background: rgb(135 131 120 / 0.15); padding: 0.2em 0.4em; border-radius: 4px; font-size: 85%; }
+    .lp-notion .n-content pre { background: #202020; } .lp-notion .n-content pre code { color: inherit; background: none; padding: 0; }
+    .lp-notion .n-content blockquote { border-left: 3px solid currentColor; padding: 0 14px; }
+    .lp-notion .n-content hr { border: 0; border-top: 1px solid rgb(255 255 255 / 0.094); margin: 14px 0; }
+    .lp-notion .n-table { overflow-x: auto; } .lp-notion .n-table table { display: table; margin: 6px 0 12px; }
+    .lp-notion .n-content :where(th, td) { border: 1px solid rgb(255 255 255 / 0.094); padding: 6px 9px; vertical-align: top; text-align: start; font-size: 13.5px; }
+    .lp-notion .n-content th { background: rgb(255 255 255 / 0.03); font-weight: 600; color: rgb(255 255 255 / 0.9); }
+    .lp-notion .n-callout { display: flex; gap: 10px; padding: 14px 16px 14px 12px; border-radius: 6px; margin: 6px 0 10px; }
+    .lp-notion .n-callout-icon { flex: none; font-size: 18px; line-height: 1.3; }
+    .lp-notion .n-callout-body { flex: 1; min-width: 0; } .lp-notion .n-callout-body > :last-child { margin-bottom: 0; }
+    .lp-notion .n-columns { display: flex; gap: 28px; } .lp-notion .n-column { flex: 1; min-width: 0; }
+    .lp-notion .n-indent { padding-inline-start: 24px; }
+    .lp-notion .n-empty { height: 1em; }
+    .lp-notion .n-todo { list-style: none; padding-inline-start: 4px; } .lp-notion .n-todo input { accent-color: #2383e2; margin-inline-end: 6px; }
+    .lp-notion .n-done { text-decoration: line-through; color: rgb(255 255 255 / 0.46); }
+    .lp-notion .n-mention, .lp-notion .n-date { color: rgb(255 255 255 / 0.6); }
+    .lp-notion .n-page-mention { font-weight: 500; }
+    .lp-notion .n-page-block { margin: 4px 0; }
+    .lp-notion figure img { border-radius: 4px; }
+    .lp-notion figcaption { color: rgb(255 255 255 / 0.46); font-size: 13px; margin-top: 4px; }
+    .lp-notion .n-empty-page { color: rgb(255 255 255 / 0.46); }
+    .lp-notion .n-gray { color: #9b9b9b; } .lp-notion .n-brown { color: #ba856f; } .lp-notion .n-orange { color: #c77d48; } .lp-notion .n-yellow { color: #ca984d; } .lp-notion .n-green { color: #529e72; }
+    .lp-notion .n-blue { color: #5e87c9; } .lp-notion .n-purple { color: #9d68d3; } .lp-notion .n-pink { color: #d15796; } .lp-notion .n-red { color: #df5452; }
+    .lp-notion .n-gray_bg { background: #2f2f2f; } .lp-notion .n-brown_bg { background: #4a3228; } .lp-notion .n-orange_bg { background: #5c3b23; } .lp-notion .n-yellow_bg { background: #564328; }
+    .lp-notion .n-green_bg { background: #243d30; } .lp-notion .n-blue_bg { background: #143a4e; } .lp-notion .n-purple_bg { background: #3c2d49; } .lp-notion .n-pink_bg { background: #4e2c3c; } .lp-notion .n-red_bg { background: #522e2a; }
+    .lp-notion .n-underline { text-decoration: underline; }
+
+    /* Slack, dark */
+    .lp-slack { background: #1a1d21; color: #d1d2d3; border: 1px solid rgb(232 232 232 / 0.13); padding: 0 0 8px; font-size: 15px; line-height: 1.46668; }
+    .lp-slack, .lp-slack :where(*:not(code, pre, kbd)) { font-family: Slack-Lato, Lato, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; }
+    .lp-slack a { color: #1d9bd1; }
+    .lp-slack .s-head { display: flex; align-items: baseline; gap: 8px; padding: 12px 18px; border-bottom: 1px solid rgb(232 232 232 / 0.13); margin-bottom: 6px; }
+    .lp-slack .s-channel { font-weight: 900; color: #f8f8f8; font-size: 16px; }
+    .lp-slack .s-workspace { color: #ababad; font-size: 13px; }
+    .lp-slack .s-msg { display: flex; gap: 8px; padding: 8px 18px; }
+    .lp-slack .s-avatar { width: 36px; height: 36px; border-radius: 8px; flex: none; font-size: 16px; }
+    .lp-slack .s-reply .s-avatar { width: 32px; height: 32px; }
+    .lp-slack .s-body { flex: 1; min-width: 0; }
+    .lp-slack .s-name { font-weight: 900; color: #f8f8f8; }
+    .lp-slack .s-time { font-weight: 400; color: #ababad; font-size: 12px; margin-inline-start: 8px; }
+    .lp-slack .s-text { overflow-wrap: anywhere; }
+    .lp-slack .s-text :where(ul, ol) { margin: 2px 0; }
+    .lp-slack .s-indent-1 { margin-inline-start: 22px; } .lp-slack .s-indent-2 { margin-inline-start: 44px; } .lp-slack .s-indent-3 { margin-inline-start: 66px; } .lp-slack .s-indent-4 { margin-inline-start: 88px; }
+    .lp-slack .s-mention { color: #1d9bd1; background: rgb(29 155 209 / 0.1); border-radius: 3px; padding: 0 2px; }
+    .lp-slack .s-broadcast { color: #e8ab48; background: rgb(242 199 68 / 0.2); }
+    .lp-slack code { color: #e8912d; background: rgb(232 232 232 / 0.04); border: 1px solid rgb(232 232 232 / 0.13); border-radius: 3px; padding: 2px 3px 1px; font-size: 12px; }
+    .lp-slack pre { background: rgb(232 232 232 / 0.04); border: 1px solid rgb(232 232 232 / 0.13); border-radius: 4px; margin: 4px 0; color: #d1d2d3; }
+    .lp-slack blockquote { border-left: 4px solid rgb(232 232 232 / 0.35); padding-inline-start: 12px; margin: 2px 0; }
+    .lp-slack .s-emoji { height: 22px; width: auto; vertical-align: -5px; }
+    .lp-slack .s-color { display: inline-block; width: 12px; height: 12px; border-radius: 2px; margin-inline-end: 4px; vertical-align: -1px; }
+    .lp-slack .s-header { font-weight: 900; font-size: 18px; color: #f8f8f8; }
+    .lp-slack .s-context { color: #ababad; font-size: 13px; }
+    .lp-slack .s-files { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+    .lp-slack .s-thumb { max-width: 360px; max-height: 280px; border-radius: 8px; border: 1px solid rgb(232 232 232 / 0.13); }
+    .lp-slack .s-file { padding: 8px 12px; border: 1px solid rgb(232 232 232 / 0.13); border-radius: 8px; background: rgb(232 232 232 / 0.04); font-size: 14px; }
+    .lp-slack .s-replies { color: #1d9bd1; font-weight: 700; font-size: 13px; padding: 2px 18px 2px 62px; }
     .tab-preview .head { font-weight: 600; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .tab-preview .meta { color: hsl(var(--text-300, 55 9% 74%)); font-size: 11.5px; margin-bottom: 8px; }
     .tab-preview .note { color: hsl(var(--accent-100, 212 75% 62%)); font-size: 12px; margin-bottom: 2px; }
@@ -732,6 +872,8 @@ function powertoysPageMain() {
   // Only a maximized (or full-screen) window's left edge is the screen's: elsewhere the pointer crosses it on its way
   // to other windows (powertoys:window from the main process).
   let windowMaximized = true;
+  // The real path of ~/.claude.json (C:\Users\<you>\.claude.json on Windows), from the main process.
+  let claudeJsonPath = null;
   /** The collapsed sidebar's "Show sidebar" button; absent while the sidebar is docked. */
   function showSidebarButton() {
     return [...document.querySelectorAll('button[aria-label="Show sidebar"]')].find(isShown) ?? null;
@@ -1186,7 +1328,8 @@ function powertoysPageMain() {
 
   // --- Snippets (Ctrl+Shift+Space) and earlier prompts (Alt+Up) ------------------------------------
   // --- Large pastes as a file ---------------------------------------------------------------------
-  // Text pasted into the prompt box longer than settings.pasteAsFileChars goes in as a file the prompt
+  // Text pasted into the prompt box longer than settings.pasteAsFileChars, or with more lines than
+  // settings.pasteAsFileLines, goes in as a file the prompt
   // mentions (@"<userData>/powertoys/pastes/pasted-….txt") instead of the message itself (a huge
   // message takes the whole conversation's height). If saving fails the text is pasted as usual, so
   // nothing is lost. Ctrl+Shift+V always pastes the text itself.
@@ -1205,12 +1348,14 @@ function powertoysPageMain() {
     "paste",
     (event) => {
       let limit = Number(settings?.pasteAsFileChars) || 0;
-      if (limit <= 0 || Date.now() < pastePlainUntil || !inPromptBox()) {
+      let lineLimit = Number(settings?.pasteAsFileLines) || 0;
+      if ((limit <= 0 && lineLimit <= 0) || Date.now() < pastePlainUntil || !inPromptBox()) {
         return;
       }
       let data = event.clipboardData;
       let text = data?.files?.length ? "" : (data?.getData("text/plain") ?? "");
-      if (text.length < limit) {
+      let lines = text ? text.replace(/(\r\n|\r|\n)$/, "").split(/\r\n|\r|\n/).length : 0;
+      if (!text || !((limit > 0 && text.length >= limit) || (lineLimit > 0 && lines > lineLimit))) {
         return;
       }
       event.preventDefault();
@@ -1227,7 +1372,7 @@ function powertoysPageMain() {
           transfer.items.add(pasted);
           target.focus();
           target.dispatchEvent(new ClipboardEvent("paste", { clipboardData: transfer, bubbles: true, cancelable: true }));
-          flash(`Pasted as a file (${Math.round(text.length / 1000)}k characters; Ctrl+Shift+V pastes the text itself)`);
+          flash(`Pasted as a file (${lines} lines, ${text.length < 1000 ? `${text.length}` : `${Math.round(text.length / 1000)}k`} characters; Ctrl+Shift+V pastes the text itself)`);
         },
         (caught) => {
           log(`paste: saving failed (${caught.message}); pasted ${text.length} characters as text`);
@@ -1497,6 +1642,332 @@ function powertoysPageMain() {
     taskBars = [...keep].filter((node) => node.hasAttribute("data-pt-task-progress"));
     stepTimes = [...keep].filter((node) => node.hasAttribute("data-pt-step-time"));
   }
+  // --- Link previews: Slack messages, GitHub PRs and Notion pages linked in a conversation -----------------
+  // A bare link reads as what it links to; hovering it shows the whole thing as that app shows it (linkPreview).
+  const linkPreviews = new Map(); // url -> { state: "loading" | "ok" | "error", data, error, at }
+  function previewable(href) {
+    return (
+      /^https:\/\/[\w-]+\.slack\.com\/archives\/[A-Z0-9]+\/p\d{16}(?:[?#]|$)/i.test(href) ||
+      /^https:\/\/(?:www\.)?github\.com\/[\w.-]+\/[\w.-]+\/pull\/\d+/i.test(href) ||
+      /^https:\/\/(?:[\w-]+\.)?notion\.(?:so|site|com)\/.*[0-9a-f]{32}(?![0-9a-f])/i.test(href.replace(/-/g, ""))
+    );
+  }
+  /** The preview of a link, asked for once (again after 5 minutes); undefined while it is being read. */
+  function linkPreview(url) {
+    let entry = linkPreviews.get(url);
+    if (!entry || (entry.state !== "loading" && Date.now() - entry.at > 5 * 60 * 1000)) {
+      entry = { state: "loading", at: Date.now() };
+      linkPreviews.set(url, entry);
+      call("linkPreview", url).then(
+        (data) => linkPreviews.set(url, { state: "ok", data, at: Date.now() }),
+        (caught) => linkPreviews.set(url, { state: "error", error: caught.message.replace(/^Error invoking remote method '[^']+': (Error: )?/, ""), at: Date.now() }),
+      );
+    }
+    return entry;
+  }
+  const PR_STATES = { OPEN: ["Open", "gh-open"], DRAFT: ["Draft", "gh-draft"], MERGED: ["Merged", "gh-merged"], CLOSED: ["Closed", "gh-closed"] };
+  // HTML from the main process (a PR's description, a Notion page, Slack messages), through an allowlist: no scripts,
+  // styles, frames or event handlers; links to http(s) only (opened in the browser); images only as data: URIs.
+  const SAFE_TAGS = new Set(
+    "a b strong i em s del ins u code pre p div span br hr ul ol li blockquote h1 h2 h3 h4 h5 h6 table thead tbody tfoot tr th td img figure figcaption details summary input sup sub kbd mark small dl dt dd g-emoji".split(" "),
+  );
+  function sanitizeHtml(html) {
+    let parsed = document.implementation.createHTMLDocument("");
+    parsed.body.innerHTML = html;
+    let copy = (node) => {
+      if (node.nodeType === Node.TEXT_NODE) {
+        return document.createTextNode(node.nodeValue);
+      }
+      if (node.nodeType !== Node.ELEMENT_NODE) {
+        return null;
+      }
+      let tag = node.tagName.toLowerCase();
+      if (/^(script|style|iframe|object|embed|video|audio|source|form|button|textarea|select|svg|math|template|noscript|link|meta)$/.test(tag)) {
+        return null;
+      }
+      let out = SAFE_TAGS.has(tag) ? document.createElement(tag) : document.createDocumentFragment();
+      if (SAFE_TAGS.has(tag)) {
+        for (let { name, value } of node.attributes) {
+          if (name === "href" && tag === "a" && /^https?:\/\//i.test(value)) {
+            out.setAttribute("href", value);
+          } else if (name === "src" && tag === "img" && /^data:image\/(png|jpe?g|gif|webp|bmp|svg\+xml);base64,/i.test(value)) {
+            out.setAttribute("src", value);
+          } else if (/^(alt|title|colspan|rowspan|align|open)$/.test(name)) {
+            out.setAttribute(name, value);
+          } else if (name === "class") {
+            out.setAttribute("class", value.replace(/[^\w\s-]/g, ""));
+          } else if (tag === "input" && ((name === "type" && value === "checkbox") || name === "checked")) {
+            out.setAttribute(name, value);
+          } else if (name === "style" && tag === "span" && /^background:#[0-9a-f]{3,8}$/i.test(value)) {
+            out.setAttribute("style", value);
+          }
+        }
+        if (tag === "input") {
+          out.disabled = true;
+        }
+        if (tag === "img" && !out.hasAttribute("src")) {
+          return null;
+        }
+      }
+      for (let child of node.childNodes) {
+        let part = copy(child);
+        part && out.appendChild(part);
+      }
+      return out;
+    };
+    let fragment = document.createDocumentFragment();
+    for (let child of parsed.body.childNodes) {
+      let part = copy(child);
+      part && fragment.appendChild(part);
+    }
+    return fragment;
+  }
+  function htmlText(html) {
+    let parsed = document.implementation.createHTMLDocument("");
+    parsed.body.innerHTML = html;
+    return oneLine(parsed.body.textContent ?? "");
+  }
+  /** What a bare link reads as once its preview is in: the PR, the ticket, the Slack message. */
+  function linkLabel(data) {
+    if (data.kind === "github") {
+      return `${data.repo}#${data.number} · ${data.title}`;
+    }
+    if (data.kind === "notion") {
+      return [data.icon, data.id && `${data.id} ·`, data.title || "Untitled"].filter(Boolean).join(" ");
+    }
+    let message = data.messages?.[0];
+    let text = message ? htmlText(message.html) || message.files.map((file) => file.name).join(", ") : "";
+    return `#${data.conversation} · ${message?.author ?? "?"}: ${text.length > 90 ? `${text.slice(0, 90)}…` : text}`;
+  }
+  // A bare link (its text is the URL) to a PR, a Notion page or a Slack message reads as what it links to, and still
+  // links there; the full preview shows on hover (showLinkHover).
+  const linkLabels = new WeakMap(); // anchor -> the label put on it
+  function decorateLinkPreviews() {
+    if (settings?.linkPreviews === false) {
+      return;
+    }
+    for (let pane of panes()) {
+      for (let anchor of pane.transcript.querySelectorAll("a[href]")) {
+        let text = anchor.firstChild;
+        if (anchor.childNodes.length !== 1 || text.nodeType !== Node.TEXT_NODE || text.nodeValue === linkLabels.get(anchor)) {
+          continue;
+        }
+        if (!/^\s*https?:\/\/\S+\s*$/.test(text.nodeValue) || !previewable(anchor.href) || anchor.closest("pre")) {
+          continue;
+        }
+        let entry = linkPreview(anchor.href);
+        if (entry.state === "ok") {
+          let label = linkLabel(entry.data);
+          text.nodeValue = label;
+          linkLabels.set(anchor, label);
+          anchor.title ||= anchor.href;
+        }
+      }
+    }
+  }
+  // The preview, on hovering a previewable link: rendered as the linked app shows it, in its dark theme.
+  let linkHoverNode = null;
+  let linkHoverTimer = null;
+  let linkHoverTarget = null;
+  let linkHoverWatch = null;
+  function hideLinkHover() {
+    clearTimeout(linkHoverTimer);
+    linkHoverTarget = null;
+    clearInterval(linkHoverWatch);
+    linkHoverWatch = null;
+    linkHoverNode?.remove();
+    linkHoverNode = null;
+  }
+  function make(tag, className, children = []) {
+    let made = element(tag, className);
+    for (let child of [children].flat()) {
+      child != null && child !== false && made.append(child);
+    }
+    return made;
+  }
+  function avatar(src, name, className) {
+    if (src) {
+      let image = element("img", className);
+      image.src = src;
+      image.alt = "";
+      return image;
+    }
+    let initial = element("span", `${className} lp-initial`, (name || "?").trim().charAt(0).toUpperCase());
+    initial.style.background = `hsl(${[...String(name)].reduce((sum, character) => sum + character.charCodeAt(0), 0) % 360} 45% 38%)`;
+    return initial;
+  }
+  function githubCard(data) {
+    let [stateName, stateClass] = PR_STATES[data.state] ?? [data.state, "gh-draft"];
+    let review = { APPROVED: "✓ Approved", CHANGES_REQUESTED: "± Changes requested", REVIEW_REQUIRED: "● Review required" }[data.reviewDecision];
+    let checks = data.checks;
+    let card = make("div", "lp lp-gh", [
+      make("div", "gh-repo", data.repo),
+      make("div", "gh-title", [data.title, " ", make("span", "gh-number", `#${data.number}`)]),
+      make("div", "gh-meta", [
+        make("span", `gh-state ${stateClass}`, `${data.state === "MERGED" ? "⮌" : data.state === "CLOSED" ? "⨯" : "⑂"} ${stateName}`),
+        avatar(data.avatar, data.author, "gh-avatar"),
+        make("span", "gh-author", data.author),
+        ` ${data.state === "MERGED" ? "merged" : "wants to merge"} ${data.commits} commit${data.commits === 1 ? "" : "s"} into `,
+        make("span", "gh-ref", data.base),
+        " from ",
+        make("span", "gh-ref", data.head),
+      ]),
+    ]);
+    if (data.labels.length) {
+      card.append(
+        make(
+          "div",
+          "gh-labels",
+          data.labels.map((label) => {
+            let pill = element("span", "gh-label", label.name);
+            let [r, g, b] = [0, 2, 4].map((at) => parseInt(label.color.slice(at, at + 2), 16));
+            let lighten = (value) => Math.round(value + (255 - value) * 0.45);
+            pill.style.cssText = `background: rgb(${r} ${g} ${b} / 0.18); color: rgb(${lighten(r)} ${lighten(g)} ${lighten(b)}); border-color: rgb(${r} ${g} ${b} / 0.45);`;
+            return pill;
+          }),
+        ),
+      );
+    }
+    card.append(
+      make("div", "gh-stats", [
+        make("span", "gh-add", `+${data.additions}`),
+        make("span", "gh-del", `−${data.deletions}`),
+        make("span", "", `${data.changedFiles} file${data.changedFiles === 1 ? "" : "s"}`),
+        checks.passed + checks.failed + checks.pending
+          ? make("span", checks.failed ? "gh-fail" : checks.pending ? "gh-pending" : "gh-pass", [
+              checks.failed ? `✗ ${checks.failed} failing` : checks.pending ? `● ${checks.pending} pending` : `✓ ${checks.passed} passed`,
+              checks.failed ? ` (${checks.failedNames.slice(0, 4).join(", ")})` : "",
+            ])
+          : null,
+        review ? make("span", data.reviewDecision === "APPROVED" ? "gh-pass" : data.reviewDecision === "CHANGES_REQUESTED" ? "gh-fail" : "gh-pending", review) : null,
+        data.comments ? make("span", "", `💬 ${data.comments}`) : null,
+      ]),
+    );
+    let body = make("div", "markdown-body");
+    data.html.trim() ? body.append(sanitizeHtml(data.html)) : body.append(make("p", "gh-empty", "No description provided."));
+    card.append(body);
+    return card;
+  }
+  const NOTION_STATUS_COLORS = [
+    [/done|complete|accepted|merged|shipped|released/i, "green"],
+    [/progress|review|doing|active|testing/i, "blue"],
+    [/block|cancel|reject|fail/i, "red"],
+    [/todo|to do|not started|backlog|ready|new/i, "gray"],
+  ];
+  function notionCard(data) {
+    let card = make("div", "lp lp-notion", [make("div", "n-title", [data.icon ? make("span", "n-icon", data.icon) : null, data.title || "Untitled"])]);
+    let props = make("div", "n-props");
+    let row = (name, value) => props.append(make("div", "n-prop", [make("span", "n-prop-name", name), value]));
+    data.id && row("ID", make("span", "n-prop-value", data.id));
+    if (data.status) {
+      let color = NOTION_STATUS_COLORS.find(([pattern]) => pattern.test(data.status))?.[1] ?? "gray";
+      row("Status", make("span", `n-status n-status-${color}`, [make("span", "n-dot"), data.status]));
+    }
+    for (let [name, value] of data.fields) {
+      row(name, make("span", "n-prop-value", value.split(", ").map((part) => make("span", "n-tag", part))));
+    }
+    props.childElementCount && card.append(props);
+    let content = make("div", "n-content");
+    data.html.trim() ? content.append(sanitizeHtml(data.html)) : content.append(make("p", "n-empty-page", "This page has no content."));
+    card.append(content);
+    return card;
+  }
+  function slackMessage(message, small) {
+    let when = message.time ? new Date(message.time) : null;
+    let time = when ? (Date.now() - when.getTime() < 20 * 3600 * 1000 ? when.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }) : when.toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })) : "";
+    let text = make("div", "s-text");
+    text.append(sanitizeHtml(message.html));
+    let files = message.files.length
+      ? make(
+          "div",
+          "s-files",
+          message.files.map((file) => {
+            if (file.thumb) {
+              let image = element("img", "s-thumb");
+              image.src = file.thumb;
+              image.alt = file.name;
+              return image;
+            }
+            return make("div", "s-file", `📎 ${file.name}`);
+          }),
+        )
+      : null;
+    return make("div", `s-msg${small ? " s-reply" : ""}`, [avatar(message.avatar, message.author, "s-avatar"), make("div", "s-body", [make("div", "s-name", [message.author, make("span", "s-time", time)]), text, files])]);
+  }
+  function slackCard(data) {
+    let [root, ...replies] = data.messages;
+    let card = make("div", "lp lp-slack", [make("div", "s-head", [make("span", "s-channel", `# ${data.conversation}`), make("span", "s-workspace", data.workspace)])]);
+    root && card.append(slackMessage(root, false));
+    if (data.replyCount) {
+      card.append(make("div", "s-replies", data.replyCount > replies.length ? `${data.replyCount} replies · the last ${replies.length}` : `${data.replyCount} repl${data.replyCount === 1 ? "y" : "ies"}`));
+      replies.forEach((reply) => card.append(slackMessage(reply, true)));
+    }
+    return card;
+  }
+  function linkHoverContent(url, entry) {
+    if (entry.state !== "ok") {
+      return make("div", "lp lp-state", [make("div", "lp-url", url), make("div", "lp-note", entry.state === "loading" ? "Loading the preview…" : `⚠ ${entry.error}`)]);
+    }
+    let card = entry.data.kind === "github" ? githubCard(entry.data) : entry.data.kind === "notion" ? notionCard(entry.data) : slackCard(entry.data);
+    // Links in the preview open in the browser.
+    card.addEventListener("click", (event) => {
+      let link = event.composedPath().find((each) => each instanceof HTMLAnchorElement && each.href);
+      if (link) {
+        event.preventDefault();
+        call("openUrl", link.href).catch((caught) => flash(caught.message));
+      }
+    });
+    return card;
+  }
+  function showLinkHover(target, url) {
+    let entry = linkPreview(url);
+    let shown = "";
+    let hoveredAt = Date.now();
+    let draw = () => {
+      // Open while the pointer is on the link or on the preview, with a moment to cross the gap between them.
+      if ((target.isConnected && target.matches(":hover")) || linkHoverNode?.matches(":hover")) {
+        hoveredAt = Date.now();
+      } else if (Date.now() - hoveredAt > 400) {
+        hideLinkHover();
+        return;
+      }
+      let current = linkPreviews.get(url) ?? entry;
+      if (shown === `${current.state}${current.at}`) {
+        return;
+      }
+      shown = `${current.state}${current.at}`;
+      linkHoverNode?.remove();
+      let node = linkHoverContent(url, current);
+      ui().appendChild(node);
+      let rect = target.getBoundingClientRect();
+      node.style.left = `${Math.round(Math.max(16, Math.min(rect.left, innerWidth - node.offsetWidth - 16)))}px`;
+      let below = rect.bottom + 6 + node.offsetHeight <= innerHeight - 8;
+      node.style.top = `${Math.round(below ? rect.bottom + 6 : Math.max(8, rect.top - 6 - node.offsetHeight))}px`;
+      linkHoverNode = node;
+    };
+    draw();
+    // Redrawn when the preview arrives; gone when the pointer has left both the link and the preview.
+    linkHoverWatch = setInterval(draw, 150);
+  }
+  document.addEventListener(
+    "mouseover",
+    (event) => {
+      if (settings?.linkPreviews === false || !(event.target instanceof Element)) {
+        return;
+      }
+      let target = event.target.closest("a[href]");
+      let url = target && previewable(target.href) && target.closest(TRANSCRIPT) ? target.href : null;
+      if (!url || target === linkHoverTarget) {
+        return;
+      }
+      hideLinkHover();
+      linkHoverTarget = target;
+      linkHoverTimer = setTimeout(() => showLinkHover(target, url), 400);
+      // Leaving before the preview shows cancels it; once shown, showLinkHover's watch closes it.
+      target.addEventListener("mouseleave", () => linkHoverTarget === target && !linkHoverNode && hideLinkHover(), { once: true });
+    },
+    true,
+  );
   // --- Tab extras: a PR's checks, why a session waits, its task list, its queued prompts ------------------
   let tabExtras = {}; // sessionId -> { prs, reason, queued, todos } (tabExtras, every 5 s for the open tabs)
   let tabExtrasKey = "";
@@ -2126,7 +2597,9 @@ function powertoysPageMain() {
     let ticket = extra.topic?.ticket;
     let ticketSection = section("Ticket");
     if (!ticket) {
-      ticketSection.appendChild(element("div", "note", "No Notion ticket in this conversation (none was fetched, and the title names none)."));
+      ticketSection.appendChild(
+        element("div", "note", extra.topic?.ticketByHand ? "No Notion ticket: you set none for this conversation." : "No Notion ticket in this conversation (none was fetched, and the title names none)."),
+      );
     } else {
       let line = element("div", "summary");
       let label = `${ticket.id}${ticket.title ? ` · ${ticket.title}` : ""}`;
@@ -2139,12 +2612,37 @@ function powertoysPageMain() {
       if (ticket.description) {
         ticketSection.appendChild(element("div", "note", ticket.description));
       }
+      if (ticket.byHand) {
+        ticketSection.appendChild(element("div", "note", "Set by you."));
+      }
       if (!ticket.read) {
         ticketSection.appendChild(element("div", "note", "Its Notion page was not read in this conversation, so only its ID is known."));
       } else if (ticket.at) {
         ticketSection.appendChild(element("div", "note", `As of ${whenText(ticket.at)} in this conversation`));
       }
     }
+    // Setting it by hand, or going back to the one picked from the conversation.
+    let sessionTitle = tabRows.find((row) => row.kind === "code" && row.id === sessionId)?.title;
+    let reopen = () => openTopic(sessionId, sessionTitle);
+    let actions = element("div", "");
+    let action = (text, onClick) => {
+      let node = element("a", "link", text);
+      node.href = "#";
+      node.style.marginRight = "12px";
+      node.addEventListener("click", (event) => {
+        event.preventDefault();
+        onClick();
+      });
+      actions.appendChild(node);
+    };
+    action(ticket ? "Change the ticket…" : "Set the ticket…", () => {
+      shut();
+      setTicket(sessionId, sessionTitle, reopen);
+    });
+    if (extra.topic?.ticketByHand) {
+      action("Pick it from the conversation again", () => saveTicket(sessionId, null, reopen));
+    }
+    ticketSection.appendChild(actions);
     // Implementation and testing, from the task list.
     let data = taskLists.get(sessionId)?.data;
     let items = data?.items ?? [];
@@ -3448,6 +3946,8 @@ function powertoysPageMain() {
             button.addEventListener("click", () => {
               return item.key === "openInbox"
                 ? openInbox()
+                : item.key === "notionToken"
+                ? askNotionToken()
                 : call("settingsAction", item.key).catch((caught) => flash(caught.message.replace(/^Error invoking remote method '[^']+': (Error: )?/, "")));
             });
             row.appendChild(button);
@@ -3697,7 +4197,7 @@ function powertoysPageMain() {
     });
   }
   /** A one-line text box in a panel; Enter hands its trimmed text to onEnter (true closes the panel). */
-  function askLine({ title, placeholder, value = "", onEnter }) {
+  function askLine({ title, placeholder, value = "", secret = false, onEnter }) {
     closePopup();
     let panel = element("div", "panel");
     panel.style.width = "420px";
@@ -3705,6 +4205,9 @@ function powertoysPageMain() {
     let input = element("input", "search");
     input.placeholder = placeholder;
     input.value = value;
+    if (secret) {
+      input.type = "password";
+    }
     panel.appendChild(input);
     openPopup(panel, {
       onKey(event) {
@@ -3729,7 +4232,62 @@ function powertoysPageMain() {
     popup.onClose = release;
   }
 
+  /** The Notion integration token link previews read Notion with; kept by the main process, never shown again. */
+  async function askNotionToken() {
+    let has = await call("hasNotionToken").catch(() => false);
+    askLine({
+      title: "Notion token for link previews",
+      placeholder: has ? "A token is set: paste a new one, or press Enter on empty to remove it" : "An internal integration secret (notion.so/my-integrations), its database shared with it",
+      secret: true,
+      onEnter(text) {
+        if (!text && !has) {
+          return true;
+        }
+        call("setNotionToken", text).then(
+          (name) => {
+            for (let [url, entry] of linkPreviews) {
+              if (entry.state !== "ok" || entry.data.kind === "notion") {
+                linkPreviews.delete(url);
+              }
+            }
+            flash(name ? `Notion token saved (integration “${name}”)` : "Notion token removed");
+          },
+          (caught) => flash(caught.message.replace(/^Error invoking remote method '[^']+': (Error: )?/, "")),
+        );
+        return true;
+      },
+    });
+  }
+
   // --- Session notes: one line per session, on its tab, in its preview and in Ctrl+Tab -----------------
+  /** The conversation's Notion ticket, set by hand: an ID (or its link), "none", or empty to pick it from the conversation. */
+  function setTicket(sessionId, title, after) {
+    let extra = tabExtras[sessionId];
+    askLine({
+      title: `Notion ticket for “${title || "this session"}”`,
+      placeholder: "An ID like ISS-1234 or its Notion link; none: no ticket; empty: pick it from the conversation",
+      value: extra?.topic?.ticketByHand ? extra.topic.ticket?.id ?? "none" : "",
+      onEnter(text) {
+        let value = text.trim();
+        saveTicket(sessionId, value === "" ? null : /^none$/i.test(value) ? "" : value, after);
+        return true;
+      },
+    });
+  }
+  /** Saves the choice, then shows it once the main process has kept it and answers with the ticket it now picks. */
+  function saveTicket(sessionId, value, after) {
+    call("setTicket", sessionId, value).then(
+      async (id) => {
+        let fresh = await call("tabExtras", [sessionId]).catch(() => null);
+        if (fresh?.[sessionId]) {
+          tabExtras[sessionId] = fresh[sessionId];
+        }
+        flash(id ? `Ticket: ${id}` : id === "" ? "No ticket for this conversation" : "The ticket is picked from the conversation again");
+        after?.();
+      },
+      (caught) => flash(ipcError(caught)),
+    );
+  }
   function editNote(sessionId, title) {
     askLine({
       title: `Note for “${title || "this session"}” (empty removes it)`,
@@ -3804,6 +4362,10 @@ function powertoysPageMain() {
       ["Topic: this conversation's ticket, progress and PR", () => {
         let sessionId = paneSessionId(activePane());
         openTopic(sessionId, tabRows.find((row) => row.kind === "code" && row.id === sessionId)?.title);
+      }],
+      ["Set this conversation's Notion ticket", () => {
+        let sessionId = paneSessionId(activePane());
+        sessionId ? setTicket(sessionId, tabRows.find((row) => row.kind === "code" && row.id === sessionId)?.title) : flash("No session here");
       }],
       ["Context map: what fills this session's context, and how it grew", () => {
         let sessionId = paneSessionId(activePane());
@@ -3967,11 +4529,32 @@ function powertoysPageMain() {
       }
     }
   }
+  /**
+   * The MCP servers view says where a server is configured, as "(~/.claude.json)", which names no folder on Windows.
+   * Its local labels ("Configured in your Claude Code user settings (~/.claude.json)", "Configured for this project
+   * in your Claude Code settings (~/.claude.json)") get the real path; ones "on {host}" (an SSH host) keep the ~.
+   */
+  function showRealClaudeJsonPath() {
+    if (!claudeJsonPath?.includes("\\")) {
+      return;
+    }
+    let found = document.evaluate("//text()[starts-with(., 'Configured ') and contains(., '(~/.claude.json)')]", document.body, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+    for (let index = 0; index < found.snapshotLength; index += 1) {
+      let node = found.snapshotItem(index);
+      if (/^Configured (in your Claude Code user settings|for this project in your Claude Code settings) \(~\/\.claude\.json\)$/.test(node.nodeValue)) {
+        node.nodeValue = node.nodeValue.replace("~/.claude.json", claudeJsonPath);
+      }
+    }
+  }
   function applyLook() {
     document.documentElement.dataset.ptCopyPathBackslashes = settings.copyPathBackslashes === false ? "0" : "1";
     let rules = [];
     if (settings.hideSurvey) {
       rules.push('.epitaxy-hint-fade-in:has([aria-label="Rate this session"], [aria-label="Feedback follow-up"]) { display: none !important; }');
+    }
+    if (settings.hideLimitWarnings) {
+      // "Approaching 5-hour / weekly limit", "On pace to hit your weekly limit early", "You've used N% of your Fable limit".
+      rules.push('[data-testid="usage-limit-approaching-card"] { display: none !important; }');
     }
     if (settings.hidePromptSuggestions) {
       rules.push("[data-prompt-suggestion-ghost] { display: none !important; }");
@@ -4159,6 +4742,10 @@ function powertoysPageMain() {
       if (window2) {
         part([label, meterNode(window2.percent), `${Math.round(window2.percent)}%`], `${name} limit, resets in ${untilText(window2.resetsAt)}${sharedNote}`);
       }
+    }
+    // A model's own weekly limit ("Fable week"), beside the weekly one.
+    for (let scoped of show.plan ? info.plan?.scoped ?? [] : []) {
+      part([`${scoped.name} week`, meterNode(scoped.percent), `${Math.round(scoped.percent)}%`], `Weekly ${scoped.name} limit, resets in ${untilText(scoped.resetsAt)}${sharedNote}`);
     }
     return parts;
   }
@@ -4959,6 +5546,16 @@ function powertoysPageMain() {
   // The conversations already waiting when the page first lists them (after a start or a restart, which
   // also leaves interrupted ones waiting) are not news: their tabs stay as they were, closed ones too.
   let waitingBaselined = false;
+  // Whether the New session page had nothing in it (no text, no attachment) when last seen.
+  let draftEmpty = false;
+  function isDraftEmpty() {
+    let editor = document.querySelector('.ProseMirror[contenteditable="true"]');
+    if (!editor) {
+      return false;
+    }
+    let composer = editor.closest("form") ?? editor.parentElement;
+    return editor.textContent.trim() === "" && !editor.querySelector("img, [data-type]") && !composer?.querySelector('img, [aria-label^="Remove"]');
+  }
   function syncOpenTabs(onScreen, current, byKey, key) {
     let isWaiting = (row) => row.pending || row.liveStatus === "needs_input" || row.liveStatus === "awaiting";
     let known = new Set([...pinnedTabs, ...(openTabs ?? [])].map(key));
@@ -4973,11 +5570,16 @@ function powertoysPageMain() {
       wanted.forEach((row) => reasons.set(key(row), "first tabs"));
     }
     // A draft sent from the New session page became a session (a new one, on screen now): its tab goes,
-    // the session's takes over. Opening an older session from that page leaves the draft's tab.
-    if (previousTabKey === DRAFT_VIEW && current?.startsWith("code:") && known.has(DRAFT_VIEW) && !known.has(current)) {
+    // the session's takes over. Opening an older session from that page leaves the draft's tab, unless the
+    // page was empty (nothing typed or attached): then there is nothing to come back to (unless it is pinned).
+    if (current === DRAFT_VIEW) {
+      draftEmpty = isDraftEmpty();
+    } else if (previousTabKey === DRAFT_VIEW && current?.startsWith("code:") && known.has(DRAFT_VIEW)) {
       let updatedAt = byKey.get(current)?.updatedAt;
-      if (!updatedAt || Date.now() - updatedAt < 60000) {
-        log("tabs: the draft was sent; closing the New session tab");
+      let sent = !known.has(current) && (!updatedAt || Date.now() - updatedAt < 60000);
+      let empty = draftEmpty && !pinnedTabs.some((tab) => key(tab) === DRAFT_VIEW);
+      if (sent || empty) {
+        log(sent ? "tabs: the draft was sent; closing the New session tab" : "tabs: left an empty New session page; closing its tab");
         call("tabs", "close", "view", DRAFT_VIEW.slice("view:".length)).catch((caught) => log(`tabs: closing failed: ${caught.message}`));
       }
     }
@@ -5632,6 +6234,7 @@ function powertoysPageMain() {
           { label: sessionNotes[row.id] ? "Edit note…" : "Add a note…", onClick: () => editNote(row.id, row.title) },
           { label: `Queued prompts (${promptQueue[row.id]?.length ?? 0})…`, onClick: () => showPromptQueue(row.id, row.title) },
           { label: "Topic: ticket, progress, PR…", onClick: () => openTopic(row.id, row.title) },
+          { label: "Set the Notion ticket…", onClick: () => setTicket(row.id, row.title) },
           { label: "Context map…", onClick: () => openContextMap(row.id, row.title) },
           ...(ciOf(tabExtras[row.id])?.checks === "failed" ? [{ label: "Fix CI (asks it to read the failing checks' logs)", onClick: () => fixCi(row.id) }] : []),
           ...(compactOffered() ? [{ label: "Compact now", onClick: () => compactNow(row.id) }] : []),
@@ -6230,6 +6833,7 @@ function powertoysPageMain() {
     sessionNotes = state.notes ?? {};
     promptQueue = state.queue ?? {};
     windowMaximized = state.window?.maximized !== false;
+    claudeJsonPath = state.claudeJson ?? null;
     applySettings(state.settings);
     collapseSidebarGroupsAtStart();
     refreshKnownModels();
@@ -6260,6 +6864,16 @@ function powertoysPageMain() {
         decorateTaskLists();
       } catch (caught) {
         log(`task progress failed: ${caught.message}`);
+      }
+      try {
+        decorateLinkPreviews();
+      } catch (caught) {
+        log(`link previews failed: ${caught.message}`);
+      }
+      try {
+        showRealClaudeJsonPath();
+      } catch (caught) {
+        log(`config path label failed: ${caught.message}`);
       }
     }, 1000);
     decorate();

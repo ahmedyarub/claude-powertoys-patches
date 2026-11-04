@@ -205,18 +205,41 @@ async function powertoysRestartAndContinue({ sessionId = null, message = "", reb
     setTimeout(() => (powertoysRestarting = false), 5000).unref();
   }
 }
+/**
+ * At quit, for the app's "interrupted by the quit" marking: the conversation this restart continues with its own
+ * message is left unmarked, so the next run does not resume it first with "The app was quit while you were working"
+ * (it warmed and sent that before the record even appeared here, 2026-11-04 13:02).
+ */
+function powertoysContinuesAfterRestart(sessionId) {
+  if (!powertoysRestarting) {
+    return false;
+  }
+  let continues = powertoysReadJson(POWERTOYS_CONTINUE_FILE, null)?.sessionId === sessionId;
+  if (continues) {
+    powertoysLog(`restart: ${sessionId} not marked as interrupted by the quit; this restart continues it`);
+  }
+  return continues;
+}
+Object.defineProperty(exports, "powertoysContinuesAfterRestart", { enumerable: true, get: () => powertoysContinuesAfterRestart });
+/**
+ * This run's message is what continues the session: without its quit marker, the app does not also send its own
+ * "The app was quit while you were working" prompt (seen arriving next to it, or before it).
+ */
+function powertoysClearQuitMarkers(record) {
+  if (record.interruptedByQuitAt !== undefined || record.interruptedAwaitingPerson !== undefined) {
+    powertoysLog(`continue: cleared the quit marker of ${record.sessionId}${record.isRunning ? " (it is already running)" : ""}`);
+  }
+  record.interruptedByQuitAt = undefined;
+  record.interruptedUnseenResume = undefined;
+  record.interruptedAwaitingPerson = undefined;
+}
 async function powertoysSendToSession(sessionId, text) {
   let manager = powertoysSessionManager();
   if (!manager?.sessions.has(sessionId)) {
     powertoysWarn(`continue: session ${sessionId} not found`);
     return false;
   }
-  // This message is what continues it: without its quit marker, the wake this send causes does not also
-  // send the app's own "The app was quit while you were working" prompt (seen arriving next to it).
-  let record = manager.sessions.get(sessionId);
-  record.interruptedByQuitAt = undefined;
-  record.interruptedUnseenResume = undefined;
-  record.interruptedAwaitingPerson = undefined;
+  powertoysClearQuitMarkers(manager.sessions.get(sessionId));
   let result = await manager.sendMessage(sessionId, text).catch((caught) => ({ delivered: false, reason: caught.message }));
   if (result?.delivered === false) {
     powertoysWarn(`continue: message to ${sessionId} not delivered: ${result.reason}`);
@@ -325,14 +348,19 @@ async function powertoysContinueAfterRestart() {
   if (typeof pending.sessionId !== "string") {
     return;
   }
-  for (let waited = 0; waited < 120000; waited += 1000) {
-    if (powertoysSessionManager()?.sessions.has(pending.sessionId)) {
+  for (let waited = 0; waited < 120000; waited += 250) {
+    let record = powertoysSessionManager()?.sessions.get(pending.sessionId);
+    if (record) {
+      // Its quit marker goes at once: the app resumed the session with its own "The app was quit while you were
+      // working" as soon as it was warm, before this message (sent after the wait below) could, which then
+      // waited queued behind that turn (2026-11-04 08:18).
+      powertoysClearQuitMarkers(record);
       // Give the page a moment to come up, so the reply is seen arriving.
       await new Promise((resolve) => setTimeout(resolve, 3000));
       await powertoysSendToSession(pending.sessionId, String(pending.message));
       return;
     }
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await new Promise((resolve) => setTimeout(resolve, 250));
   }
   powertoysWarn(`continue: session ${pending.sessionId} never appeared`);
 }
@@ -370,6 +398,8 @@ const POWERTOYS_COMMANDS = {
   newSession: (request) => powertoysNewSession(request),
   // -> { sessionId, cliSessionId, cwd, title } of the Code conversation on screen, or null.
   selectedSession: () => powertoysSelectedSession(),
+  // { url } -> the preview of a Slack message, GitHub PR or Notion page link (0353).
+  linkPreview: (request) => powertoysLinkPreview(String(request.url ?? "")),
 };
 function powertoysTakeCommandRequest() {
   let file = powertoysFile(POWERTOYS_COMMAND_REQUEST_FILE);

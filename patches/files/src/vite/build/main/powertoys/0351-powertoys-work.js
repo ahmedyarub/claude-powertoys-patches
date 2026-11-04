@@ -802,8 +802,13 @@ function powertoysWaitReason(view, state = powertoysStateOf(view)) {
  * fetched ticket, an ID in the title alone. Only tickets the session's project takes count (powertoysTicketPrefixes).
  */
 function powertoysPickTicket(topic, title, view) {
+  // One set by hand wins (tickets.json): "" is none; an ID not fetched in the conversation is known by its ID alone.
+  let byHand = view?.sessionId ? powertoysTicketChoices()[view.sessionId] : undefined;
+  if (byHand === "") {
+    return null;
+  }
   let prefixes = powertoysTicketPrefixes(view);
-  let takes = (id) => !prefixes || prefixes.includes(id.split("-")[0]);
+  let takes = (id) => (byHand ? id === byHand : !prefixes || prefixes.includes(id.split("-")[0]));
   let property = (page, pattern) => Object.entries(page.properties ?? {}).find(([key]) => pattern.test(key))?.[1];
   let idOf = (page) => {
     let value = property(page, /(^|:)ID$/i);
@@ -815,8 +820,8 @@ function powertoysPickTicket(topic, title, view) {
     tickets.find((ticket) => title.includes(ticket.id)) ??
     [...tickets].sort((left, right) => (mentions[right.id] ?? 0) - (mentions[left.id] ?? 0) || left.page.order - right.page.order)[0];
   if (!chosen) {
-    let id = title.match(/\b[A-Z][A-Z0-9]{1,9}-\d{1,6}\b/g)?.find(takes);
-    return id ? { id, title: "", url: "", status: "", read: false } : null;
+    let id = byHand ?? title.match(/\b[A-Z][A-Z0-9]{1,9}-\d{1,6}\b/g)?.find(takes);
+    return id ? { id, title: "", url: "", status: "", read: false, byHand: !!byHand } : null;
   }
   let text = (value) => (typeof value === "string" ? value : Array.isArray(value) ? value.filter((each) => typeof each === "string" && !/^https?:/.test(each)).join(", ") : "");
   return {
@@ -828,6 +833,7 @@ function powertoysPickTicket(topic, title, view) {
     type: text(property(chosen.page, /^type$/i)),
     description: text(property(chosen.page, /^description$/i)).slice(0, 600),
     read: true,
+    byHand: !!byHand,
     at: chosen.page.updatedAt ?? chosen.page.seenAt,
   };
 }
@@ -867,7 +873,11 @@ async function powertoysTabExtras(sessionIds) {
         queued: queue[sessionId]?.length ?? 0,
         taskList: manager?.sessions.get(sessionId)?.turnBoxMounted === true || manager?.sessions.get(sessionId)?.turnBoxDeclared === true,
         todos: todos?.items.length ? { ...todos, state } : null,
-        topic: { ticket: powertoysPickTicket(topic, powertoysSessionTitle(view), view), recap: topic?.recap ?? null },
+        topic: {
+          ticket: powertoysPickTicket(topic, powertoysSessionTitle(view), view),
+          ticketByHand: Object.hasOwn(powertoysTicketChoices(), sessionId),
+          recap: topic?.recap ?? null,
+        },
       };
     }),
   );
@@ -878,6 +888,7 @@ async function powertoysTabExtras(sessionIds) {
  * named by its id or by its Claude Code session id (the transcript's name): it joins the session's prompt queue,
  * so it is sent now when the session is idle, else when its turn ends, as a message the app shows. With a model
  * ("haiku", "sonnet", "opus" or an id the model picker offers) that one turn runs on it (powertoysSendQueued).
+ * With force: true it is not queued but sent at once, into the running turn too (powertoysForcePrompt).
  */
 function powertoysQueuePromptFromRequest(request) {
   let manager = powertoysSessionManager();
@@ -895,11 +906,38 @@ function powertoysQueuePromptFromRequest(request) {
     throw Error(`No Claude Desktop session has ${request.cliSessionId ? `Claude Code session ${request.cliSessionId}` : `id ${request.sessionId}`}`);
   }
   let model = request.model === undefined || request.model === null || request.model === "" ? null : powertoysPickModel(request.model);
+  if (request.force === true) {
+    return powertoysForcePrompt(sessionId, text, model);
+  }
   let queue = powertoysQueueChange(sessionId, "add", text, model);
   powertoysLog(`prompt queue: ${text.length} characters queued for ${sessionId} by a command request${model ? ` (on ${model})` : ""}`);
   // Not awaited: the answer goes back at once; sending waits for the session.
   powertoysSendQueued(sessionId, "queued by a command request");
   return { sessionId, queued: queue[sessionId]?.length ?? 0, ...(model ? { model } : {}) };
+}
+/**
+ * Sends a prompt now, as the app's "Send now" does (priority "now"): into the running turn when there is one
+ * (the app delivers it as the next message when the turn cannot take it, e.g. while compacting), else as a new
+ * turn. A model applies only to a new turn (a running turn keeps its model); the answer names it when it did.
+ */
+async function powertoysForcePrompt(sessionId, text, model) {
+  let manager = powertoysSessionManager();
+  let running = powertoysSessionViews.get(sessionId)?.turnRunning === true;
+  let own = manager.sessions.get(sessionId)?.model;
+  let switched = !!model && !running && (!own || stripModelDateSuffix(own) !== stripModelDateSuffix(model));
+  if (switched) {
+    await manager.setModel(sessionId, model);
+    powertoysTurnModels.set(sessionId, { model, back: own });
+  }
+  let result = await manager.sendMessage(sessionId, text, undefined, { priority: "now" }).catch((caught) => ({ delivered: false, reason: caught.message }));
+  if (result?.delivered === false) {
+    if (switched) {
+      await powertoysRestoreTurnModel(sessionId);
+    }
+    throw Error(`Not delivered: ${result.reason}`);
+  }
+  powertoysLog(`prompt queue: ${text.length} characters sent now to ${sessionId} by a command request (${running ? "during its turn" : "as a new turn"}${model ? `, model ${running ? "left as it is" : model}` : ""})`);
+  return { sessionId, sent: true, duringTurn: running, ...(model && !running ? { model } : {}) };
 }
 /** A model the model picker offers, by id (date suffix optional) or by family ("haiku" -> its newest); unknown ones throw. */
 function powertoysPickModel(name) {
@@ -1354,6 +1392,7 @@ try {
   powertoysHandle("usageReport", (event, days) => powertoysUsageReport(days));
   powertoysHandle("savePaste", (event, text) => powertoysSavePaste(text));
   powertoysHandle("setNote", (event, sessionId, text) => powertoysSetNote(String(sessionId ?? ""), text));
+  powertoysHandle("setTicket", (event, sessionId, value) => powertoysSetTicket(String(sessionId ?? ""), value));
 } catch (caught) {
   logger.error("[powertoys] registering the tab preview IPC failed: %o", caught);
 }

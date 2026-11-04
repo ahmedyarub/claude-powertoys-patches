@@ -294,6 +294,25 @@ function powertoysTranscriptWorkerMain() {
     return prompt?.uuid ? [prompt.uuid] : [];
   }
 
+  // The complete lines of a transcript after state.offset, read 64 MB at a time (a string over 512 MB cannot be
+  // made, and transcripts grow past that). state.offset moves past each chunk before its lines are handed out.
+  function* newLines(fd, size, state) {
+    let chunk = 64 * 1024 * 1024;
+    while (state.offset < size) {
+      let buffer = Buffer.alloc(Math.min(chunk, size - state.offset));
+      let read = fs.readSync(fd, buffer, 0, buffer.length, state.offset);
+      let end = buffer.lastIndexOf(10, read - 1);
+      if (end < 0) {
+        if (state.offset + read >= size) {
+          return; // the last line is still being written
+        }
+        chunk *= 2; // one line longer than the chunk
+        continue;
+      }
+      state.offset += end + 1;
+      yield* buffer.toString("utf8", 0, end).split("\n");
+    }
+  }
   // Incremental tail per transcript: context size from the last assistant usage, and when the
   // current turn started (the prompt after the last finished turn).
   const tails = new Map(); // file -> { offset, contextTokens, turnStartedAt, ended }
@@ -310,14 +329,7 @@ function powertoysTranscriptWorkerMain() {
       if (size === state.offset) {
         return state;
       }
-      let buffer = Buffer.alloc(size - state.offset);
-      let read = fs.readSync(fd, buffer, 0, buffer.length, state.offset);
-      let end = buffer.lastIndexOf(10, read - 1);
-      if (end < 0) {
-        return state;
-      }
-      state.offset += end + 1;
-      for (let line of buffer.toString("utf8", 0, end).split("\n")) {
+      for (let line of newLines(fd, size, state)) {
         if (line.includes('"type":"assistant"')) {
           let entry;
           try {
@@ -454,14 +466,7 @@ function powertoysTranscriptWorkerMain() {
       if (size === state.offset) {
         return state;
       }
-      let buffer = Buffer.alloc(size - state.offset);
-      let read = fs.readSync(fd, buffer, 0, buffer.length, state.offset);
-      let end = buffer.lastIndexOf(10, read - 1);
-      if (end < 0) {
-        return state;
-      }
-      state.offset += end + 1;
-      for (let line of buffer.toString("utf8", 0, end).split("\n")) {
+      for (let line of newLines(fd, size, state)) {
         if (!line.includes('"type":"assistant"') && !line.includes('"type":"user"') && !line.includes('"queued_command"')) {
           continue;
         }

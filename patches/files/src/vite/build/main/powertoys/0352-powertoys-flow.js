@@ -120,23 +120,25 @@ async function powertoysNewSession({ folder, text, permissionMode } = {}) {
   let sessionId = `local_${require("node:crypto").randomUUID()}`;
   let request = { ...template.request, cwd, message: prompt, sessionId, powertoysStarted: true, ...(permissionMode && { permissionMode }) };
   powertoysLog(`new session ${sessionId} in ${cwd}${permissionMode ? ` (${permissionMode})` : ""}`);
-  let started = template.start(request).catch((caught) => {
+  let failure = null;
+  template.start(request).catch((caught) => {
     powertoysWarn(`new session ${sessionId} failed to start: ${caught.message}`);
-    throw caught;
+    failure = caught;
   });
   // Answered as soon as the session exists with its CLI id (Slack waits a few seconds), not when it has spawned.
+  // The wait is by the clock: the start call can resolve before the CLI id is set, so it is no timer of its own.
   let manager = powertoysSessionManager();
-  for (let waited = 0; waited < 15000; waited += 100) {
+  for (let deadline = Date.now() + 15000; Date.now() < deadline; await new Promise((resolve) => setTimeout(resolve, 100))) {
     let record = manager?.sessions.get(sessionId);
     if (record?.cliSessionId) {
       powertoysOpenSession(sessionId);
       return { sessionId, cliSessionId: record.cliSessionId, cwd: record.cwd ?? cwd };
     }
-    let failure = await Promise.race([started.then(() => null, (caught) => caught), new Promise((resolve) => setTimeout(() => resolve(null), 100))]);
     if (failure) {
       throw failure;
     }
   }
+  powertoysWarn(`new session ${sessionId} has no CLI id after 15 s`);
   throw Error("The session did not start within 15 s");
 }
 /** The Code conversation on screen now: { sessionId, cliSessionId, cwd, title } or null. */
@@ -312,14 +314,20 @@ function powertoysMostUrgent() {
 }
 let powertoysDigestHeld = [];
 let powertoysDigestTimer = null;
-/** Holds a "finished" notification for the digest (finishedDigestMinutes > 0); true when held, not shown. */
+/**
+ * Groups "finished" notifications (finishedDigestMinutes > 0): the first one shows at once and opens the window;
+ * the ones that follow inside it are held for one summary at its end. True when held, not shown.
+ */
 function powertoysDigestHold(options) {
   let minutes = Number(powertoysSetting("finishedDigestMinutes")) || 0;
   if (minutes <= 0 || !/^idle/.test(String(options?.data?.type ?? ""))) {
     return false;
   }
+  if (!powertoysDigestTimer) {
+    powertoysDigestTimer = setTimeout(powertoysShowDigest, minutes * 60000);
+    return false;
+  }
   powertoysDigestHeld.push({ title: String(options.title ?? ""), sessionId: powertoysNotificationSessionId(options), at: Date.now() });
-  powertoysDigestTimer ??= setTimeout(powertoysShowDigest, minutes * 60000);
   return true;
 }
 function powertoysShowDigest() {

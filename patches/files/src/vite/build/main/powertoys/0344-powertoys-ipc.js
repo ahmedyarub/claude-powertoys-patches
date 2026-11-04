@@ -79,6 +79,7 @@ function powertoysRegisterIpc() {
       queue: powertoysPromptQueue(),
       window: powertoysWindowState(),
       status: powertoysStatusSnapshot,
+      claudeJson: powertoysPath.join(powertoysOs.homedir(), ".claude.json"),
     };
   });
   powertoysHandle("setSetting", (event, key, value) => {

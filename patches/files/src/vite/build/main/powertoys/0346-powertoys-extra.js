@@ -15,7 +15,18 @@ async function powertoysPlanUsage() {
       let read = await require("./ccd-plan-usage.js").readPlanUsage();
       let limits = read?.kind === "ok" ? read.usage?.rate_limits : null;
       let window = (entry) => (entry && typeof entry.utilization === "number" ? { percent: entry.utilization, resetsAt: entry.resets_at ?? null } : null);
-      powertoysPlanUsageCache.value = limits ? { fiveHour: window(limits.five_hour), sevenDay: window(limits.seven_day) } : null;
+      // Weekly limits of one model ("Fable") come as model_scoped: { name, percent, resetsAt } each.
+      let scoped = (limits?.model_scoped ?? []).flatMap((entry) => {
+        let each = window(entry);
+        return each && entry.display_name ? [{ name: entry.display_name, ...each }] : [];
+      });
+      powertoysPlanUsageCache.value = limits ? { fiveHour: window(limits.five_hour), sevenDay: window(limits.seven_day), scoped } : null;
+      // What the plan's limits answer was, logged when it changes (which windows the plan reports).
+      let seen = JSON.stringify(read?.kind === "ok" ? read.usage?.rate_limits ?? null : read);
+      if (seen !== powertoysPlanUsageCache.seen) {
+        powertoysPlanUsageCache.seen = seen;
+        powertoysLog(`plan usage: ${seen.slice(0, 600)}`);
+      }
     } catch (caught) {
       powertoysWarn(`plan usage: ${caught.message}`);
     }

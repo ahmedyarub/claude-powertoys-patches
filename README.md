@@ -135,8 +135,16 @@ pastes). Every feature has a switch in the Powertoys settings window (tray menu 
 - **Prompt queue:** Alt+Enter queues the prompt in the box. Queued prompts are sent one by one as the session's
   turns end. Sending stops while a question or permission waits for you, or after an error. The queue list (from
   the tab menu or the command palette) takes a prompt back into the box to edit, or removes it.
-- **Large pastes:** pasted text over 3,000 characters goes in as an attachment. It is saved to a file, so the
-  message stays short; Ctrl+Shift+V pastes the text itself.
+- **Large pastes:** pasted text over 3,000 characters, or of more than 8 lines, goes in as an attachment (both
+  limits are settings). It is saved to a file, so the message stays short; Ctrl+Shift+V pastes the text itself.
+- **Link previews:** Slack messages, GitHub PRs and Notion pages linked in a conversation get a card on hover,
+  drawn the way each one shows them, in its dark theme, with images. A bare link shows the PR's or page's title,
+  still as a link. The card stays open while the pointer is on it, and scrolls with the wheel.
+  - **Slack:** the thread's first message and its last replies, through Slack Powertoys (it must be running).
+  - **GitHub:** the PR's description, labels, checks and state, through `gh`, as whichever of your accounts can
+    see the repository.
+  - **Notion:** the page's properties and content, through the claude.ai Notion connector, or an integration
+    token if you set one.
 - **Message times:** hovering a message shows when it was sent, just above it.
 - **Copy path with backslashes:** "Copy path" and "Copy absolute path" copy Windows paths as `E:\a\b`.
 - **No feedback survey** (on by default): new sessions start with Claude Code's "How is Claude doing?" survey
@@ -179,6 +187,7 @@ pastes). Every feature has a switch in the Powertoys settings window (tray menu 
 - **The ticket's status follows its PR:** when a session's PR is marked ready for review, and when it is merged,
   that session moves its Notion ticket to the matching status (settings; the session does it with its own Notion
   tools, only forwards).
+- **A ticket by hand:** a tab's menu sets the session's Notion ticket when it was not found by itself.
 
 **Many sessions at once**
 
@@ -244,6 +253,7 @@ pastes). Every feature has a switch in the Powertoys settings window (tray menu 
   notifications have a button per option plus a reply box. They follow Windows' notification settings, and
   can stay on screen.
 - **Notification inbox:** replays the buttons of notifications you missed.
+- **Notifications after a restart:** only the ones that were on screen before it come back.
 - **Hotkeys:** Win+Alt+C opens the sessions waiting for you, and Win+Alt+N starts a new session in a recent
   folder.
 - **Tray icon:** one click shows the app (or the session waiting for you), instead of the quick-entry box.
@@ -257,6 +267,14 @@ pastes). Every feature has a switch in the Powertoys settings window (tray menu 
   has quit it fast-forwards the project folder, installs the packages, rebuilds and starts again, going
   back to the previous commit if a step or the start fails.
   Sessions that were working are continued after the restart, and the waiting-for-you question doesn't block it.
+  The session that asked for the restart is continued by its own message, not first by the app's "The app was
+  quit while you were working".
+- **The queue shows only what is queued:** a slash command the app runs at once (`/remote-control`, also during
+  a turn) and messages already sent no longer show as queued, or come back after a restart.
+- **Plan usage:** the status bar shows the 5-hour and weekly limits, and a model's own weekly limit (such as
+  "Fable week") beside them. The page's "Approaching … limit" cards are hidden (a setting, on by default); the
+  card shown once a limit is reached stays.
+- **MCP servers view:** shows the real path of `.claude.json` instead of `~/.claude.json`.
 - **Look:**
   - Declutter switches.
   - Conversation text size, font and full width.
@@ -274,9 +292,10 @@ Each hook is marked `Local change` in the patched code.
 
 | File (under `src/vite/build/`) | Lines | What it does |
 |---|---|---|
-| `main/app/0239-session-notifications.js` | +547 −62 | Builds Windows notifications here instead of through Electron, so they can carry the in-app card's buttons (Allow once, Always allow …, Deny; a button per question option, a reply box, Skip, Submit). Can keep them on screen, respects Windows' settings, records them in the Powertoys inbox, and holds "finished" ones for the digest. |
-| `ccd-local-session-manager/0027-ccd.js` | +14 −1 | A slash command the app handles itself (`/remote-control`) no longer stays "queued" in the page. |
-| `ccd-local-session-manager/0052-ccd.js` | +7 −1 | That command's echo uses the id the page sent it under, once; a restored local session's folders get backslashes. |
+| `main/app/0239-session-notifications.js` | +551 −62 | Builds Windows notifications here instead of through Electron, so they can carry the in-app card's buttons (Allow once, Always allow …, Deny; a button per question option, a reply box, Skip, Submit). Can keep them on screen, respects Windows' settings, records them in the Powertoys inbox, and holds "finished" ones for the digest. After a restart, shows only the notifications that were on screen before it. |
+| `ccd-local-session-manager/0025-ccd.js` | +4 −1 | A saved queue restored at launch drops the messages the transcript shows as already sent, also after a clean exit. |
+| `ccd-local-session-manager/0027-ccd.js` | +22 −1 | A slash command the app handles itself (`/remote-control`) no longer stays "queued" in the page, also when sent during a turn. |
+| `ccd-local-session-manager/0052-ccd.js` | +13 −3 | That command's echo uses the id the page sent it under, once; a restored local session's folders get backslashes; the saved queue is written when a queued message goes to Claude Code; at quit, the session a Powertoys restart continues is not marked for the app's own resume. |
 | `ccd-local-session-manager/0016-ccd.js` | +2 | Powertoys' additions to a session's environment (no feedback survey). |
 | `claude-json-workspace-trust-config.js` | +8 | Folder trust off: the trust lookups count every folder as trusted while the Powertoys setting is on. |
 | `ccd-host-core/mcp-tools/0001-mcp-tool-prefix-sanitizers.js` | +11 −2 | The plan tool takes an estimate in minutes per step, and its answer reports how long finished steps really took. |

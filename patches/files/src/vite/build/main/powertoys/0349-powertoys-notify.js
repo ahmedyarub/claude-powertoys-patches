@@ -239,4 +239,46 @@ try {
 }
 
 // The page's inbox panel follows changes; the tray menu is rebuilt with the status (sessions/0342).
-powertoysEvents.on("inbox", () => powertoysBroadcast("powertoys:inbox", null));
+powertoysEvents.on("inbox", () => {
+  powertoysBroadcast("powertoys:inbox", null);
+  powertoysSaveShownNotifications();
+});
+
+// --- After a restart: only the notifications that were on screen before it come back ------------------------
+// A few minutes after a restart the app could show a session's notification again for something from before it,
+// though none was on screen then. For a while after the start, a session's notification shows only when one of its
+// kind was on screen before the restart (notifications-shown.json, kept as the inbox changes) or the session ran a
+// turn in this run (powertoysTurnStartedAt). Remote sessions' notifications (the page sees their turns end) and ones
+// about no session are left alone. Every decision is logged.
+const POWERTOYS_RESTART_GRACE_MS = 15 * 60 * 1000;
+const POWERTOYS_SHOWN_FILE = "notifications-shown.json";
+const powertoysRunStartedAt = Date.now();
+let powertoysShownBefore = null; // "sessionId|type" of the notifications on screen when the last run ended
+function powertoysShownBeforeRestart() {
+  if (!powertoysShownBefore) {
+    let list = powertoysReadJson(POWERTOYS_SHOWN_FILE, []);
+    powertoysShownBefore = new Set((Array.isArray(list) ? list : []).map((each) => `${each.sessionId}|${each.type}`));
+    powertoysLog(`notifications: ${powertoysShownBefore.size} on screen before the restart`);
+  }
+  return powertoysShownBefore;
+}
+function powertoysSaveShownNotifications() {
+  powertoysShownBeforeRestart();
+  let shown = powertoysInbox.filter((entry) => entry.state === "shown" && entry.sessionId).map(({ sessionId, type, title, at }) => ({ sessionId, type, title, at }));
+  powertoysWriteJson(POWERTOYS_SHOWN_FILE, shown);
+}
+/** Whether a notification about to show is one from before the restart that was not on screen then (not shown). */
+function powertoysStaleAfterRestart(options) {
+  let sessionId = powertoysNotificationSessionId(options);
+  let type = String(options?.data?.type ?? "generic");
+  if (Date.now() - powertoysRunStartedAt > POWERTOYS_RESTART_GRACE_MS || !sessionId || /^remote_/.test(type)) {
+    return false;
+  }
+  let before = powertoysShownBeforeRestart().has(`${sessionId}|${type}`);
+  let ran = powertoysTurnStartedAt.has(sessionId);
+  let minutes = Math.round((Date.now() - powertoysRunStartedAt) / 6000) / 10;
+  powertoysLog(
+    `notifications: ${before || ran ? "shown" : "not shown"} ${minutes} min after the start: ${type} for ${sessionId} "${String(options?.title ?? "").slice(0, 80)}" (${before ? "on screen before the restart" : ran ? "it ran a turn in this run" : "from before the restart, not on screen then"})`,
+  );
+  return !before && !ran;
+}

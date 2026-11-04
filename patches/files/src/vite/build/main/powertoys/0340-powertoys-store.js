@@ -45,6 +45,8 @@ const POWERTOYS_DEFAULT_SETTINGS = {
   /** Comma-separated spellchecker language codes. */
   spellLanguages: "en-US",
   hideSurvey: true,
+  // The page's "Approaching … limit" cards; the one shown once a limit is hit stays (it holds Send anyway).
+  hideLimitWarnings: true,
   // One click on the tray icon shows the app (else the app's quick-entry box when that is on).
   trayClickShowsApp: true,
   // The New session page keeps its tab after you switch away, until it is closed or the draft is sent.
@@ -93,6 +95,8 @@ const POWERTOYS_DEFAULT_SETTINGS = {
   notificationsStayOnScreen: false,
   // Text pasted into the prompt box longer than this goes in as an attached file (0 = never).
   pasteAsFileChars: 3000,
+  // …or with more lines than this (0 = never).
+  pasteAsFileLines: 8,
   /** Restart Claude (once no session is working) when its Network Service process dies. */
   networkWatchdog: true,
   /** IntelliJ IDEA's launcher (idea.cmd / idea64.exe); empty = find it. */
@@ -117,6 +121,10 @@ const POWERTOYS_DEFAULT_SETTINGS = {
   // Hovering a conversation's tab shows its last answer (model, effort, context on top), this opaque (%).
   tabPreview: true,
   taskProgress: true,
+  // Slack, GitHub PR and Notion links in a conversation get a preview card under them and on hover (0353).
+  linkPreviews: true,
+  // Notion previews through the claude.ai Notion connector (MCP proxy) rather than an integration token.
+  notionPreviewsViaConnector: true,
   forceTaskList: true,
   promptQueueKey: true,
   agentEstimates: true,
@@ -147,6 +155,9 @@ const POWERTOYS_SETTINGS_SECTIONS = [
       { key: "collapseSidebarGroupsAtStart", label: "Start with the sidebar's environments and folders collapsed", type: "switch" },
       { key: "groupTabsByProject", label: "Group the open tabs by project", type: "switch" },
       { key: "tabPreview", label: "Hovering a tab previews its last answer (with model, effort and context)", type: "switch" },
+      { key: "linkPreviews", label: "Slack messages, GitHub PRs and Notion pages linked in a conversation get a preview card under the link, and a fuller one on hover (Slack needs Slack Powertoys running; Notion needs the token below)", type: "switch" },
+      { key: "notionPreviewsViaConnector", label: "…read Notion through your claude.ai Notion connector (no token needed; off: through the token below)", type: "switch" },
+      { key: "notionToken", label: "Notion token for link previews…", type: "action" },
       { key: "taskProgress", label: "Task lists show a progress bar, the estimated time left, when they will be done and the total", type: "switch" },
       { key: "forceTaskList", label: "Every new Code session gets the app's task list (its plan tool, with the wrap-up box), also when the app would leave it out; a tab's menu adds it to an existing session", type: "switch" },
       { key: "agentEstimates", label: "Claude estimates each step of its task list (minutes per step, re-estimated as it learns); the time left and finish time come from those (applies after a restart)", type: "switch" },
@@ -175,6 +186,7 @@ const POWERTOYS_SETTINGS_SECTIONS = [
     title: "Declutter",
     items: [
       { key: "hideSurvey", label: "Never ask for feedback: Claude Code's \"How is Claude doing?\" survey is off for new sessions, and the page's rating card is hidden", type: "switch" },
+      { key: "hideLimitWarnings", label: "Hide the usage-limit warning cards (\"Approaching weekly usage limit\" and the like); the card shown once a limit is hit stays", type: "switch" },
       { key: "hidePromptSuggestions", label: "Hide prompt suggestions", type: "switch" },
       { key: "hideNextStepBox", label: "Hide the end-of-turn next-step box", type: "switch" },
       { key: "hideCreatePr", label: "Hide the Create PR button", type: "switch" },
@@ -193,6 +205,7 @@ const POWERTOYS_SETTINGS_SECTIONS = [
       { key: "promptHistory", label: "Alt+Up: earlier prompts", type: "switch" },
       { key: "snippets", label: "Snippets (Ctrl+Shift+Space)", type: "switch" },
       { key: "pasteAsFileChars", label: "Paste text longer than this many characters as an attached file (0 = never; Ctrl+Shift+V pastes the text)", type: "number", min: 0, max: 1000000 },
+      { key: "pasteAsFileLines", label: "…or with more lines than this (0 = never)", type: "number", min: 0, max: 100000 },
       { key: "search", label: "Ctrl+Shift+S: search all sessions", type: "switch" },
       { key: "history", label: "Ctrl+H: history of every message", type: "switch" },
       { key: "bookmarks", label: "Bookmarks (right-click a message)", type: "switch" },
@@ -212,7 +225,7 @@ const POWERTOYS_SETTINGS_SECTIONS = [
       { key: "waitingBadge", label: "Waiting-sessions badge on the tray and taskbar", type: "switch" },
       { key: "trayClickShowsApp", label: "One click on the tray icon shows the app (instead of the quick-entry box)", type: "switch" },
       { key: "disableFolderTrust", label: "Turn folder trust off: every folder counts as trusted and \"Trust this workspace?\" never comes up, also for folders a claude:// link opens (applies after a restart)", type: "switch" },
-      { key: "finishedDigestMinutes", label: "\"Finished\" notifications: one summary every this many minutes (0 = one per session)", type: "number", min: 0, max: 240 },
+      { key: "finishedDigestMinutes", label: "\"Finished\" notifications: the first shows at once; more within this many minutes come as one summary (0 = one per session)", type: "number", min: 0, max: 240 },
       { key: "costWarnUsd", label: "Notify once a session costs more than this many dollars (0 = off)", type: "number", min: 0, max: 10000 },
       { key: "contextWarnPercent", label: "Notify once a session's context is this full, in % (0 = off)", type: "number", min: 0, max: 100 },
       { key: "autoTicketStatus", label: "Move a session's Notion ticket when its PR is marked ready or merged (the session does it, with its Notion tools)", type: "switch" },
@@ -451,6 +464,34 @@ function powertoysSetNote(sessionId, text) {
   powertoysWriteJson("notes.json", notes);
   powertoysEvents.emit("notes", notes);
   return notes;
+}
+
+// --- Tickets set by hand ------------------------------------------------------------------------------
+// { "<sessionId>": "ISS-1234" | "" }: the conversation's Notion ticket, "" for none. Without an entry it is picked
+// from the conversation (powertoysPickTicket).
+function powertoysTicketChoices() {
+  let choices = powertoysReadJson("tickets.json", {});
+  return choices && typeof choices === "object" && !Array.isArray(choices) ? Object.fromEntries(Object.entries(choices).filter(([, id]) => typeof id === "string")) : {};
+}
+/** value: a ticket ID (or a link or text naming one), "" for none, null to pick it from the conversation again. */
+function powertoysSetTicket(sessionId, value) {
+  if (typeof sessionId !== "string" || !sessionId) {
+    throw Error("A ticket needs a session");
+  }
+  let choices = powertoysTicketChoices();
+  let id = null;
+  if (value === "") {
+    id = "";
+  } else if (value !== null && value !== undefined) {
+    id = String(value).toUpperCase().match(/\b[A-Z][A-Z0-9]{1,9}-\d{1,6}\b/)?.[0] ?? null;
+    if (id === null) {
+      throw Error(`No ticket ID (like ISS-1234) in "${String(value).slice(0, 80)}"`);
+    }
+  }
+  id === null ? delete choices[sessionId] : (choices[sessionId] = id);
+  powertoysWriteJson("tickets.json", choices);
+  powertoysLog(`tickets: ${sessionId} ${id === null ? "picks its ticket from the conversation" : id ? `is set to ${id}` : "is set to no ticket"}`);
+  return id;
 }
 
 // --- Prompt queue: prompts sent to a session one after another, as its turns end (queue.json) -----------
