@@ -508,7 +508,7 @@ async function powertoysSessionLimits(sessionIds) {
       ...(idle && info.workDoneAt > 0 && info.workDoneAt >= info.turnStartedAt ? ["done"] : []),
       ...(idleMs > cacheTtlMs ? ["cold"] : []),
     ];
-    result[sessionId] = { cost, contextPercent, contextTokens, idleMs, cacheTtlMs, over };
+    result[sessionId] = { cost, contextPercent, contextTokens, contextEstimated: Boolean(info?.contextEstimated), idleMs, cacheTtlMs, over };
     let warned = powertoysWarned.get(sessionId) ?? {};
     for (let kind of over) {
       // "size" and "cold" only mark the tab. "done" comes once per finished task (its commit or push time).

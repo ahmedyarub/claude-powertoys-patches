@@ -86,6 +86,16 @@ function powertoysRegisterIpc() {
     powertoysSetSetting(key, value);
     return powertoysSettings();
   });
+  // The command palette's recently run commands (labels, newest first), shown first when it opens.
+  powertoysHandle("paletteRecent", (event, label) => {
+    let recent = powertoysReadJson("palette-recent.json", []);
+    recent = Array.isArray(recent) ? recent.filter((item) => typeof item === "string") : [];
+    if (typeof label === "string" && label) {
+      recent = [label, ...recent.filter((item) => item !== label)].slice(0, 20);
+      powertoysWriteJson("palette-recent.json", recent);
+    }
+    return recent;
+  });
   powertoysHandle("switcherSessions", (event, titles) => {
     for (let [id, title] of Object.entries(titles && typeof titles === "object" ? titles : {})) {
       if (typeof title === "string" && powertoysRecentRecord()[id] && !powertoysRecentRecord()[id].title) {

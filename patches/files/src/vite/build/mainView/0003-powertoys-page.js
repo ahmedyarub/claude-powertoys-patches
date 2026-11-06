@@ -1992,7 +1992,7 @@ function powertoysPageMain() {
       return;
     }
     tabExtras = next;
-    if (Date.now() - tabLimitsAt > 60000) {
+    if (Date.now() - tabLimitsAt > 20000) {
       tabLimitsAt = Date.now();
       call("sessionLimits", [...ids]).then(
         (limits) => {
@@ -3048,10 +3048,16 @@ function powertoysPageMain() {
       items: [
         { value: "compact", label: "Compact now", detail: "Claude Code summarizes the conversation in place (/compact)" },
         { value: "fresh", label: "Start fresh", detail: "It writes a short handoff, and a new session in the same folder starts from that" },
+        { value: "dashboard", label: "Token use dashboard", detail: "Every session's token use over any period, with what could be saved" },
       ],
       place: placeCentred(0.2),
       width: 560,
-      onPick: (picked) => (picked === "fresh" ? startFresh(sessionId) : compactNow(sessionId)),
+      onPick: (picked) =>
+        picked === "dashboard"
+          ? call("openDashboard").catch((caught) => flash(ipcError(caught)))
+          : picked === "fresh"
+            ? startFresh(sessionId)
+            : compactNow(sessionId),
     });
   }
   function goToMostUrgent() {
@@ -3260,7 +3266,7 @@ function powertoysPageMain() {
           : picked.session && openConversation({ kind: "code", id: picked.session.sessionId }),
     });
   }
-  let tabLimits = {}; // sessionId -> { cost, contextPercent, over } (sessionLimits, every minute)
+  let tabLimits = {}; // sessionId -> { cost, contextPercent, contextTokens, over } (sessionLimits, every 20 s)
   let tabLimitsAt = 0;
 
   // --- The time a message was sent, above it while the pointer is on it (setting messageTimes) ---------
@@ -4508,9 +4514,17 @@ function powertoysPageMain() {
     }
     return commands.map(([label, run, key]) => ({ label, run, key }));
   }
+  // A command's identity across label changes (on/off, add/edit, mute/unmute), for the recently used list.
+  const paletteKey = (label) =>
+    label
+      .replace(/^Turn (on|off): /, "Turn on/off: ")
+      .replace(/: (add a note|edit its note)$/, ": note")
+      .replace(/: (mute|unmute) notifications$/, ": mute notifications");
   async function openPalette(initial = "") {
     closePopup();
-    let commands = await paletteCommands();
+    let [commands, recent] = await Promise.all([paletteCommands(), call("paletteRecent").catch(() => [])]);
+    // The four most recently run commands come first (among those that match what is typed).
+    let recentRank = new Map(recent.map((label, index) => [paletteKey(label), index]));
     let panel = element("div", "panel palette");
     panel.style.width = `${Math.min(640, innerWidth - 32)}px`;
     let input = element("input", "search");
@@ -4528,7 +4542,12 @@ function powertoysPageMain() {
     };
     let render = () => {
       let terms = input.value.toLowerCase().split(/\s+/).filter(Boolean);
-      shown = commands.filter((command) => terms.every((term) => command.label.toLowerCase().includes(term))).slice(0, 80);
+      let matching = commands.filter((command) => terms.every((term) => command.label.toLowerCase().includes(term)));
+      let first = matching
+        .filter((command) => recentRank.has(paletteKey(command.label)))
+        .sort((a, b) => recentRank.get(paletteKey(a.label)) - recentRank.get(paletteKey(b.label)))
+        .slice(0, 4);
+      shown = [...first, ...matching.filter((command) => !first.includes(command))].slice(0, 80);
       selected = Math.min(selected, Math.max(0, shown.length - 1));
       list.textContent = "";
       if (shown.length === 0) {
@@ -4537,8 +4556,8 @@ function powertoysPageMain() {
       shown.forEach((command, index) => {
         let row = element("div", "row");
         row.appendChild(highlighted(command.label, terms));
-        if (command.key) {
-          row.appendChild(element("span", "key", command.key));
+        if (command.key || index < first.length) {
+          row.appendChild(element("span", "key", command.key ?? "recent"));
         }
         row.addEventListener("mousedown", (event) => {
           event.preventDefault();
@@ -4552,6 +4571,7 @@ function powertoysPageMain() {
       let command = shown[index];
       closePopup();
       if (command) {
+        call("paletteRecent", command.label).catch((caught) => log(`palette: saving the recent command failed: ${caught.message}`));
         Promise.resolve()
           .then(() => command.run())
           .catch((caught) => flash(caught.message));
@@ -6197,12 +6217,14 @@ function powertoysPageMain() {
     let over = limit?.over?.length > 0;
     let showSize = settings?.tabContextSize !== false && limit?.contextTokens > 0;
     if (over || showSize) {
-      let size = limit?.contextTokens > 0 ? `${Math.round(limit.contextTokens / 1000)}k` : "";
+      // "~": compacted since the last reply, so the size is estimated (starting context plus the summary).
+      let size = limit?.contextTokens > 0 ? `${limit.contextEstimated ? "~" : ""}${Math.round(limit.contextTokens / 1000)}k` : "";
       // ❄: idle past its prompt cache's life, so the next message here re-writes the whole context.
       let cold = limit?.over?.includes("cold");
       let chip = element("span", `ctx${over ? " over" : ""}`, over ? `${cold ? "❄" : "⚠"}${size ? ` ${size}` : ""}` : size);
       chip.title = [
         size ? `Context: ${size} tokens (${limit.contextPercent}% of the window), re-read by every reply` : "",
+        limit?.contextEstimated ? "compacted since the last reply: the starting context plus the summary, until the next reply gives the real size" : "",
         limit?.over?.includes("cost") ? `about $${limit.cost.toFixed(2)} so far` : "",
         limit?.over?.includes("done") ? "its task is done (committed or pushed): the next task needs little of this history" : "",
         cold

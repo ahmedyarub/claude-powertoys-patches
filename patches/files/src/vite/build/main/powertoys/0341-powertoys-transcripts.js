@@ -318,7 +318,9 @@ function powertoysTranscriptWorkerMain() {
   // when it wrote 1-hour cache entries, else 5 min), and when a commit, push, PR or release last went out.
   const tails = new Map(); // file -> { offset, contextTokens, turnStartedAt, ended, lastResponseAt, cacheTtlMs, workDoneAt }
   const WORK_DONE = /\bgit\b[^\n]*\b(commit|push)\b|\bgh\s+(pr\s+create|release\s+create)\b/;
-  const freshTail = () => ({ offset: 0, contextTokens: 0, turnStartedAt: 0, ended: true, lastResponseAt: 0, cacheTtlMs: 0, workDoneAt: 0 });
+  // After a compaction (before the next reply) the context is estimated: what the first reply held (system prompt,
+  // tools, instructions) plus the summary's size; contextEstimated says so.
+  const freshTail = () => ({ offset: 0, contextTokens: 0, turnStartedAt: 0, ended: true, lastResponseAt: 0, cacheTtlMs: 0, workDoneAt: 0, firstContextTokens: 0, compactedAt: 0, contextEstimated: false });
   function tail(file) {
     let state = tails.get(file) ?? freshTail();
     tails.set(file, state);
@@ -343,6 +345,8 @@ function powertoysTranscriptWorkerMain() {
           let usage = entry.message?.usage;
           if (usage && entry.isSidechain !== true) {
             state.contextTokens = (usage.input_tokens ?? 0) + (usage.cache_read_input_tokens ?? 0) + (usage.cache_creation_input_tokens ?? 0);
+            state.firstContextTokens ||= state.contextTokens;
+            state.contextEstimated = false;
             state.lastResponseAt = timestampOf(entry) || state.lastResponseAt;
             let creation = usage.cache_creation;
             if (creation && typeof creation === "object") {
@@ -362,6 +366,19 @@ function powertoysTranscriptWorkerMain() {
           }
           if (entry.message?.stop_reason === "end_turn") {
             state.ended = true;
+          }
+        } else if (line.includes('"subtype":"compact_boundary"')) {
+          let entry;
+          try {
+            entry = JSON.parse(line);
+          } catch {
+            continue;
+          }
+          let post = Number(entry.compactMetadata?.postTokens);
+          if (entry.subtype === "compact_boundary" && entry.isSidechain !== true && Number.isFinite(post)) {
+            state.compactedAt = timestampOf(entry);
+            state.contextTokens = state.firstContextTokens + post;
+            state.contextEstimated = true;
           }
         } else if ((line.includes('"type":"user"') || line.includes('"queued_command"')) && !line.includes('"type":"tool_result"')) {
           let entry;
@@ -1258,8 +1275,8 @@ function powertoysTranscriptWorkerMain() {
       for (let id of cliSessionIds) {
         let file = findTranscript(root, id);
         if (file) {
-          let { contextTokens, turnStartedAt, ended, lastResponseAt, cacheTtlMs, workDoneAt } = tail(file);
-          result[id] = { contextTokens, turnStartedAt, ended, lastResponseAt, cacheTtlMs, workDoneAt };
+          let { contextTokens, turnStartedAt, ended, lastResponseAt, cacheTtlMs, workDoneAt, compactedAt, contextEstimated } = tail(file);
+          result[id] = { contextTokens, turnStartedAt, ended, lastResponseAt, cacheTtlMs, workDoneAt, compactedAt, contextEstimated };
         }
       }
       return result;

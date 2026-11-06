@@ -4672,7 +4672,7 @@
   {
    "path": "src/vite/build/main/powertoys/0341-powertoys-transcripts.js",
    "kind": "add",
-   "sha256": "104b25f1b6fa6e3386b2322cda7bdb1cf710cd6e25197b70f5b1d726678dda9d"
+   "sha256": "a459a2b9997024d82f2181df268e252d38e4974198832d5ea56a3778c067cee7"
   },
   {
    "path": "src/vite/build/main/powertoys/0342-powertoys-sessions.js",
@@ -4682,12 +4682,12 @@
   {
    "path": "src/vite/build/main/powertoys/0343-powertoys-hotkeys-menus.js",
    "kind": "add",
-   "sha256": "4d08850f3d1573d6527903829bb1b8c35ee3a209fa147aef68d17938ff626e4c"
+   "sha256": "2afb43735d73b59cbc22505e866c1a069f69e2c056ccd15401dd6d4848a84ca3"
   },
   {
    "path": "src/vite/build/main/powertoys/0344-powertoys-ipc.js",
    "kind": "add",
-   "sha256": "8953c90bd633c885976ed5dd632fcd24fd730684d304c1324b69ec72071efcf7"
+   "sha256": "38dadeb685d86e8c2ee9185dcc6431785d4cf0bfa01233639adf4f275bbd7ec5"
   },
   {
    "path": "src/vite/build/main/powertoys/0345-powertoys-system.js",
@@ -4697,7 +4697,7 @@
   {
    "path": "src/vite/build/main/powertoys/0346-powertoys-extra.js",
    "kind": "add",
-   "sha256": "a418bc09340d27c61abc4bef61a3f4cd6ec527fd5f9cf737e2b18c12d11ae318"
+   "sha256": "e7262b1d7320e8b0465597d6ce4db621e9684c5451998c2e169e316f21e15f3a"
   },
   {
    "path": "src/vite/build/main/powertoys/0349-powertoys-notify.js",
@@ -4717,7 +4717,7 @@
   {
    "path": "src/vite/build/main/powertoys/0352-powertoys-flow.js",
    "kind": "add",
-   "sha256": "4f6b33b2eb28687c355107f23c543de7f020ebfb49cadfa58b8d1736ffe5ba2f"
+   "sha256": "46b50324714442e11132262e1b818525b54525651aae492290e1a94bb2e420aa"
   },
   {
    "path": "src/vite/build/main/powertoys/0353-powertoys-previews.js",
@@ -4977,7 +4977,7 @@
   {
    "path": "src/vite/build/mainView/0003-powertoys-page.js",
    "kind": "add",
-   "sha256": "4784cacfb56ba5e5fb75840ba6a0f1d272119921783a9036cdf9488cf4ef74ff"
+   "sha256": "dffeb55b04c9e9df8df1513f5ad3e2b4647007b13c8140d4ff36e7a5eba50f4e"
   },
   {
    "path": "src/vite/build/mainView/0007-window-manager-vm-bridges.js",

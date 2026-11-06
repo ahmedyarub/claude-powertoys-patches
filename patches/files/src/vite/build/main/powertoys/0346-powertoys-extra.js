@@ -58,7 +58,9 @@ async function powertoysStatusInfo(sessionId) {
     model: record.model ?? "",
     effort: record.effort ?? "",
     permissionMode: record.permissionMode ?? "",
-    contextTokens: record.lastResponseContextTokens || tail?.contextTokens || 0,
+    // Compacted since the last reply: the app's own figure is the old size until the next reply; the tail's estimate.
+    contextTokens: (tail?.compactedAt > (tail?.lastResponseAt || 0) ? tail.contextTokens : record.lastResponseContextTokens || tail?.contextTokens) || 0,
+    contextEstimated: Boolean(tail?.contextEstimated && tail.compactedAt > (tail.lastResponseAt || 0)),
     state: view ? powertoysStateOf(view) : "",
     turnAge: view?.turnRunning ? powertoysTurnAge(powertoysTurnStartedAt.get(sessionId) || tail?.turnStartedAt || 0) : "",
     turnRunning: Boolean(view?.turnRunning),
