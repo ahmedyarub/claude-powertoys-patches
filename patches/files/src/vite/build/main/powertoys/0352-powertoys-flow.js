@@ -475,9 +475,14 @@ async function powertoysRemoveWorktrees(names) {
 // --- 9. Cost and context warnings --------------------------------------------------------------------------
 const powertoysWarned = new Map(); // sessionId -> { cost, context, size } thresholds already warned about
 /**
- * { [sessionId]: { cost, contextPercent, contextTokens, over: ["cost" | "context" | "size"] } } for the open sessions.
- * "size": the context passed contextNudgeTokens. Every request re-reads the whole context, so a long session spends
- * that much on each reply however small; the nudge offers to compact it or to start fresh from a handoff.
+ * { [sessionId]: { cost, contextPercent, contextTokens, idleMs, cacheTtlMs, over: [...] } } for the open sessions.
+ * Every request re-reads the whole context, so a long session spends that much on each reply however small:
+ *   - "size": the context passed contextNudgeTokens (the tab's chip turns amber; no notification by itself);
+ *   - "done": past that size, and the last turn committed, pushed, opened a PR or made a release, and has ended. The
+ *     task is done, the next one needs little of the history, so compacting or a fresh start costs no quality. This
+ *     is the one that notifies, once per finished task;
+ *   - "cold": past that size and idle longer than its prompt cache lives (1 h or 5 min). The next message re-writes
+ *     the whole context at 1.25-2x the input price; for a new task a new session skips that (shown on the tab).
  */
 async function powertoysSessionLimits(sessionIds) {
   let costLimit = Number(powertoysSetting("costWarnUsd")) || 0;
@@ -492,27 +497,35 @@ async function powertoysSessionLimits(sessionIds) {
     let cost = usage?.sessions?.[sessionId]?.total?.cost ?? 0;
     let contextTokens = info?.contextTokens ?? 0;
     let contextPercent = contextTokens ? Math.round((contextTokens / window) * 100) : 0;
+    let big = sizeLimit > 0 && contextTokens >= sizeLimit;
+    let idle = big && info && !info.turnRunning;
+    let idleMs = idle && info.lastResponseAt ? Date.now() - info.lastResponseAt : 0;
+    let cacheTtlMs = info?.cacheTtlMs || 300000;
     let over = [
       ...(costLimit > 0 && cost >= costLimit ? ["cost"] : []),
       ...(contextLimit > 0 && contextPercent >= contextLimit ? ["context"] : []),
-      ...(sizeLimit > 0 && contextTokens >= sizeLimit ? ["size"] : []),
+      ...(big ? ["size"] : []),
+      ...(idle && info.workDoneAt > 0 && info.workDoneAt >= info.turnStartedAt ? ["done"] : []),
+      ...(idleMs > cacheTtlMs ? ["cold"] : []),
     ];
-    result[sessionId] = { cost, contextPercent, contextTokens, over };
+    result[sessionId] = { cost, contextPercent, contextTokens, idleMs, cacheTtlMs, over };
     let warned = powertoysWarned.get(sessionId) ?? {};
     for (let kind of over) {
-      if (!warned[kind]) {
-        warned[kind] = true;
+      // "size" and "cold" only mark the tab. "done" comes once per finished task (its commit or push time).
+      let key = kind === "done" ? info.workDoneAt : true;
+      if (kind !== "size" && kind !== "cold" && warned[kind] !== key) {
+        warned[kind] = key;
         let view = powertoysSessionViews.get(sessionId);
         let title = powertoysSessionTitle(view);
         let size = `${Math.round(contextTokens / 1000)}k`;
-        powertoysLog(`limits: ${sessionId} passed its ${kind} threshold (${kind === "cost" ? `$${cost.toFixed(2)}` : size})`);
+        powertoysLog(kind === "done" ? `limits: ${sessionId} finished a task at ${size} of context (work went out ${new Date(info.workDoneAt).toISOString()})` : `limits: ${sessionId} passed its ${kind} threshold (${kind === "cost" ? `${cost.toFixed(2)}` : size})`);
         electronNotificationBackend.show(
           {
             title:
-              kind === "cost" ? `Over $${costLimit}: ${title}` : kind === "context" ? `Context ${contextPercent}% full: ${title}` : `Context at ${size} tokens: ${title}`,
+              kind === "cost" ? `Over ${costLimit}: ${title}` : kind === "context" ? `Context ${contextPercent}% full: ${title}` : `Task done, ${size} of context: ${title}`,
             body:
-              kind === "size"
-                ? `Every reply re-reads all ${size}. Compact it, or start a fresh session from a short handoff.`
+              kind === "done"
+                ? `Every reply here re-reads all ${size}. The next task needs little of it: start fresh from a handoff, or compact, before you send it.`
                 : kind === "cost"
                   ? `About $${cost.toFixed(2)} so far.`
                   : `It has about ${size} tokens of context.`,

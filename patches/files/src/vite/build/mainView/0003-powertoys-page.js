@@ -6198,11 +6198,17 @@ function powertoysPageMain() {
     let showSize = settings?.tabContextSize !== false && limit?.contextTokens > 0;
     if (over || showSize) {
       let size = limit?.contextTokens > 0 ? `${Math.round(limit.contextTokens / 1000)}k` : "";
-      let chip = element("span", `ctx${over ? " over" : ""}`, over ? `⚠${size ? ` ${size}` : ""}` : size);
+      // ❄: idle past its prompt cache's life, so the next message here re-writes the whole context.
+      let cold = limit?.over?.includes("cold");
+      let chip = element("span", `ctx${over ? " over" : ""}`, over ? `${cold ? "❄" : "⚠"}${size ? ` ${size}` : ""}` : size);
       chip.title = [
         size ? `Context: ${size} tokens (${limit.contextPercent}% of the window), re-read by every reply` : "",
         limit?.over?.includes("cost") ? `about $${limit.cost.toFixed(2)} so far` : "",
-        limit?.over?.includes("size") ? "past the nudge threshold" : "",
+        limit?.over?.includes("done") ? "its task is done (committed or pushed): the next task needs little of this history" : "",
+        cold
+          ? `idle ${Math.round(limit.idleMs / 60000)} min, past its ${limit.cacheTtlMs >= 3600000 ? "1-hour" : "5-minute"} cache: the next message here re-writes all ${size} (1.25-2x the input price). For a new task, a new session skips that`
+          : "",
+        limit?.over?.includes("size") && !cold && !limit.over.includes("done") ? "past the nudge threshold" : "",
         "click: compact or start fresh",
       ]
         .filter(Boolean)

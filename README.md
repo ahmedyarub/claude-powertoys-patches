@@ -173,12 +173,15 @@ pastes). Every feature has a switch in the Powertoys settings window (tray menu 
 - **Exporting:** a conversation can be saved as Markdown or HTML, and its edited files opened in your IDE.
 - **Token use and estimated cost** per project and session.
 - **Token use dashboard** (command palette, "Token use dashboard"): any period, filtered by project, session,
-  model, tool and main / subagents, measured in tokens, estimated cost or requests. Warnings for large contexts,
-  caches rewritten after a pause, bursts of requests, forks that started with a big inherited context,
-  subagent-heavy sessions and unusual days; a timeline, shares, kinds of tokens, a context histogram, a
-  weekday × hour heatmap, per-session detail, a sortable table and CSV export.
-- **Context size on each tab**, red past 300k tokens (a setting), with a notification offering to compact the
-  conversation or start fresh (the session writes a handoff summary and a new session starts from it).
+  model, tool and main / subagents, measured in tokens, estimated cost or requests. Its warnings each come with
+  what an action would have saved: starting fresh where work went out (a commit, push, PR or release) instead of
+  carrying a big context into the next task, new sessions after a break instead of messages into an expired
+  cache, and the context every new session starts with. Also a timeline, shares, kinds of tokens, a context
+  histogram, a weekday × hour heatmap, per-session detail, a sortable table and CSV export.
+- **Context size on each tab**, amber past 300k tokens (a setting). Past it, once a task is done (the last turn
+  committed, pushed, opened a PR or made a release, and ended), a notification offers to compact the
+  conversation or start fresh (the session writes a handoff summary and a new session starts from it); ❄ marks
+  a session idle past its prompt cache, where the next message writes the whole context again.
 - **Away summary:** what the sessions did in the last hour or today.
 
 **From ticket to PR**

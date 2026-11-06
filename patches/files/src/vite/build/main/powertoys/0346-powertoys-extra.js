@@ -61,6 +61,11 @@ async function powertoysStatusInfo(sessionId) {
     contextTokens: record.lastResponseContextTokens || tail?.contextTokens || 0,
     state: view ? powertoysStateOf(view) : "",
     turnAge: view?.turnRunning ? powertoysTurnAge(powertoysTurnStartedAt.get(sessionId) || tail?.turnStartedAt || 0) : "",
+    turnRunning: Boolean(view?.turnRunning),
+    turnStartedAt: tail?.turnStartedAt || 0,
+    lastResponseAt: tail?.lastResponseAt || 0,
+    cacheTtlMs: tail?.cacheTtlMs || 0,
+    workDoneAt: tail?.workDoneAt || 0,
   };
 }
 

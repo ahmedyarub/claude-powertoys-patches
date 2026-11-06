@@ -287,18 +287,21 @@ function powertoysDashboardPage() {
       if (!file.subagent && file.firstPrompt) {
         session.firstPrompt = file.firstPrompt;
       }
-      return { session, subagent: file.subagent };
+      return { session, subagent: file.subagent, firstAt: file.firstAt };
     });
     let requests = data.requests.map(([fileIndex, at, model, input, write5m, write1h, read, output, tool]) => {
       let price = modelPrice[model];
       let cost = price
         ? { input: (input * price[1]) / 1e6, write: (write5m * price[1] * 1.25 + write1h * price[1] * 2) / 1e6, read: (read * price[3]) / 1e6, output: (output * price[2]) / 1e6 }
         : { input: 0, write: 0, read: 0, output: 0 };
-      return { file: files[fileIndex], at, model, input, write: write5m + write1h, write1h, read, output, context: input + write5m + write1h + read, tool, cost };
+      // Per-token prices, for the warnings' "what it would have saved".
+      let unit = price ? { input: price[1] / 1e6, output: price[2] / 1e6, read: price[3] / 1e6 } : null;
+      return { file: files[fileIndex], at, model, input, write: write5m + write1h, write1h, read, output, context: input + write5m + write1h + read, tool, cost, unit };
     });
     requests.sort((a, b) => a.at - b.at);
     let prompts = data.prompts.map(([fileIndex, at]) => ({ file: files[fileIndex], at }));
-    return { ...data, sessions: [...sessions.values()], requests, prompts };
+    let done = (data.done ?? []).map(([fileIndex, at]) => ({ file: files[fileIndex], at }));
+    return { ...data, sessions: [...sessions.values()], requests, prompts, done };
   }
   const shortModel = (model) => String(model || "?").replace(/^claude-/, "").replace(/-\d{8}$/, "");
   function filtered() {
@@ -452,72 +455,139 @@ function powertoysDashboardPage() {
     }
     return stats;
   }
-  function warnings(requests, stats, total) {
+  /**
+   * Only warnings whose saving can be counted from the requests, for an action that costs little or no quality:
+   *   - a big context kept after its task was done (a commit, push, PR or release went out): replayed as if each
+   *     such point had started fresh from a short handoff (the summary request and the new session's first
+   *     cache write are charged), what every later reply would not have re-read;
+   *   - messages that came after the prompt cache had expired (1 h or 5 min idle) into a big context, which wrote
+   *     all of it again;
+   *   - the context every new session starts with (system prompt, tools, CLAUDE.md, memory), re-read by every reply.
+   * Shares of tokens, bursts, busy days and the like were dropped: they said nothing about what to change.
+   */
+  function startingContext(requests) {
+    // What a new session holds before its first message: the median first context of the sessions started here.
+    let firsts = new Map();
+    for (let request of requests) {
+      let file = request.file;
+      if (!file.subagent && !firsts.has(file.session.id) && file.firstAt && request.at - file.firstAt < 600000 && request.at >= file.firstAt) {
+        firsts.set(file.session.id, request.context);
+      }
+    }
+    let values = [...firsts.values()].filter((value) => value > 5000).sort((a, b) => a - b);
+    return { tokens: values.length >= 3 ? values[Math.floor(values.length / 2)] : 0, sessions: values.length };
+  }
+  function replayFreshStarts(entryRequests, doneTimes, nudge, fresh) {
+    // entryRequests: one session's main requests in time order.
+    let saved = 0;
+    let extra = 0;
+    let points = 0;
+    let offset = 0; // tokens a fresh start would have dropped, still dropped from every later request
+    let doneIndex = 0;
+    let previous = 0;
+    for (let request of entryRequests) {
+      // A compaction or /clear the session really had: the replay starts over from it.
+      if (previous && request.context < previous * 0.6) {
+        offset = 0;
+      }
+      previous = request.context;
+      let passedDone = false;
+      while (doneIndex < doneTimes.length && doneTimes[doneIndex] < request.at) {
+        doneIndex++;
+        passedDone = true;
+      }
+      let unit = request.unit;
+      if (!unit) {
+        continue;
+      }
+      if (passedDone && request.context - offset >= nudge) {
+        let dropped = request.context - offset - fresh;
+        if (dropped > 0) {
+          points++;
+          // The handoff: one more request that re-reads the context and writes about 2k tokens; then the new
+          // session writes its starting context into the cache once.
+          extra += (request.context - offset) * unit.read + 2000 * unit.output + fresh * unit.input * 2;
+          offset += dropped;
+        }
+      }
+      if (offset > 0) {
+        let fromRead = Math.min(offset, request.read);
+        let fromWrite = Math.min(offset - fromRead, request.write);
+        saved += fromRead * unit.read + fromWrite * unit.input * (request.write1h > 0 ? 2 : 1.25);
+      }
+    }
+    return { saved: saved - extra, points };
+  }
+  function warnings(requests, stats) {
     let data = state.data;
     let nudge = data.nudgeTokens;
     let list = [];
-    let entries = [...stats.values()];
-    for (let entry of entries) {
-      let name = entry.session.title;
-      if (entry.lastContext >= nudge && Date.now() - entry.lastAt < 3 * DAY) {
-        list.push({ level: "high", session: entry.session, text: `<b>${esc(name)}</b>: context is ${fmt(entry.lastContext)} now; every reply re-reads all of it (${fmt(entry.read)} cache reads so far).`, actions: ["compact", "fresh"] });
-      } else if (entry.avgContext >= nudge * 0.8 && entry.mainRequests >= 50) {
-        list.push({ level: "medium", session: entry.session, text: `<b>${esc(name)}</b>: averaged ${fmt(entry.avgContext)} of context over ${entry.mainRequests} requests (${fmt(entry.tokens)} in all).`, actions: ["fresh"] });
-      }
-      if (entry.subShare >= 0.5 && entry.tokens >= total * 0.03) {
-        list.push({ level: "info", session: entry.session, text: `<b>${esc(name)}</b>: ${pct(entry.subagentTokens, entry.tokens)} of its tokens were subagents' (${fmt(entry.subagentTokens)}).` });
-      }
-      if (entry.rewrites >= 3 && entry.rewriteTokens >= 1e6) {
-        list.push({ level: "medium", session: entry.session, text: `<b>${esc(name)}</b>: ${entry.rewrites} times its cache had expired after a pause, and ${fmt(entry.rewriteTokens)} of context was written again (cache writes cost more than reads).` });
-      }
-      if (entry.peakHour >= 150) {
-        list.push({ level: "medium", session: entry.session, text: `<b>${esc(name)}</b>: ${entry.peakHour} requests in a single hour (a loop, or many small steps?).` });
-      }
-      if (entry.prompts >= 3 && entry.perPrompt >= 25e6) {
-        list.push({ level: "info", session: entry.session, text: `<b>${esc(name)}</b>: about ${fmt(entry.perPrompt)} tokens per message you sent.` });
-      }
-    }
-    // Forks (the app's forkedFromSessionId): each starts with a copy of its parent's history and re-reads it.
-    let forksByParent = new Map();
-    for (let entry of entries) {
-      let parent = entry.session.forkedFrom;
-      // A fork started fresh (a side task, a fresh start) inherits next to nothing: not duplicated history.
-      if (parent && (entry.firstContext ?? 0) >= 20e3) {
-        let key = parent.cliSessionId ?? parent.localId;
-        forksByParent.set(key, [...(forksByParent.get(key) ?? []), entry]);
-      }
-    }
-    for (let forks of forksByParent.values()) {
-      let parent = forks[0].session.forkedFrom;
-      let parentEntry = stats.get(parent.cliSessionId);
-      let inherited = forks.reduce((sum, entry) => sum + (entry.firstContext ?? 0), 0);
-      let tokens = forks.reduce((sum, entry) => sum + entry.tokens, 0);
-      list.push({
-        level: inherited >= nudge ? "medium" : "info",
-        session: forks[0].session,
-        text: `<b>${esc(parent.title || "A session")}</b> has ${forks.length} fork${forks.length === 1 ? "" : "s"} here (${forks.map((entry) => esc(entry.session.title)).join(", ")}): they started from ${fmt(inherited)} of its history${forks.length === 1 ? "" : " between them"} and used ${fmt(tokens)}${parentEntry ? `, the parent ${fmt(parentEntry.tokens)}` : ""}. A handoff starts lighter than a fork.`,
-      });
-    }
-    // Spike days.
-    let byDay = new Map();
+    let start = startingContext(data.requests);
+    let fresh = (start.tokens || 100e3) + 5000;
+    let mainBySession = new Map();
     for (let request of requests) {
-      let day = new Date(request.at).toDateString();
-      byDay.set(day, (byDay.get(day) ?? 0) + request.input + request.write + request.read + request.output);
+      if (!request.file.subagent) {
+        mainBySession.set(request.file.session.id, [...(mainBySession.get(request.file.session.id) ?? []), request]);
+      }
     }
-    let days = [...byDay.values()].sort((a, b) => a - b);
-    if (days.length >= 4) {
-      let median = days[Math.floor(days.length / 2)];
-      for (let [day, tokens] of byDay) {
-        if (median > 0 && tokens > median * 2.2) {
-          list.push({ level: "info", text: `<b>${esc(new Date(day).toLocaleDateString([], { weekday: "short", month: "short", day: "numeric" }))}</b> used ${fmt(tokens)}, ${(tokens / median).toFixed(1)}× a median day.` });
+    let doneBySession = new Map();
+    for (let done of data.done) {
+      if (!done.file.subagent) {
+        doneBySession.set(done.file.session.id, [...(doneBySession.get(done.file.session.id) ?? []), done.at]);
+      }
+    }
+    let totalCost = requests.reduce((sum, request) => sum + request.cost.input + request.cost.write + request.cost.read + request.cost.output, 0);
+    let freshTotal = 0;
+    let coldTotal = 0;
+    for (let entry of stats.values()) {
+      let name = entry.session.title;
+      let own = mainBySession.get(entry.session.id) ?? [];
+      let doneTimes = (doneBySession.get(entry.session.id) ?? []).sort((a, b) => a - b);
+      let replay = replayFreshStarts(own, doneTimes, nudge, fresh);
+      if (replay.points > 0 && replay.saved >= Math.max(1, entry.cost * 0.1)) {
+        freshTotal += replay.saved;
+        list.push({
+          level: replay.saved >= entry.cost * 0.3 ? "high" : "medium",
+          saving: replay.saved,
+          session: entry.session,
+          text: `<b>${esc(name)}</b>: ${replay.points} time${replay.points === 1 ? "" : "s"} its work went out (a commit, push, PR or release) with ${fmt(nudge)}+ of context, and every later reply kept re-reading it. Starting fresh from a handoff at those points, where what came next was a new task, would have saved up to <b>${money(replay.saved)}</b> (${pct(replay.saved, entry.cost)} of this session).`,
+          actions: entry.lastContext >= nudge ? ["fresh", "compact"] : [],
+        });
+      }
+      // Messages after the cache expired, into a big context: the whole context was written again.
+      let cold = { count: 0, cost: 0, tokens: 0 };
+      for (let i = 1; i < own.length; i++) {
+        let request = own[i];
+        let ttl = request.write1h > 0 ? HOUR : 5 * 60000;
+        if (request.at - own[i - 1].at > ttl && request.write >= Math.max(100e3, nudge / 3)) {
+          cold.count++;
+          cold.cost += request.cost.write;
+          cold.tokens += request.write;
         }
       }
+      if (cold.count >= 2 && cold.cost >= 5) {
+        coldTotal += cold.cost;
+        list.push({
+          level: "medium",
+          saving: cold.cost,
+          session: entry.session,
+          text: `<b>${esc(name)}</b>: ${cold.count} messages came after its cache had expired and wrote all ${fmt(cold.tokens / cold.count)} of context again: <b>${money(cold.cost)}</b>. After a break, a new task in a new session skips that (the ❄ on a tab marks it).`,
+        });
+      }
     }
-    // Cache reads dominate.
-    let read = requests.reduce((sum, request) => sum + request.read, 0);
-    let all = requests.reduce((sum, request) => sum + request.input + request.write + request.read + request.output, 0);
-    if (all > 0 && read / all > 0.9) {
-      list.push({ level: "info", text: `${pct(read, all)} of these tokens are cache reads: long conversations re-read on every request. Shorter sessions, compacting and handoffs cut them most.` });
+    // The starting context, re-read by every reply of every session.
+    if (start.tokens) {
+      let floorCost = requests.reduce((sum, request) => sum + (request.unit ? Math.min(request.context, start.tokens) * request.unit.read : 0), 0);
+      if (floorCost >= Math.max(1, totalCost * 0.05)) {
+        list.push({
+          level: floorCost >= totalCost * 0.15 ? "medium" : "info",
+          saving: floorCost,
+          text: `New sessions here start with about <b>${fmt(start.tokens)}</b> of context before your first message (system prompt, tools, MCP servers, skills, CLAUDE.md, memory; median of ${start.sessions} sessions). Every reply re-reads it: <b>${money(floorCost)}</b> (${pct(floorCost, totalCost)}) in this period. MCP servers, plugins and instructions you do not use cost that on every request; each 10k less would save about ${money((floorCost * 10e3) / start.tokens)}.`,
+        });
+      }
+    }
+    if (freshTotal + coldTotal > 0) {
+      list.push({ level: "info", summary: true, text: `Altogether about <b>${money(freshTotal + coldTotal)}</b> (${pct(freshTotal + coldTotal, totalCost)}) of this period could have been saved by starting fresh once work went out, and by new sessions after breaks.` });
     }
     // Plan limits.
     let plan = data.plan;
@@ -530,8 +600,9 @@ function powertoysDashboardPage() {
         }
       }
     }
+    // The total first, then by level, the biggest saving first within one.
     let order = { high: 0, medium: 1, info: 2 };
-    return list.sort((a, b) => order[a.level] - order[b.level]);
+    return list.sort((a, b) => (b.summary ? 1 : 0) - (a.summary ? 1 : 0) || order[a.level] - order[b.level] || (b.saving ?? 0) - (a.saving ?? 0));
   }
   const esc = (text) => String(text).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
 

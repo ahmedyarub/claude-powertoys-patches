@@ -313,18 +313,21 @@ function powertoysTranscriptWorkerMain() {
       yield* buffer.toString("utf8", 0, end).split("\n");
     }
   }
-  // Incremental tail per transcript: context size from the last assistant usage, and when the
-  // current turn started (the prompt after the last finished turn).
-  const tails = new Map(); // file -> { offset, contextTokens, turnStartedAt, ended }
+  // Incremental tail per transcript: context size from the last assistant usage, when the current turn started
+  // (the prompt after the last finished turn), when the last reply came and how long its prompt cache lives (1 h
+  // when it wrote 1-hour cache entries, else 5 min), and when a commit, push, PR or release last went out.
+  const tails = new Map(); // file -> { offset, contextTokens, turnStartedAt, ended, lastResponseAt, cacheTtlMs, workDoneAt }
+  const WORK_DONE = /\bgit\b[^\n]*\b(commit|push)\b|\bgh\s+(pr\s+create|release\s+create)\b/;
+  const freshTail = () => ({ offset: 0, contextTokens: 0, turnStartedAt: 0, ended: true, lastResponseAt: 0, cacheTtlMs: 0, workDoneAt: 0 });
   function tail(file) {
-    let state = tails.get(file) ?? { offset: 0, contextTokens: 0, turnStartedAt: 0, ended: true };
+    let state = tails.get(file) ?? freshTail();
     tails.set(file, state);
     let fd;
     try {
       fd = fs.openSync(file, "r");
       let size = fs.fstatSync(fd).size;
       if (size < state.offset) {
-        Object.assign(state, { offset: 0, contextTokens: 0, turnStartedAt: 0, ended: true });
+        Object.assign(state, freshTail());
       }
       if (size === state.offset) {
         return state;
@@ -340,6 +343,22 @@ function powertoysTranscriptWorkerMain() {
           let usage = entry.message?.usage;
           if (usage && entry.isSidechain !== true) {
             state.contextTokens = (usage.input_tokens ?? 0) + (usage.cache_read_input_tokens ?? 0) + (usage.cache_creation_input_tokens ?? 0);
+            state.lastResponseAt = timestampOf(entry) || state.lastResponseAt;
+            let creation = usage.cache_creation;
+            if (creation && typeof creation === "object") {
+              if ((creation.ephemeral_1h_input_tokens ?? 0) > 0) {
+                state.cacheTtlMs = 3600000;
+              } else if ((creation.ephemeral_5m_input_tokens ?? 0) > 0) {
+                state.cacheTtlMs = 300000;
+              }
+            }
+          }
+          if (entry.isSidechain !== true && Array.isArray(entry.message?.content)) {
+            for (let part of entry.message.content) {
+              if (part?.type === "tool_use" && part.name === "Bash" && WORK_DONE.test(String(part.input?.command ?? ""))) {
+                state.workDoneAt = timestampOf(entry) || state.workDoneAt;
+              }
+            }
           }
           if (entry.message?.stop_reason === "end_turn") {
             state.ended = true;
@@ -1018,9 +1037,9 @@ function powertoysTranscriptWorkerMain() {
   // --- Token use per request, for the dashboard -------------------------------------------------------
   // Per transcript (subagents' too), read incrementally: one row per API response (several lines of one
   // response share its usage, so they count once), and the times of the person's prompts.
-  const usageCache = new Map(); // file -> { offset, seen, requests, prompts, meta }
+  const usageCache = new Map(); // file -> { offset, seen, requests, prompts, done, meta }
   function usageOf(file) {
-    let state = usageCache.get(file) ?? { offset: 0, seen: new Set(), requests: [], prompts: [], meta: { cwd: "", branch: "", firstPrompt: "" } };
+    let state = usageCache.get(file) ?? { offset: 0, seen: new Set(), requests: [], prompts: [], done: [], meta: { cwd: "", branch: "", firstPrompt: "" } };
     usageCache.set(file, state);
     let fd;
     try {
@@ -1059,6 +1078,10 @@ function powertoysTranscriptWorkerMain() {
           continue;
         }
         let message = entry.message ?? {};
+        // Work that went out (a commit, push, PR or release): the end of a task, where compacting loses nothing needed.
+        if (at && !entry.isSidechain && Array.isArray(message.content) && message.content.some((block) => block?.type === "tool_use" && block.name === "Bash" && WORK_DONE.test(String(block.input?.command ?? "")))) {
+          state.done.push(at);
+        }
         let usage = message.usage;
         let key = message.id ?? entry.requestId ?? entry.uuid;
         if (!usage || !at || !key || state.seen.has(key)) {
@@ -1102,7 +1125,7 @@ function powertoysTranscriptWorkerMain() {
         } catch {}
       }
     }
-    let out = { files: [], models: [], tools: [], requests: [], prompts: [] };
+    let out = { files: [], models: [], tools: [], requests: [], prompts: [], done: [] };
     let modelIndex = new Map();
     let toolIndex = new Map();
     let indexOf = (map, list, value) => {
@@ -1128,6 +1151,11 @@ function powertoysTranscriptWorkerMain() {
       for (let at of state.prompts) {
         if (at >= since && at < until) {
           out.prompts.push([fileIndex, at]);
+        }
+      }
+      for (let at of state.done) {
+        if (at >= since && at < until) {
+          out.done.push([fileIndex, at]);
         }
       }
       out.files.push({
@@ -1230,8 +1258,8 @@ function powertoysTranscriptWorkerMain() {
       for (let id of cliSessionIds) {
         let file = findTranscript(root, id);
         if (file) {
-          let { contextTokens, turnStartedAt } = tail(file);
-          result[id] = { contextTokens, turnStartedAt };
+          let { contextTokens, turnStartedAt, ended, lastResponseAt, cacheTtlMs, workDoneAt } = tail(file);
+          result[id] = { contextTokens, turnStartedAt, ended, lastResponseAt, cacheTtlMs, workDoneAt };
         }
       }
       return result;
