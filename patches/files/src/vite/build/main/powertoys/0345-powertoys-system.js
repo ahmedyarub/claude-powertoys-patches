@@ -218,8 +218,60 @@ function powertoysSettingsAction(name) {
   throw Error(`unknown action ${name}`);
 }
 
+/**
+ * Windows: points claude:// links and the "Claude" start-with-Windows entry back at this build.
+ * The Store copy of Claude Desktop is still installed, and on 2026-11-06 it was started at sign-in
+ * after a crash; afterwards both pointed at the Store copy, so links and the next sign-in started it
+ * instead of this build. The entry is only repointed when it exists (start with Windows is on).
+ */
+function powertoysClaimWindowsLinks() {
+  if (process.platform !== "win32" || isMsixInstall()) {
+    return;
+  }
+  let childProcess = require("node:child_process");
+  let readValue = (key, name) => {
+    let result = childProcess.spawnSync("reg", ["query", key, ...(name ? ["/v", name] : ["/ve"])], {
+      encoding: "utf8",
+      windowsHide: true,
+    });
+    return result.status === 0 ? (/REG_(?:EXPAND_)?SZ\s+(.*)$/m.exec(result.stdout)?.[1]?.trim() ?? null) : null;
+  };
+  let pointsHere = (command) => command?.toLowerCase().includes(process.execPath.toLowerCase()) ?? false;
+  let protocolKey = "HKCU\\Software\\Classes\\claude\\shell\\open\\command";
+  let protocol = readValue(protocolKey);
+  if (pointsHere(protocol)) {
+    powertoysLog("windows links: claude:// already opens this build");
+  } else {
+    powertoysLog(`windows links: claude:// opened ${protocol}; pointing it at this build`);
+    electron.app.setAsDefaultProtocolClient("claude");
+    powertoysLog(`windows links: claude:// now opens ${readValue(protocolKey)}`);
+  }
+  let runKey = "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run";
+  let startup = readValue(runKey, "Claude");
+  if (startup === null || pointsHere(startup)) {
+    powertoysLog(`windows links: start-with-Windows entry ${startup === null ? "absent" : "already starts this build"}`);
+    return;
+  }
+  powertoysLog(`windows links: start-with-Windows entry started ${startup}; pointing it at this build`);
+  let added = childProcess.spawnSync(
+    "reg",
+    ["add", runKey, "/v", "Claude", "/t", "REG_SZ", "/d", `"${process.execPath}" --startup`, "/f"],
+    { encoding: "utf8", windowsHide: true },
+  );
+  if (added.status !== 0) {
+    powertoysWarn(`windows links: could not repoint the start-with-Windows entry: ${(added.stderr || added.stdout).trim()}`);
+  } else {
+    powertoysLog(`windows links: start-with-Windows entry now ${readValue(runKey, "Claude")}`);
+  }
+}
+
 /** Start-up and settings changes for this file. */
 function powertoysStartSystem() {
+  try {
+    powertoysClaimWindowsLinks();
+  } catch (caught) {
+    powertoysWarn(`windows links: ${caught.message}`);
+  }
   powertoysApplySpellchecker();
   powertoysApplyTrayOnly();
   powertoysWatchMods();

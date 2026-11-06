@@ -162,6 +162,7 @@ pastes). Every feature has a switch in the Powertoys settings window (tray menu 
   - Ctrl+Up/Down jumps between prompts, and Ctrl+Home/End goes to the start or end of the conversation.
   - Ctrl+Up in the prompt box takes the queued (unsent) message back to edit, when there is one (a setting, on
     by default).
+  - Backspace in an empty prompt box removes its attachments, the last one first, one per press.
   - Ctrl+Enter sends now, interrupting Claude.
   - "Edit message" rewinds to a message and puts it back in the box.
 
@@ -273,6 +274,8 @@ pastes). Every feature has a switch in the Powertoys settings window (tray menu 
   - Restoring the window keeps it maximized.
   - Tray-only mode.
   - Extra windows behave like the main one.
+  - `claude://` links and the start-with-Windows entry are pointed back at this build each time it starts, so a
+    Store copy that is still installed can't take them over.
 - **Restarts:** "Restart and continue here" restarts the app and continues the session.
   `restart-and-continue.mjs --update <git ref>` brings in a new release that needs a full build: once the app
   has quit it fast-forwards the project folder, installs the packages, rebuilds and starts again, going

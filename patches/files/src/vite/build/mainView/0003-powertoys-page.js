@@ -170,6 +170,26 @@ function powertoysPageMain() {
     let element = deepActiveElement();
     return !!element?.closest?.('.ProseMirror[contenteditable="true"]') && !!element.closest('[data-cds="ChatComposerEditor"], [data-testid="code-prompt-input"]');
   }
+  /**
+   * Backspace in an empty prompt box: removes the box's last attachment (its "Remove…" button), one per
+   * press, as a chat app does. False (the key does what it would) when the box has text or no attachment.
+   */
+  function removeLastAttachment() {
+    let editor = deepActiveElement()?.closest?.('.ProseMirror[contenteditable="true"]');
+    if (!editor || editor.textContent !== "" || editor.querySelector("img, [data-type]")) {
+      return false;
+    }
+    let composer = editor.closest("form") ?? editor.closest('[data-testid="code-prompt-input"]')?.parentElement;
+    let buttons = [...(composer?.querySelectorAll('button[aria-label^="Remove"]') ?? [])].filter((button) => !editor.contains(button) && isShown(button));
+    let button = buttons.at(-1);
+    if (!button) {
+      return false;
+    }
+    log(`attachments: Backspace removed "${button.getAttribute("aria-label")}" (${buttons.length - 1} left)`);
+    button.click();
+    editor.focus();
+    return true;
+  }
   /** A text field other than the prompt box (terminal, Files editor, a dialog's input) has focus. */
   function inOtherTextField() {
     let element = deepActiveElement();
@@ -6768,6 +6788,10 @@ function powertoysPageMain() {
     }
     let ctrl = event.ctrlKey && !event.altKey && !event.metaKey;
     let code = event.code;
+    if (code === "Backspace" && !event.ctrlKey && !event.altKey && !event.metaKey && !event.shiftKey && !event.repeat && inPromptBox() && removeLastAttachment()) {
+      swallow(event);
+      return;
+    }
     if (settings.sessionSwitcher && ctrl && code === "Tab") {
       swallow(event);
       if (!switcher) {
