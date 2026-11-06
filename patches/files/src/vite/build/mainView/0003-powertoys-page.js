@@ -179,8 +179,10 @@ function powertoysPageMain() {
     if (!editor || editor.textContent !== "" || editor.querySelector("img, [data-type]")) {
       return false;
     }
-    let composer = editor.closest("form") ?? editor.closest('[data-testid="code-prompt-input"]')?.parentElement;
-    let buttons = [...(composer?.querySelectorAll('button[aria-label^="Remove"]') ?? [])].filter((button) => !editor.contains(button) && isShown(button));
+    // The chips sit beside the editor inside the composer block (data-cds="ChatComposer"), each with a
+    // button[data-cds-attachment-remove] labelled "Remove <name>".
+    let composer = editor.closest('[data-cds="ChatComposer"]') ?? editor.closest("form");
+    let buttons = [...(composer?.querySelectorAll("button[data-cds-attachment-remove]") ?? [])].filter((button) => isShown(button));
     let button = buttons.at(-1);
     if (!button) {
       return false;
