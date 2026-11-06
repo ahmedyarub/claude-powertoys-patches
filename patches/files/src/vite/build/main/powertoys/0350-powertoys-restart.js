@@ -248,13 +248,29 @@ async function powertoysSendToSession(sessionId, text) {
   powertoysLog(`continue: sent the message to ${sessionId}`);
   return true;
 }
-/** Adds the conversations other than `requesterId` that are still working to continue.json. */
+/**
+ * Adds the conversations other than `requesterId` that are in the middle of a turn to continue.json. The app's own
+ * "still working" list also has idle sessions: Remote Control connected ("lanyard"), queued input, a background
+ * shell, a loop. Those were sent "continue" after a restart though nothing was running (seen 2026-11-06 with
+ * Remote Control on), so only a turn ("turn") is continued; the rest are logged with their kind and left alone.
+ */
 function powertoysNoteWorkingSessions(requesterId) {
   let others = [];
   try {
-    others = [...new Set((powertoysSessionManager()?.listRunningSessions() ?? []).map((session) => session.sessionId))].filter(
-      (sessionId) => typeof sessionId === "string" && sessionId !== requesterId,
-    );
+    let manager = powertoysSessionManager();
+    let now = Date.now();
+    for (let sessionId of new Set((manager?.listRunningSessions() ?? []).map((session) => session.sessionId))) {
+      if (typeof sessionId !== "string" || sessionId === requesterId) {
+        continue;
+      }
+      let session = manager.sessions.get(sessionId);
+      let kind = session ? manager.restartLosesWorkKind(session, now) : undefined;
+      if (kind === "turn") {
+        others.push(sessionId);
+      } else {
+        powertoysLog(`restart: ${sessionId} is not in a turn (${kind ?? "unknown"}); not continued afterwards`);
+      }
+    }
   } catch (caught) {
     powertoysWarn(`restart: listing the working conversations failed: ${caught.message}`);
   }

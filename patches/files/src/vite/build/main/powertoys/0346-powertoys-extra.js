@@ -36,6 +36,91 @@ async function powertoysPlanUsage() {
   })();
   return powertoysPlanUsageCache.pending;
 }
+/**
+ * The output so far of a session's running commands. Claude Code writes a command's output to
+ * <temp>\claude\<project>\<session>\tasks\<id>.output while it runs (deleted when it ends). Each tool call is paired
+ * with the newest unclaimed file created after the call was written to the transcript, newest call first, so a
+ * background command started earlier keeps its own file. Only the last 64 KB is read (from its first whole line),
+ * with terminal colour codes dropped and a carriage-return-redrawn line kept as its last state.
+ * { toolId: { text, size, truncated } } for the calls found.
+ */
+const POWERTOYS_OUTPUT_TAIL = 64 * 1024;
+const powertoysTasksDirs = new Map(); // cliSessionId -> tasks folder
+const powertoysOutputPaired = new Set(); // tool ids whose pairing was logged
+function powertoysTasksDir(cliSessionId) {
+  if (!/^[\w-]+$/.test(cliSessionId)) {
+    return null;
+  }
+  let known = powertoysTasksDirs.get(cliSessionId);
+  if (known && powertoysFs.existsSync(known)) {
+    return known;
+  }
+  let root = powertoysPath.join(process.env.CLAUDE_CODE_TMPDIR || powertoysOs.tmpdir(), "claude");
+  let projects = [];
+  try {
+    projects = powertoysFs.readdirSync(root);
+  } catch {}
+  for (let project of projects) {
+    let dir = powertoysPath.join(root, project, cliSessionId, "tasks");
+    if (powertoysFs.existsSync(dir)) {
+      powertoysTasksDirs.set(cliSessionId, dir);
+      return dir;
+    }
+  }
+  return null;
+}
+async function powertoysCommandOutput(cliSessionId, toolIds) {
+  let dir = powertoysTasksDir(cliSessionId);
+  if (!dir || !toolIds.length) {
+    return {};
+  }
+  let times = await powertoysTranscripts("itemTimes", { cliSessionId, ids: toolIds });
+  let files = [];
+  for (let name of await powertoysFs.promises.readdir(dir).catch(() => [])) {
+    if (name.endsWith(".output")) {
+      try {
+        let stat = await powertoysFs.promises.stat(powertoysPath.join(dir, name));
+        files.push({ name, born: stat.birthtimeMs, size: stat.size });
+      } catch {}
+    }
+  }
+  files.sort((left, right) => right.born - left.born);
+  let result = {};
+  for (let id of toolIds.filter((each) => times[each] > 0).sort((left, right) => times[right] - times[left])) {
+    let index = files.findIndex((file) => file.born >= times[id] - 2000);
+    if (index < 0) {
+      continue;
+    }
+    let [file] = files.splice(index, 1);
+    let start = Math.max(0, file.size - POWERTOYS_OUTPUT_TAIL);
+    let handle;
+    try {
+      handle = await powertoysFs.promises.open(powertoysPath.join(dir, file.name), "r");
+      let buffer = Buffer.alloc(file.size - start);
+      let { bytesRead } = await handle.read(buffer, 0, buffer.length, start);
+      let text = buffer.subarray(0, bytesRead).toString("utf8");
+      if (start > 0) {
+        text = text.slice(text.indexOf("\n") + 1);
+      }
+      text = text
+        .replace(/\x1b\[[0-9;?]*[ -\/]*[@-~]|\x1b\][^\x07]*\x07/g, "")
+        .replace(/\r\n/g, "\n")
+        .split("\n")
+        .map((line) => line.slice(line.lastIndexOf("\r") + 1))
+        .join("\n");
+      result[id] = { text, size: file.size, truncated: start > 0 };
+    } catch (caught) {
+      powertoysWarn(`command output ${file.name}: ${caught.message}`);
+    } finally {
+      await handle?.close();
+    }
+    if (!powertoysOutputPaired.has(id)) {
+      powertoysOutputPaired.add(id);
+      powertoysLog(`command output: ${id} (written ${new Date(times[id]).toISOString()}) -> ${file.name} (created ${new Date(file.born).toISOString()}, ${file.size} bytes)`);
+    }
+  }
+  return result;
+}
 /** What the status bar shows for a session: where it works, model, mode, context, and plan usage. */
 async function powertoysStatusInfo(sessionId) {
   let manager = powertoysSessionManager();

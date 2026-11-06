@@ -140,6 +140,13 @@ function powertoysRegisterIpc() {
     }
     return powertoysTranscripts("itemTimes", { cliSessionId: local.cliSessionId, ids: ids.filter((id) => typeof id === "string").slice(0, 50) });
   });
+  powertoysHandle("commandOutput", async (event, sessionId, toolIds) => {
+    let local = powertoysLocalRecord(sessionId);
+    if (!local?.cliSessionId || !Array.isArray(toolIds)) {
+      return {};
+    }
+    return powertoysCommandOutput(local.cliSessionId, toolIds.filter((id) => typeof id === "string").slice(0, 8));
+  });
   powertoysHandle("conversation", async (event, sessionId) => {
     let local = powertoysLocalRecord(sessionId);
     if (!local?.cliSessionId) {

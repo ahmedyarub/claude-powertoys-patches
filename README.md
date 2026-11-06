@@ -25,7 +25,7 @@ patches/patches.json        the patch manifest: every file, its hashes and its e
 patches/files/...           files that are entirely new (written for Powertoys), copied in as they are
 ```
 
-`patches/patches.json` lists 49 files:
+`patches/patches.json` lists 50 files:
 
 - **19 new files** (`"kind": "add"`), all written for Powertoys:
   - `src/vite/build/main/powertoys/0340` … `0355`: the main-process half (settings and stores, the transcript
@@ -37,7 +37,7 @@ patches/files/...           files that are entirely new (written for Powertoys),
     restarting the app from inside it, then continuing the session.
   - `scripts/powertoys-command.mjs`: asks the running app, from a session, to do what a page action does
     (add the task list to a session) or queue a prompt in one.
-- **30 edits** (`"kind": "edit"`) to the app's own files: the small hooks that call into
+- **31 edits** (`"kind": "edit"`) to the app's own files: the small hooks that call into
   Powertoys, a rewrite of the Windows notification code, and two build manifests that list the new files.
   They are described one by one [below](#every-change-to-the-apps-own-files).
 
@@ -280,15 +280,25 @@ pastes). Every feature has a switch in the Powertoys settings window (tray menu 
   `restart-and-continue.mjs --update <git ref>` brings in a new release that needs a full build: once the app
   has quit it fast-forwards the project folder, installs the packages, rebuilds and starts again, going
   back to the previous commit if a step or the start fails.
-  Sessions that were working are continued after the restart, and the waiting-for-you question doesn't block it.
+  Sessions that were in the middle of a turn are continued after the restart, and the waiting-for-you question
+  doesn't block it. Sessions that only had Remote Control on, queued messages, a background shell or a loop are
+  left alone.
   The session that asked for the restart is continued by its own message, not first by the app's "The app was
   quit while you were working".
 - **The queue shows only what is queued:** a slash command the app runs at once (`/remote-control`, also during
-  a turn) and messages already sent no longer show as queued, or come back after a restart.
+  a turn) and messages already sent no longer show as queued, or come back after a restart. Remove and Clear all
+  take such a command out of the queue too.
 - **Plan usage:** the status bar shows the 5-hour and weekly limits, and a model's own weekly limit (such as
   "Fable week") beside them. The page's "Approaching … limit" cards are hidden (a setting, on by default); the
   card shown once a limit is reached stays.
 - **MCP servers view:** shows the real path of `.claude.json` instead of `~/.claude.json`.
+- **Running commands:** a running Bash or PowerShell call gets a "Show command" toggle (closed) with the command
+  and, one level further, a "Show output" toggle (closed) with the last 200 lines of its output so far, refreshed
+  every second while open. Nothing is read until the output is opened, and then only its end, so a command that
+  writes a lot stays cheap (a setting, on by default). The output is highlighted: errors, warnings, successes and
+  command echoes by line ("0 failed, 12 passed" is a success), stack frames and timestamps dimmed, log levels,
+  URLs and file:line references marked; the note counts the shown errors and warnings. A finished command's own
+  card is highlighted the same way when opened (a setting, on by default).
 - **Look:**
   - Declutter switches.
   - Conversation text size, font and full width.
@@ -308,7 +318,8 @@ Each hook is marked `Local change` in the patched code.
 |---|---|---|
 | `main/app/0246-session-notifications.js`, `main/platform/0245-swift-native-bridge.js` | +420 −62, +138 −8 | Builds Windows notifications here instead of through Electron, so they can carry the in-app card's buttons (Allow once, Always allow …, Deny; a button per question option, a reply box, Skip, Submit). Can keep them on screen, respects Windows' settings, records them in the Powertoys inbox, and holds "finished" ones for the digest. After a restart, shows only the notifications that were on screen before it. |
 | `ccd-local-session-manager/0024-ccd.js` | +4 −1 | A saved queue restored at launch drops the messages the transcript shows as already sent, also after a clean exit. |
-| `ccd-local-session-manager/0027-ccd.js` | +22 −1 | A slash command the app handles itself (`/remote-control`) no longer stays "queued" in the page, also when sent during a turn. |
+| `ccd-local-session-manager/0027-ccd.js` | +26 −1 | A slash command the app handles itself (`/remote-control`) no longer stays "queued" in the page, whether or not a turn is running, and its id is kept for the next row. |
+| `ccd-local-session-manager/0028-local-session-manager.js` | +8 | Remove / Clear all on such a command take it out of the page's queue instead of answering "too late". |
 | `ccd-local-session-manager/0055-local-session-manager.js` | +14 −3 | That command's echo uses the id the page sent it under, once; a restored local session's folders get backslashes; the saved queue is written when a queued message goes to Claude Code; at quit, the session a Powertoys restart continues is not marked for the app's own resume. |
 | `ccd-local-session-manager/0015-ccd.js` | +2 | Powertoys' additions to a session's environment (no feedback survey). |
 | `claude-json-workspace-trust-config.js` | +8 | Folder trust off: the trust lookups count every folder as trusted while the Powertoys setting is on. |

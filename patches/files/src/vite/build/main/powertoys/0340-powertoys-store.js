@@ -81,6 +81,8 @@ const POWERTOYS_DEFAULT_SETTINGS = {
   hideThinking: false,
   collapseFinishedTurns: false,
   expandDiffs: false,
+  liveCommandOutput: true,
+  highlightCommandOutput: true,
   /** Conversation text size in px; 0 keeps the app's. */
   conversationFontSize: 0,
   /** A font family for the conversation; "" keeps the app's. */
@@ -183,6 +185,8 @@ const POWERTOYS_SETTINGS_SECTIONS = [
       { key: "fullWidth", label: "Full-width conversation", type: "switch" },
       { key: "collapseFinishedTurns", label: "Collapse a finished turn's tool calls", type: "switch" },
       { key: "expandDiffs", label: "Expand Edit / Write diffs", type: "switch" },
+      { key: "liveCommandOutput", label: "Show a running command and its output so far", type: "switch" },
+      { key: "highlightCommandOutput", label: "Highlight command output (errors, warnings, paths)", type: "switch" },
       { key: "hideThinking", label: "Hide extended thinking", type: "switch" },
     ],
   },

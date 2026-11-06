@@ -147,7 +147,7 @@
    "path": "src/vite/build/ccd-local-session-manager/0027-ccd.js",
    "kind": "edit",
    "baseSha256": "2d40e3c419f700aa3443cd7bf5152cc5e892d8ef7e08dbee59fb5ce5a2a5e270",
-   "resultSha256": "79d346dbe849518797356ae75a369174356b847a68738210d4ac3ba55754fd43",
+   "resultSha256": "c4d8c27dd548474c602112cf0d8f0c5a774f06c9d7695f8d71245ef1a0217d78",
    "hunks": [
     {
      "at": 778,
@@ -233,13 +233,16 @@
        "          // message, which this one never reaches; so it still showed as queued (seen 2026-11-04). It is\n"
       ],
       [
-       "          // withdrawn from the page's queue at once.\n"
+       "          // withdrawn from the page's queue at once. Not only when a turn was running here: on 2026-11-06\n"
       ],
       [
-       "          if (duringTurn) {\n"
+       "          // two /remote-control sent while the network was down stayed queued and could not be removed, so\n"
       ],
       [
-       "           ",
+       "          // it is withdrawn every time, and its uuid is kept so the page's Remove / Clear all can take it.\n"
+      ],
+      [
+       "         ",
        [
         778,
         24,
@@ -248,16 +251,81 @@
        "emit(\"event\", { type: \"held_input_withdrawn\", sessionId: session.sessionId, withdrawnUuids: [echoUuid] });\n"
       ],
       [
-       "          }\n"
+       "          ",
+       [
+        778,
+        86,
+        94
+       ],
+       ".selfHandledCommandUuids ??= new Set()).add(echoUuid);\n"
       ],
       [
        "        }\n"
+      ],
+      [
+       "        ",
+       [
+        653,
+        4,
+        26
+       ],
+       "\n"
+      ],
+      [
+       "          `[CCD] ${session.sessionId}: ${trimmed.split(/\\s/, 1)[0]} handled by the app (uuid ${echoUuid ?? \"none\"}, during a turn: ${duringTurn}, ok: ${result?.ok ?? \"threw\"}); withdrawn from the page's queue`,\n"
+      ],
+      [
+       "        );\n"
       ],
       [
        "        session.commandEchoUuid = undefined;\n"
       ],
       [
        "      }\n"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "path": "src/vite/build/ccd-local-session-manager/0028-local-session-manager.js",
+   "kind": "edit",
+   "baseSha256": "63ca9a4005cbf87148ccd0d6424e1d27a99d387247e60270166d36bf948ad3d2",
+   "resultSha256": "5403fe1b128b664696a411608bf1751d426eb6de789bea1a7ab01925582ad933",
+   "hunks": [
+    {
+     "at": 586,
+     "remove": 0,
+     "add": [
+      [
+       "    // Local change: a command the app ran itself (/remote-control) never reaches the CLI's queue, so\n"
+      ],
+      [
+       "    // cancelling it answered \"too-late\" and the page kept showing it as queued (seen 2026-11-06). It is\n"
+      ],
+      [
+       "    // withdrawn from the page's queue instead.\n"
+      ],
+      [
+       "    if (i?.selfHandledCommandUuids?.has(messageUuid)) {\n"
+      ],
+      [
+       "      mainChunk.logger.info(`[LocalSessionManager] cancelQueuedMessage ${messageUuid} → a command the app already ran; withdrawn from the page's queue`);\n"
+      ],
+      [
+       "      this.deps.emit(\"event\", { type: \"held_input_withdrawn\", sessionId: i.sessionId, withdrawnUuids: [messageUuid] });\n"
+      ],
+      [
+       "      ",
+       [
+        601,
+        6,
+        18
+       ],
+       "\n"
+      ],
+      [
+       "    }\n"
       ]
      ]
     }
@@ -4667,7 +4735,7 @@
   {
    "path": "src/vite/build/main/powertoys/0340-powertoys-store.js",
    "kind": "add",
-   "sha256": "2a2cffd8c41e033bad95207e7b93f0c526d6663db473ae18991586c551df7662"
+   "sha256": "a7bad9e9fa61f6ed592feb93d2ab552f586e1151a754ca2b1b5b0e17aafc582c"
   },
   {
    "path": "src/vite/build/main/powertoys/0341-powertoys-transcripts.js",
@@ -4687,7 +4755,7 @@
   {
    "path": "src/vite/build/main/powertoys/0344-powertoys-ipc.js",
    "kind": "add",
-   "sha256": "38dadeb685d86e8c2ee9185dcc6431785d4cf0bfa01233639adf4f275bbd7ec5"
+   "sha256": "6e14d3f1ff0172e35bf68374c0edecd2334f10903e0520c2b35ab35fc0a76227"
   },
   {
    "path": "src/vite/build/main/powertoys/0345-powertoys-system.js",
@@ -4697,7 +4765,7 @@
   {
    "path": "src/vite/build/main/powertoys/0346-powertoys-extra.js",
    "kind": "add",
-   "sha256": "e7262b1d7320e8b0465597d6ce4db621e9684c5451998c2e169e316f21e15f3a"
+   "sha256": "66ebe1ddc1fed3c8e0c68d6b43e626773cd7c20585467cfb987848d1c861015a"
   },
   {
    "path": "src/vite/build/main/powertoys/0349-powertoys-notify.js",
@@ -4707,7 +4775,7 @@
   {
    "path": "src/vite/build/main/powertoys/0350-powertoys-restart.js",
    "kind": "add",
-   "sha256": "811fffcd60df1b4b06b8674ba472b19a277db56886aa30841ba1ff6963195820"
+   "sha256": "cc4c16984d726b7a7da66791cb73711126d3dd0a1e46253c6b92e1dadf238369"
   },
   {
    "path": "src/vite/build/main/powertoys/0351-powertoys-work.js",
@@ -4977,7 +5045,7 @@
   {
    "path": "src/vite/build/mainView/0003-powertoys-page.js",
    "kind": "add",
-   "sha256": "d7fd785bea804e409c69d32598be3892b0b1866d6f9e35136dab1d426ef69b2b"
+   "sha256": "385fa1cf24c0c04d8d73d6a2fad22f8ccb4a9317157da758dc00b06f3311bba9"
   },
   {
    "path": "src/vite/build/mainView/0007-window-manager-vm-bridges.js",

@@ -4804,6 +4804,328 @@ function powertoysPageMain() {
     }
   }
 
+  // --- A running command's output ------------------------------------------------------------------------
+  // A Bash / PowerShell row has nothing to open until the command ends. Under a running one goes a "Show command"
+  // toggle, closed by default: it shows the command and, one level further, a "Show output" toggle. Only an open
+  // output is read: Claude Code writes it to a file the app reads once a second while it is open, nothing before.
+  // Only the file's last 64 KB is read and its last LIVE_LINES lines shown, so a command that writes a lot stays
+  // cheap; the output keeps to the bottom unless scrolled up, and holds still while text in it is selected.
+  const LIVE_LINES = 200;
+  const LIVE_TOOLS = new Set(["Bash", "PowerShell"]);
+  let liveCommandOpen = new Set(); // tool ids whose command is shown
+  let liveOpen = new Set(); // tool ids whose output is shown (and read)
+  let liveBusy = false;
+  const LIVE_TEXT = "font-family:ui-monospace,Consolas,monospace;font-size:12px;line-height:1.45;white-space:pre-wrap;word-break:break-all;" +
+    "margin:4px 0 0;padding:6px 8px;border-radius:6px;background:rgba(127,127,127,.1);";
+  const LIVE_TOGGLE = "background:none;border:0;padding:0;cursor:pointer;color:inherit;opacity:.7;font-size:12px;";
+  function liveToggle(open, label, set, id, onChange) {
+    let toggle = document.createElement("button");
+    toggle.type = "button";
+    toggle.style.cssText = LIVE_TOGGLE;
+    let show = (isOpen) => {
+      toggle.textContent = `${isOpen ? "▾ Hide" : "▸ Show"} ${label}`;
+      isOpen ? set.add(id) : set.delete(id);
+      onChange(isOpen);
+    };
+    toggle.addEventListener("click", (event) => {
+      event.stopPropagation();
+      show(!set.has(id));
+      log(`live output: ${set.has(id) ? "opened" : "closed"} ${label} of ${id}`);
+    });
+    show(open);
+    return toggle;
+  }
+  function liveBox(tool) {
+    let box = document.createElement("div");
+    box.setAttribute("data-powertoys-live", tool.id);
+    box.style.cssText = "margin:2px 0 4px var(--cds-assistant-message-text-inset,0px);min-width:0;";
+    let body = document.createElement("div");
+    let command = document.createElement("pre");
+    command.style.cssText = LIVE_TEXT;
+    command.textContent = tool.command;
+    let outputBody = document.createElement("div");
+    let note = document.createElement("div");
+    note.setAttribute("data-powertoys-live-note", "");
+    note.style.cssText = "font-size:11px;opacity:.6;margin-top:4px;";
+    let output = document.createElement("pre");
+    output.setAttribute("data-powertoys-live-output", "");
+    output.style.cssText = `${LIVE_TEXT}max-height:20em;overflow:auto;`;
+    output.hidden = true;
+    outputBody.append(note, output);
+    let outputWrap = document.createElement("div");
+    outputWrap.style.cssText = "margin-top:4px;";
+    outputWrap.append(
+      liveToggle(liveOpen.has(tool.id), "output", liveOpen, tool.id, (open) => {
+        outputBody.hidden = !open;
+        if (open) {
+          pollLiveOutput();
+        } else {
+          note.textContent = "";
+          output.textContent = "";
+          output.powertoysText = undefined;
+          output.hidden = true;
+        }
+      }),
+      outputBody,
+    );
+    body.append(command, outputWrap);
+    box.append(liveToggle(liveCommandOpen.has(tool.id), "command", liveCommandOpen, tool.id, (open) => (body.hidden = !open)), body);
+    return box;
+  }
+  // A turn running one command shows it in the turn's own row (TurnStatus); several get rows of their own
+  // (TurnStatusStep). Either row is reused for the next tool, so a box stays only while its row still draws that
+  // call and the call is running.
+  const LIVE_ROWS = '[data-cds="TurnStatus"][data-state="busy"], [data-cds="TurnStatusStep"][data-state="busy"]';
+  function runningShellTool(row) {
+    let tool = mainWorld("stepTool", row);
+    return tool && LIVE_TOOLS.has(tool.name) && !tool.background && tool.status === "running" && tool.command ? tool : null;
+  }
+  function decorateRunningCommands() {
+    for (let box of document.querySelectorAll("[data-powertoys-live]")) {
+      let row = box.parentElement;
+      let id = box.getAttribute("data-powertoys-live");
+      if (!settings.liveCommandOutput || !row?.matches(LIVE_ROWS) || runningShellTool(row)?.id !== id) {
+        liveOpen.delete(id);
+        liveCommandOpen.delete(id);
+        box.remove();
+      }
+    }
+    if (!settings.liveCommandOutput) {
+      return;
+    }
+    for (let row of document.querySelectorAll(LIVE_ROWS)) {
+      if (row.querySelector(":scope > [data-powertoys-live]") || !isShown(row)) {
+        continue;
+      }
+      let tool = runningShellTool(row);
+      if (tool) {
+        let box = liveBox(tool);
+        row.append(box);
+        log(`live output: box added for ${tool.name} ${tool.id} (${row.getAttribute("data-cds")})`);
+      }
+    }
+  }
+  // Highlighting the output. Each line is classed by what it says, first match wins: a stack frame ("    at …",
+  // '  File "…"', dimmed), an error (error / failed / exception / fatal / panic / Traceback / ✗), a warning, a success
+  // (passed / succeeded / ✓ / OK), or a command echo ("$ …"). "0 errors", "no failures", "failed: 0" are not errors, so
+  // "0 failed, 12 passed" reads as a success. Within a line a leading timestamp is dimmed, log levels ([ERROR], WARN:)
+  // take their colour, and URLs and file:line references stand out. The note counts the shown errors and warnings.
+  const LOG_COLORS = { error: "#e5484d", warning: "#d4a017", success: "#30a46c", accent: "#3e8fd6" };
+  const LOG_ZERO = /\b(?:0|no|zero)\s+(?:errors?|failures?|failed|failing|warnings?)\b|\b(?:errors?|failures?|failed|warnings?)\s*[:=]\s*0\b/gi;
+  const LOG_LINE_RULES = [
+    ["frame", /^\s+(?:at\s|File\s"|\.\.\.\s\d+\smore)/],
+    ["error", /\b(?:errors?|failed|failing|failures?|fatal|exception|panic(?:ked)?|traceback|segmentation fault|unhandled|refused|denied|cannot|could not|unable to|not found)\b|\bERR!|\bFAIL(?:ED)?\b|[✗✘❌]/i],
+    ["warning", /\b(?:warn(?:ing)?s?|deprecat(?:ed|ion))\b|⚠/i],
+    ["success", /\b(?:passed|passing|succeeded|success(?:ful(?:ly)?)?|completed)\b|^\s*done\b|\bOK\b|[✓✔✅]/i],
+    ["command", /^\s*\$\s+\S/],
+  ];
+  const LOG_LINE_STYLE = {
+    frame: "opacity:.55",
+    error: `color:${LOG_COLORS.error};background:rgba(229,72,77,.08)`,
+    warning: `color:${LOG_COLORS.warning}`,
+    success: `color:${LOG_COLORS.success}`,
+    command: `color:${LOG_COLORS.accent}`,
+  };
+  const LOG_TIME = /^\[?(?:\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}(?::\d{2})?(?:[.,]\d+)?(?:Z|[+-]\d{2}:?\d{2})?|\d{2}:\d{2}:\d{2}(?:[.,]\d+)?)\]?\s/;
+  const LOG_TOKENS = /(https?:\/\/[^\s"'<>)\]]+)|((?:[A-Za-z]:)?[\w.\-\\/]*\w\.[A-Za-z]{1,6}(?::\d+(?::\d+)?|\(\d+(?:,\d+)?\)))|(\[(?:ERROR|ERR|FATAL|WARN(?:ING)?|INFO|DEBUG|TRACE)\]|\b(?:ERROR|FATAL|WARN(?:ING)?|INFO|DEBUG|TRACE):)/g;
+  function logLineKind(line) {
+    let neutral = line.replace(LOG_ZERO, "");
+    return LOG_LINE_RULES.find(([, rule]) => rule.test(neutral))?.[0] ?? "";
+  }
+  function logLevelStyle(level) {
+    return /ERR|FATAL/.test(level) ? `color:${LOG_COLORS.error};font-weight:600` : /WARN/.test(level) ? `color:${LOG_COLORS.warning};font-weight:600` : /INFO/.test(level) ? `color:${LOG_COLORS.accent}` : "opacity:.55";
+  }
+  function logSpan(text, style) {
+    let span = document.createElement("span");
+    span.style.cssText = style;
+    span.textContent = text;
+    return span;
+  }
+  /** The output as highlighted nodes, and how many of its lines are errors and warnings. */
+  function highlightLog(text) {
+    let fragment = document.createDocumentFragment();
+    let counts = { error: 0, warning: 0 };
+    text.split("\n").forEach((line, index) => {
+      if (index > 0) {
+        fragment.append("\n");
+      }
+      let kind = logLineKind(line);
+      if (kind in counts) {
+        counts[kind]++;
+      }
+      let row = logSpan("", LOG_LINE_STYLE[kind] ?? "");
+      let rest = line;
+      let time = LOG_TIME.exec(rest);
+      if (time) {
+        row.append(logSpan(time[0], "opacity:.55"));
+        rest = rest.slice(time[0].length);
+      }
+      let at = 0;
+      for (let match of rest.matchAll(LOG_TOKENS)) {
+        row.append(rest.slice(at, match.index));
+        let [whole, url, ref, level] = match;
+        row.append(logSpan(whole, url || ref ? `color:${LOG_COLORS.accent};text-decoration:underline;text-underline-offset:2px` : logLevelStyle(level)));
+        at = match.index + whole.length;
+      }
+      row.append(rest.slice(at));
+      fragment.append(row);
+    });
+    return { fragment, counts };
+  }
+  // --- Highlighting a finished command's output in the app's own card -------------------------------------
+  // An open Bash / PowerShell row shows the command (already coloured) and its output as plain text. The output's
+  // element (monospace text with no child elements, not the "$ command" line) is hidden and a highlighted copy put
+  // beside it, so the app's own nodes are never changed; the copy follows the original if its text changes.
+  // Outputs over HL_MAX_LINES lines stay plain.
+  const HL_MAX_LINES = 5000;
+  let hlTools = new WeakMap(); // row -> its tool call (once it is no longer running), or null for other tools
+  let hlLogged = new Set(); // tool ids whose card was logged once
+  function highlightCommandResults() {
+    for (let source of document.querySelectorAll("[data-powertoys-hl-src]")) {
+      let copy = source.nextElementSibling;
+      if (!settings.highlightCommandOutput || !copy?.hasAttribute("data-powertoys-hl")) {
+        source.style.display = "";
+        source.removeAttribute("data-powertoys-hl-src");
+        if (copy?.hasAttribute("data-powertoys-hl")) {
+          copy.remove();
+        }
+        continue;
+      }
+      if (source.style.display !== "none") {
+        source.style.display = "none";
+      }
+      let text = source.textContent;
+      if (copy.powertoysText !== text) {
+        copy.powertoysText = text;
+        copy.replaceChildren(highlightLog(text).fragment);
+      }
+    }
+    if (!settings.highlightCommandOutput) {
+      return;
+    }
+    for (let row of document.querySelectorAll('[data-cds="TurnStatusStep"], [data-cds="TurnStatus"]')) {
+      // Only an open row has its output on the page; a row still running is looked at again once it has ended.
+      let toggle = row.querySelector("[data-cds-row-toggle]");
+      if (row.getAttribute("data-state") === "busy" || toggle?.getAttribute("aria-expanded") !== "true" || !isShown(row)) {
+        continue;
+      }
+      let tool = hlTools.get(row);
+      if (tool === undefined) {
+        let found = mainWorld("stepTool", row);
+        if (found?.status === "running") {
+          continue;
+        }
+        tool = found && LIVE_TOOLS.has(found.name) ? found : null;
+        hlTools.set(row, tool);
+      }
+      if (!tool) {
+        continue;
+      }
+      let command = tool.command.trim();
+      let targets = [...row.querySelectorAll("pre, code, div, span")].filter((node) => {
+        if (node.childElementCount !== 0 || node.hasAttribute("data-powertoys-hl-src") || node.closest("[data-powertoys-live], [data-powertoys-hl]") || !isShown(node)) {
+          return false;
+        }
+        let text = node.textContent;
+        let style = getComputedStyle(node);
+        let parent = node.parentElement ? getComputedStyle(node.parentElement) : style;
+        return text.trim() !== "" && (style.whiteSpace.startsWith("pre") || parent.whiteSpace.startsWith("pre")) && /mono|consolas|courier/i.test(style.fontFamily) && !text.trim().startsWith("$") && text.trim() !== command;
+      });
+      if (!hlLogged.has(tool.id)) {
+        hlLogged.add(tool.id);
+        log(`command card: ${tool.name} ${tool.id} ${targets.length} output element(s)`);
+      }
+      for (let target of targets) {
+        let text = target.textContent;
+        if (text.split("\n").length > HL_MAX_LINES) {
+          continue;
+        }
+        let copy = document.createElement(target.tagName);
+        copy.className = target.className;
+        copy.style.cssText = target.style.cssText;
+        copy.setAttribute("data-powertoys-hl", "");
+        copy.powertoysText = text;
+        copy.append(highlightLog(text).fragment);
+        target.setAttribute("data-powertoys-hl-src", "");
+        target.style.display = "none";
+        target.after(copy);
+      }
+    }
+  }
+  function tailLines(text) {
+    let lines = text.replace(/\n$/, "").split("\n");
+    return { text: lines.slice(-LIVE_LINES).join("\n"), lines: lines.length };
+  }
+  function kilobytes(size) {
+    return size >= 1048576 ? `${(size / 1048576).toFixed(1)} MB` : `${Math.max(1, Math.round(size / 1024))} KB`;
+  }
+  async function pollLiveOutput() {
+    if (liveBusy || !liveOpen.size) {
+      return;
+    }
+    liveBusy = true;
+    try {
+      let bySession = new Map();
+      for (let box of document.querySelectorAll("[data-powertoys-live]")) {
+        let id = box.getAttribute("data-powertoys-live");
+        if (!liveOpen.has(id) || !isShown(box)) {
+          continue;
+        }
+        let sessionId = paneSessionId(paneOf(box));
+        if (sessionId) {
+          bySession.set(sessionId, [...(bySession.get(sessionId) ?? []), box]);
+        }
+      }
+      for (let [sessionId, boxes] of bySession) {
+        let outputs = await call("commandOutput", sessionId, boxes.map((box) => box.getAttribute("data-powertoys-live"))).catch(() => ({}));
+        for (let box of boxes) {
+          let found = outputs?.[box.getAttribute("data-powertoys-live")];
+          let output = box.querySelector("[data-powertoys-live-output]");
+          let note = box.querySelector("[data-powertoys-live-note]");
+          let selection = window.getSelection();
+          if (selection && !selection.isCollapsed && selection.containsNode(output, true)) {
+            continue;
+          }
+          let tail = found ? tailLines(found.text) : { text: "", lines: 0 };
+          let highlighted = output.powertoysText !== tail.text ? highlightLog(tail.text) : null;
+          if (highlighted) {
+            output.powertoysCounts = highlighted.counts;
+          }
+          let counts = output.powertoysCounts ?? { error: 0, warning: 0 };
+          let tally = [
+            counts.error ? `${counts.error} error${counts.error === 1 ? "" : "s"}` : "",
+            counts.warning ? `${counts.warning} warning${counts.warning === 1 ? "" : "s"}` : "",
+          ].filter(Boolean);
+          let noteText = !found
+            ? "Waiting for output…"
+            : found.truncated || tail.lines > LIVE_LINES
+              ? `Last ${Math.min(tail.lines, LIVE_LINES)} lines of ${kilobytes(found.size)}`
+              : found.size === 0
+                ? "No output yet"
+                : `${tail.lines} line${tail.lines === 1 ? "" : "s"}`;
+          if (found && tally.length) {
+            noteText += ` · ${tally.join(" · ")}`;
+          }
+          if (note.textContent !== noteText) {
+            note.textContent = noteText;
+          }
+          output.hidden = tail.text === "";
+          if (highlighted) {
+            let atBottom = output.scrollHeight - output.scrollTop - output.clientHeight < 8;
+            output.powertoysText = tail.text;
+            output.replaceChildren(highlighted.fragment);
+            if (atBottom) {
+              output.scrollTop = output.scrollHeight;
+            }
+          }
+        }
+      }
+    } finally {
+      liveBusy = false;
+    }
+  }
+  setInterval(pollLiveOutput, 1000);
+
   // --- Status in the prompt box's row ------------------------------------------------------------------
   // The row under each prompt box (the app's: permission mode … model, usage ring) gets this pane's
   // session folder, branch, context size, how long Claude has been working, and the plan's 5-hour and
@@ -7061,6 +7383,8 @@ function powertoysPageMain() {
         applyRtl();
         markThinking();
         followTurns();
+        decorateRunningCommands();
+        highlightCommandResults();
         updateStatusBar();
         decorateOpenInMenus();
         decorateTitleBars();
@@ -7340,6 +7664,22 @@ function powertoysMainWorldOperation(operation, marker, argument) {
           at: Date.parse(entry.timestamp ?? "") || 0,
         }))
       : null;
+  }
+  if (operation === "stepTool") {
+    // The tool call a transcript step draws: the nearest component above it given a `tool` with an id and input.
+    for (let fiber = fiberOf(target), depth = 0; fiber && depth < 40; fiber = fiber.return, depth++) {
+      let tool = fiber.memoizedProps?.tool;
+      if (tool && typeof tool === "object" && typeof tool.id === "string" && typeof tool.name === "string" && tool.input && typeof tool.input === "object") {
+        return {
+          id: tool.id,
+          name: tool.name,
+          status: String(tool.status ?? ""),
+          command: typeof tool.input.command === "string" ? tool.input.command : "",
+          background: tool.input.run_in_background === true,
+        };
+      }
+    }
+    return null;
   }
   if (operation === "hoverItem") {
     // The transcript item (a paragraph, a tool call, thinking) the node belongs to: the nearest component above it
