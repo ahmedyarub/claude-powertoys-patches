@@ -3257,28 +3257,93 @@ function powertoysPageMain() {
     messageTimeNote?.remove();
     messageTimeNote = null;
   }
+  const itemTimes = new Map(); // "<sessionId>|<item id>" -> ms (0: not in the transcript)
   function showMessageTime() {
     messageTimeFrame = 0;
     let under = settings?.messageTimes !== false && pointer.x >= 0 ? document.elementFromPoint(pointer.x, pointer.y) : null;
     let row = under?.closest?.("[data-epitaxy-entry]") ?? null;
-    if (row === timedRow) {
+    // Claude's whole turn is one row; the paragraph or tool call under the pointer is what gets timed.
+    let block = row && !row.querySelector('[data-testid="user-message"]') ? (under.closest("p, li, pre, table, blockquote, h1, h2, h3, h4, h5, h6") ?? under) : row;
+    if (block && !row.contains(block)) {
+      block = row;
+    }
+    if (block === timedRow) {
       return;
+    }
+    let pane = row && paneOf(row);
+    let index = row?.getAttribute("data-epitaxy-item-index") ?? "";
+    let found = pane ? mainWorld("entryTime", pane.transcript, `${row.getAttribute("data-epitaxy-entry")}\n${index}`) : null;
+    // Your message is its own entry; Claude's turn is one entry whose items (a paragraph, a tool call) each come from
+    // a message of their own, timed from the transcript.
+    let hovered = found && !found.fromUser ? mainWorld("hoverItem", under) : null;
+    if (found && !found.fromUser && !hovered?.id) {
+      // Between paragraphs (or on the turn's own controls) there is no item: the last note stays as it is, rather
+      // than the turn's time over the turn's top.
+      if (timedRow && row.contains(timedRow)) {
+        return;
+      }
+      found = null;
     }
     hideMessageTime();
-    let pane = row && paneOf(row);
-    let at = pane ? mainWorld("entryTime", pane.transcript, row.getAttribute("data-epitaxy-entry")) : 0;
-    if (!at) {
+    if (!found) {
       return;
     }
-    timedRow = row;
-    // Over the message's own bubble when it has one (yours, on the right), else over the row.
-    let anchor = row.querySelector('[data-testid="user-message"]') ?? row;
+    timedRow = block;
+    if (found.fromUser) {
+      placeMessageTime(row, block, pane, found.at ? messageTimeText(found.at) : "");
+      return;
+    }
+    // Only the item's own time from the transcript, never the turn's: nothing shows when it is not found. A row of
+    // several tool calls shows when the first and the last ran.
+    let ids = hovered.ids;
+    let shown = () => {
+      let times = ids.map((id) => itemTimes.get(`${found.sessionId}|${id}`)).filter((at) => at > 0);
+      if (!times.length) {
+        return "";
+      }
+      let first = messageTimeText(Math.min(...times));
+      let last = messageTimeText(Math.max(...times));
+      return first === last ? first : `${first} – ${last}`;
+    };
+    let missing = ids.filter((id) => !itemTimes.has(`${found.sessionId}|${id}`));
+    if (!missing.length) {
+      placeMessageTime(row, block, pane, shown());
+      return;
+    }
+    call("itemTimes", found.sessionId, missing).then(
+      (times) => {
+        for (let id of missing) {
+          itemTimes.set(`${found.sessionId}|${id}`, times?.[id] ?? 0);
+          if (!times?.[id]) {
+            log(`message times: ${id} is not in the transcript; no time shown`);
+          }
+        }
+        if (timedRow === block && !messageTimeNote) {
+          placeMessageTime(row, block, pane, shown());
+        }
+      },
+      (caught) => log(`message times: reading the transcript failed (${caught.message})`),
+    );
+  }
+  function placeMessageTime(row, block, pane, text) {
+    if (!text || !row.isConnected) {
+      return;
+    }
+    // Over the message's own bubble when it has one (yours, on the right), else over the paragraph; kept inside the
+    // conversation (one taller than the view, scrolled past its top, gets it beside the pointer instead).
+    let anchor = row.querySelector('[data-testid="user-message"]') ?? block;
     let rect = anchor.getBoundingClientRect();
-    messageTimeNote = element("div", "message-time", messageTimeText(at));
+    let viewTop = Math.max(pane.transcript.getBoundingClientRect().top, pane.root.getBoundingClientRect().top, 0);
+    messageTimeNote = element("div", "message-time", text);
     ui().appendChild(messageTimeNote);
-    let left = anchor === row ? rect.left : rect.right - messageTimeNote.offsetWidth;
+    let height = messageTimeNote.offsetHeight;
+    let left = anchor === block ? rect.left : rect.right - messageTimeNote.offsetWidth;
+    let top = rect.top - height - 3;
+    if (top < viewTop + 2) {
+      top = rect.top >= viewTop ? rect.top + 2 : Math.max(viewTop + 2, pointer.y - height - 14);
+    }
     messageTimeNote.style.left = `${Math.max(8, Math.min(innerWidth - messageTimeNote.offsetWidth - 8, left))}px`;
-    messageTimeNote.style.top = `${Math.max(4, rect.top - messageTimeNote.offsetHeight - 3)}px`;
+    messageTimeNote.style.top = `${top}px`;
   }
   window.addEventListener("scroll", hideMessageTime, { capture: true, passive: true });
 
@@ -7126,9 +7191,32 @@ function powertoysMainWorldOperation(operation, marker, argument) {
         }))
       : null;
   }
+  if (operation === "hoverItem") {
+    // The transcript item (a paragraph, a tool call, thinking) the node belongs to: the nearest component above it
+    // given an `item` with an id. A turn is one row in the page, so the row alone cannot tell its items apart.
+    for (let fiber = fiberOf(target), depth = 0; fiber && depth < 80; fiber = fiber.return, depth++) {
+      let props = fiber.memoizedProps;
+      let item = props?.item;
+      if (item && typeof item === "object" && typeof item.id === "string" && typeof item.kind === "string") {
+        // A row of tool calls ("Ran 3 commands") is one item named after its first call: all of its calls count.
+        let ids = item.kind === "tools" && Array.isArray(item.tools) ? item.tools.map((tool) => tool?.id).filter((id) => typeof id === "string") : [];
+        return { id: item.id, kind: item.kind, ids: ids.length ? ids : [item.id] };
+      }
+      if (props && typeof props["data-epitaxy-entry"] === "string") {
+        break;
+      }
+    }
+    return null;
+  }
   if (operation === "entryTime") {
-    let entry = props?.entries.find((candidate) => String(candidate.id) === argument);
-    return entry ? Date.parse(entry.timestamp ?? "") || 0 : 0;
+    // argument: "<entry id>" or "<entry id>\n<item index>"; an assistant entry is a whole turn, so its item's id too.
+    let [entryId, index] = String(argument).split("\n");
+    let entry = props?.entries.find((candidate) => String(candidate.id) === entryId);
+    if (!entry) {
+      return null;
+    }
+    let item = index === undefined || index === "" ? undefined : entry.items?.[Number(index)];
+    return { at: Date.parse(entry.timestamp ?? "") || 0, fromUser: entry.author === "user", itemId: item?.id === undefined ? null : String(item.id), sessionId: props.sessionId };
   }
   if (operation === "scrollTo") {
     if (!props || !props.entries.some((entry) => String(entry.id) === argument)) {

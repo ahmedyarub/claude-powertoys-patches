@@ -451,7 +451,7 @@ function powertoysTranscriptWorkerMain() {
   const statsCache = new Map();
   const EDIT_TOOLS = new Set(["Edit", "Write", "MultiEdit", "NotebookEdit"]);
   function statsOf(file) {
-    let state = statsCache.get(file) ?? { offset: 0, seen: new Set(), byDay: {}, files: new Map(), activity: [], lastAnswer: null };
+    let state = statsCache.get(file) ?? { offset: 0, seen: new Set(), byDay: {}, files: new Map(), activity: [], lastAnswer: null, times: new Map() };
     statsCache.set(file, state);
     let fd;
     try {
@@ -477,6 +477,19 @@ function powertoysTranscriptWorkerMain() {
           continue;
         }
         let at = timestampOf(entry);
+        if (at) {
+          // When each message, API message and tool call was written (the page's items are keyed by these).
+          for (let key of [entry.uuid, entry.message?.id]) {
+            if (typeof key === "string" && !state.times.has(key)) {
+              state.times.set(key, at);
+            }
+          }
+          for (let block of Array.isArray(entry.message?.content) ? entry.message.content : []) {
+            if (block?.type === "tool_use" && typeof block.id === "string" && !state.times.has(block.id)) {
+              state.times.set(block.id, at);
+            }
+          }
+        }
         if (entry.isSidechain !== true) {
           trackTodos(state, entry, at);
           trackTopic(state, entry, at);
@@ -1011,6 +1024,25 @@ function powertoysTranscriptWorkerMain() {
       }
       let topic = statsOf(file).topic;
       return topic ? { pages: [...topic.pages.values()], mentions: Object.fromEntries(topic.mentions), recap: topic.recap } : null;
+    },
+    /**
+     * When the page's transcript items were written: `<message id>-t0` / `-th0` / `-ns0` (text, thinking, summary of
+     * an API message), a tool call's id, or a message's uuid. { id: ms } for those found.
+     */
+    itemTimes({ root, cliSessionId, ids }) {
+      let file = findTranscript(root, cliSessionId);
+      if (!file) {
+        return {};
+      }
+      let { times } = statsOf(file);
+      let result = {};
+      for (let id of ids) {
+        let at = times.get(id) ?? times.get(String(id).replace(/-(t|th|ns)\d+(-ctx|-stats)?$/, ""));
+        if (at) {
+          result[id] = at;
+        }
+      }
+      return result;
     },
     /** Where the session's context went, and how it grew (see contextMap). */
     contextMap: ({ root, cliSessionId }) => contextMap(root, cliSessionId),

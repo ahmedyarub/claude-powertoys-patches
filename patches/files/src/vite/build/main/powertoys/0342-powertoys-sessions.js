@@ -66,7 +66,7 @@ function powertoysSessionsOnScreen() {
   if (routeId) {
     ids.push(routeId);
   }
-  let focused = getFileIndexActiveSessionId();
+  let focused = getFocusedCodeSessionId();
   if (focused && !ids.includes(focused)) {
     ids.push(focused);
   }
@@ -267,7 +267,7 @@ function powertoysStartSessionTracking() {
   // Focused-pane changes (split view) arrive through setFocusedSession, which has no event here.
   let lastFocused = null;
   setInterval(() => {
-    let focused = getFileIndexActiveSessionId();
+    let focused = getFocusedCodeSessionId();
     if (focused && focused !== lastFocused && mainWindow?.isFocused()) {
       lastFocused = focused;
       powertoysNoteRecent(focused, powertoysSessionViews.get(focused)?.title);
@@ -296,7 +296,7 @@ async function powertoysSwitcherSessions(pageTitles = {}) {
   let windowMs = Math.max(0.25, powertoysSetting("recentSessionHours")) * 3600 * 1000;
   let since = Date.now() - windowMs;
   let recent = powertoysRecentRecord();
-  let current = getFileIndexActiveSessionId() ?? powertoysRouteSessionId();
+  let current = getFocusedCodeSessionId() ?? powertoysRouteSessionId();
   let items = new Map();
   for (let view of powertoysSessionViews.values()) {
     if (view.isArchived) {

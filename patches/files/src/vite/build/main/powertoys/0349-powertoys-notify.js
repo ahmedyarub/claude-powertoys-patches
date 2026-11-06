@@ -278,7 +278,7 @@ function powertoysStaleAfterRestart(options) {
   let ran = powertoysTurnStartedAt.has(sessionId);
   let minutes = Math.round((Date.now() - powertoysRunStartedAt) / 6000) / 10;
   powertoysLog(
-    `notifications: ${before || ran ? "shown" : "not shown"} ${minutes} min after the start: ${type} for ${sessionId} "${String(options?.title ?? "").slice(0, 80)}" (${before ? "on screen before the restart" : ran ? "it ran a turn in this run" : "from before the restart, not on screen then"})`,
+    `notifications: ${before || ran ? "allowed" : "dropped"} ${minutes} min after the start: ${type} for ${sessionId} "${String(options?.title ?? "").slice(0, 80)}" (${before ? "on screen before the restart" : ran ? "it ran a turn in this run" : "from before the restart, not on screen then"})`,
   );
   return !before && !ran;
 }

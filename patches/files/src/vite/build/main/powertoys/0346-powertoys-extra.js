@@ -149,7 +149,7 @@ function powertoysLaunchProfile(name) {
 }
 
 // --- Extra windows -------------------------------------------------------------------------------
-// Each is wired like the main view (setupWebContentsIpc) so local sessions load in it, and gets the
+// Each is wired like the main view (setupContentsHooks) so local sessions load in it, and gets the
 // session manager's events (app/0324 forwards them to these too).
 var powertoysCodeWindowConfigure = null; // the app's code-window setup, set in app/0350
 const powertoysExtraWindows = new Set();
@@ -181,7 +181,7 @@ function powertoysOpenWindow(routePath) {
   window2.once("closed", () => powertoysExtraWindows.delete(window2));
   try {
     powertoysCodeWindowConfigure?.(window2);
-    setupWebContentsIpc(window2.webContents, window2);
+    setupContentsHooks(window2.webContents, window2);
   } catch (caught) {
     powertoysWarn(`window: setup failed: ${caught.message}`);
   }

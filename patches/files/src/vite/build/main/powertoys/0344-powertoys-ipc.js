@@ -123,6 +123,13 @@ function powertoysRegisterIpc() {
     let local = powertoysLocalRecord(sessionId);
     return local ? { local: true, title: local.title } : { local: false, title: powertoysRecentRecord()[sessionId]?.title ?? "" };
   });
+  powertoysHandle("itemTimes", async (event, sessionId, ids) => {
+    let local = powertoysLocalRecord(sessionId);
+    if (!local?.cliSessionId || !Array.isArray(ids)) {
+      return {};
+    }
+    return powertoysTranscripts("itemTimes", { cliSessionId: local.cliSessionId, ids: ids.filter((id) => typeof id === "string").slice(0, 50) });
+  });
   powertoysHandle("conversation", async (event, sessionId) => {
     let local = powertoysLocalRecord(sessionId);
     if (!local?.cliSessionId) {
@@ -259,7 +266,7 @@ function initPowertoys() {
       notifyNavigationChanged();
     });
     powertoysEvents.on("status", (status) => powertoysBroadcast("powertoys:status", status));
-    powertoysEvents.on("hiddenFolders", () => rebuildOsEntryPoints());
+    powertoysEvents.on("hiddenFolders", () => getStartupHelper());
     powertoysEvents.on("tabs", (tabs) => powertoysBroadcast("powertoys:tabs", tabs));
     powertoysEvents.on("notes", (notes) => powertoysBroadcast("powertoys:notes", notes));
     powertoysEvents.on("queue", (queue) => powertoysBroadcast("powertoys:queue", queue));

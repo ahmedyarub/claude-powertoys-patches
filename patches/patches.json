@@ -1,5 +1,5 @@
 {
- "app": "Claude Desktop 4.4212.0 for Windows",
+ "app": "Claude Desktop 4.23118.0 for Windows",
  "files": [
   {
    "path": "scripts/assemble.mjs",
@@ -92,119 +92,13 @@
    "sha256": "035eb3ee32ce83d03b3f6d71b317be60788058262e890eb0ff218e6c5d67a525"
   },
   {
-   "path": "src/vite/build/ccd-host-core/0002-drive-host-fill.js",
+   "path": "src/vite/build/ccd-local-session-manager/0015-ccd.js",
    "kind": "edit",
-   "baseSha256": "dbeb02dff46880a1026a9bf60ef2836238d11504940180c7ed2377bb5617da81",
-   "resultSha256": "9902498c4007571efa14dca046c16cde393845a1a3edfad6f0271d11e59c8ca4",
+   "baseSha256": "4e74b48cdeeefdbd970bcad8a5bcfa3c39d3871ece34fe7c788fa3e85ad99727",
+   "resultSha256": "917ea9514906cb68d6f8016b2a96616777d25c0f4f744c598ecb15c5b54ea2db",
    "hunks": [
     {
-     "at": 11,
-     "remove": 1,
-     "removeSha256": "97e76033ef47c9305fe1a9636c958aeedd8cdc924fb5091858403e6e68a67eda",
-     "add": [
-      [
-       [
-        11,
-        0,
-        78
-       ],
-       " + (mainChunk.powertoysPlanToolNote?.() ?? \"\"),\n"
-      ]
-     ]
-    }
-   ]
-  },
-  {
-   "path": "src/vite/build/ccd-host-core/mcp-tools/0001-mcp-tool-prefix-sanitizers.js",
-   "kind": "edit",
-   "baseSha256": "78eb5e96202d030962dbd6fc89739ad6d0390d61fc6d88e4cfa67bca3fc1222c",
-   "resultSha256": "35f549321251de1e0023bddd6240ad260389bb6301143fcbeb1d448ea3f2ff4a",
-   "hunks": [
-    {
-     "at": 1289,
-     "remove": 0,
-     "add": [
-      [
-       "          // Local change: Powertoys shows the time left and the finish time from these (see powertoysPlanToolNote).\n"
-      ],
-      [
-       "          estimate: {\n"
-      ],
-      [
-       "            type: \"number\",\n"
-      ],
-      [
-       "            description: \"Minutes you expect this step to take you, judged from the work it involves.\",\n"
-      ],
-      [
-       "          },\n"
-      ]
-     ]
-    },
-    {
-     "at": 1508,
-     "remove": 0,
-     "add": [
-      [
-       "        // Local change: Powertoys times each step against its estimate and reports the finished ones.\n"
-      ],
-      [
-       "        let stepTimes = mainChunk.powertoysPlanFeedback?.(i.sessionId, toolInput) ?? \"\";\n"
-      ]
-     ]
-    },
-    {
-     "at": 1509,
-     "remove": 1,
-     "removeSha256": "44d0c07933d3c6133566fd8544da4693650c680d1c9fe5a4116244ffbc9181fe",
-     "add": [
-      [
-       [
-        1509,
-        0,
-        317
-       ],
-       "${stepTimes}`,\n"
-      ]
-     ]
-    },
-    {
-     "at": 1521,
-     "remove": 0,
-     "add": [
-      [
-       "      // Local change: Powertoys times each step against its estimate and reports the finished ones.\n"
-      ],
-      [
-       "      let stepTimes = mainChunk.powertoysPlanFeedback?.(i.sessionId, toolInput) ?? \"\";\n"
-      ]
-     ]
-    },
-    {
-     "at": 1524,
-     "remove": 1,
-     "removeSha256": "f0677fcdc1555df821f460b9d16db022d2e13c8be31efaa8fa601420447e6ebf",
-     "add": [
-      [
-       [
-        1524,
-        0,
-        127
-       ],
-       "${stepTimes}`,\n"
-      ]
-     ]
-    }
-   ]
-  },
-  {
-   "path": "src/vite/build/ccd-local-session-manager/0016-ccd.js",
-   "kind": "edit",
-   "baseSha256": "d5e14cdb3f3b47e130a41a38c646ce8e17befa718f25e36666328779a1bf3ed7",
-   "resultSha256": "eee18c757b9c6e1ee071c59019b8a47caa62ff3d3da3593654db38a1dca183f5",
-   "hunks": [
-    {
-     "at": 1347,
+     "at": 1435,
      "remove": 0,
      "add": [
       [
@@ -218,13 +112,13 @@
    ]
   },
   {
-   "path": "src/vite/build/ccd-local-session-manager/0025-ccd.js",
+   "path": "src/vite/build/ccd-local-session-manager/0024-ccd.js",
    "kind": "edit",
-   "baseSha256": "5eb092d9a71059c30976bed8e2078aea9f2b3f262fc6955e13ba4b542dc1b564",
-   "resultSha256": "53ac0120059fd0b657e5c8cd6a5c5890f8e64d6c52edc453b496bfcc3ff8e580",
+   "baseSha256": "f089022592ae1b9fce0b810d7df1817a29c14cd109b2d5808ab546425c2e35d0",
+   "resultSha256": "ae521d79a098d527f8d6ef5e131203796d740b522b758fe8d3c3c45693030c46",
    "hunks": [
     {
-     "at": 819,
+     "at": 826,
      "remove": 1,
      "removeSha256": "5a6c2c92c6b34ab745cf92c14cd3541182e151c9a274de17037dc86dab55c887",
      "add": [
@@ -239,7 +133,7 @@
       ],
       [
        [
-        819,
+        826,
         0,
         36
        ],
@@ -252,11 +146,11 @@
   {
    "path": "src/vite/build/ccd-local-session-manager/0027-ccd.js",
    "kind": "edit",
-   "baseSha256": "a0f276ea5b3563efa2f9bda110cd95304c96cda96c30a956c54ff83d2da0bb4c",
-   "resultSha256": "029381fac30f85c356925e2271e1b6ba9955d27b284cb31586cf2b65c5753b3f",
+   "baseSha256": "2d40e3c419f700aa3443cd7bf5152cc5e892d8ef7e08dbee59fb5ce5a2a5e270",
+   "resultSha256": "79d346dbe849518797356ae75a369174356b847a68738210d4ac3ba55754fd43",
    "hunks": [
     {
-     "at": 1580,
+     "at": 778,
      "remove": 1,
      "removeSha256": "3a1729fa45868f334624f1bcb9bf3815b325864b3b3be8f719922b69affbfbf2",
      "add": [
@@ -277,7 +171,7 @@
       ],
       [
        [
-        1580,
+        778,
         0,
         10
        ],
@@ -285,7 +179,7 @@
       ],
       [
        [
-        1580,
+        778,
         0,
         16
        ],
@@ -297,7 +191,7 @@
       [
        "       ",
        [
-        1580,
+        778,
         9,
         97
        ]
@@ -308,7 +202,7 @@
       [
        "  ",
        [
-        1580,
+        778,
         0,
         10
        ],
@@ -320,13 +214,13 @@
       [
        "         ",
        [
-        1580,
+        778,
         24,
         35
        ],
        "emitSyntheticUserMessage",
        [
-        1580,
+        778,
         86,
         94
        ],
@@ -347,7 +241,7 @@
       [
        "           ",
        [
-        1580,
+        778,
         24,
         35
        ],
@@ -370,13 +264,13 @@
    ]
   },
   {
-   "path": "src/vite/build/ccd-local-session-manager/0038-session-file-access.js",
+   "path": "src/vite/build/ccd-local-session-manager/0039-session-file-access.js",
    "kind": "edit",
-   "baseSha256": "ed2fb776c6458c273b122af1f6dae1e821fcda7a31f11f4e80774d729aa1a402",
-   "resultSha256": "b5af0d17184f2147c930cf59774beab0f4854ab863cbf5fae1f8760e29a93e34",
+   "baseSha256": "1a28f2433142416afef9c5d85fee36ce5e84a540fb96f5ae65f637d60424d5d1",
+   "resultSha256": "36bfe281b19b4ccd6776983ee05489fbd03f9ab8b3b86edc6eb41b0b31f75aaa",
    "hunks": [
     {
-     "at": 717,
+     "at": 733,
      "remove": 0,
      "add": [
       [
@@ -409,7 +303,7 @@
       [
        "            ",
        [
-        725,
+        741,
         10,
         27
        ],
@@ -421,7 +315,7 @@
       [
        "            ",
        [
-        1125,
+        1141,
         10,
         26
        ],
@@ -439,7 +333,7 @@
      ]
     },
     {
-     "at": 1051,
+     "at": 1067,
      "remove": 0,
      "add": [
       [
@@ -448,13 +342,13 @@
      ]
     },
     {
-     "at": 1261,
+     "at": 1279,
      "remove": 1,
      "removeSha256": "3623f31126ec85759c24dad1e515aefe96c7761ea058c95e39a21f84de2090b4",
      "add": [
       [
        [
-        1261,
+        1279,
         0,
         78
        ],
@@ -465,22 +359,25 @@
    ]
   },
   {
-   "path": "src/vite/build/ccd-local-session-manager/0052-ccd.js",
+   "path": "src/vite/build/ccd-local-session-manager/0055-local-session-manager.js",
    "kind": "edit",
-   "baseSha256": "d7a99d21bdd1245472a9a4cf1bd50c9591beb9c833eafaadccc553e0f3ece8e7",
-   "resultSha256": "457c84bfd528c371734f20862efa5163d7fdfbd7a3d2cee8577d209b70bf2953",
+   "baseSha256": "2fd43eda66870b8bbb87bfdd982d4cf989d6a8fbeaa0caa98e1ec452c738ba65",
+   "resultSha256": "d6a0f865b23bc6e986e5658842e11f6469734b8f76013d57ce7b39b668d3a633",
    "hunks": [
     {
-     "at": 2723,
+     "at": 2607,
      "remove": 0,
      "add": [
+      [
+       "              // Local change: the conversation a Powertoys restart continues is left unmarked (see powertoysContinuesAfterRestart).\n"
+      ],
       [
        "              !mainChunk.powertoysContinuesAfterRestart?.(sessionId) &&\n"
       ]
      ]
     },
     {
-     "at": 5866,
+     "at": 5772,
      "remove": 0,
      "add": [
       [
@@ -492,7 +389,7 @@
      ]
     },
     {
-     "at": 14946,
+     "at": 14288,
      "remove": 0,
      "add": [
       [
@@ -507,7 +404,7 @@
       [
        "    ",
        [
-        7687,
+        7592,
         8,
         42
        ],
@@ -516,14 +413,14 @@
      ]
     },
     {
-     "at": 15142,
+     "at": 14486,
      "remove": 2,
      "removeSha256": "b561d7045a40bd45359909c87896ebc06acc621590672fc4543662ab362da53e",
      "add": [
       [
        "    );",
        [
-        15143,
+        14487,
         0,
         51
        ]
@@ -531,7 +428,7 @@
      ]
     },
     {
-     "at": 19994,
+     "at": 19031,
      "remove": 0,
      "add": [
       [
@@ -549,14 +446,14 @@
      ]
     },
     {
-     "at": 19996,
+     "at": 19033,
      "remove": 1,
      "removeSha256": "582b2de25f9c8c9bdc88e4a222a1a00f3f23edb516be22d1fd88c2a18abf23e5",
      "add": [
       [
        "      uuid: echoUuid ??",
        [
-        19996,
+        19033,
         11,
         44
        ]
@@ -568,11 +465,11 @@
   {
    "path": "src/vite/build/ccd-local-sessions-api/0002-local-sessions-api-core.js",
    "kind": "edit",
-   "baseSha256": "de00f6856e8c572615e91c558e21917264b2d0deeae844f751003d86b256deae",
-   "resultSha256": "ac77266fc328ba6721207681e3ded6a58297a3bf101512261abdfba1042711f4",
+   "baseSha256": "95d27cc8ec754d0f7bc8c72b557f34d9952a02a18723ba162fd4a9a724eaad1a",
+   "resultSha256": "33543e27c0f2886af97ce93222964f68e6d56e89c00f76b203114eac3c8b2379",
    "hunks": [
     {
-     "at": 1297,
+     "at": 1920,
      "remove": 0,
      "add": [
       [
@@ -584,7 +481,7 @@
      ]
     },
     {
-     "at": 1334,
+     "at": 1957,
      "remove": 0,
      "add": [
       [
@@ -608,7 +505,7 @@
      ]
     },
     {
-     "at": 1836,
+     "at": 2489,
      "remove": 0,
      "add": [
       [
@@ -622,10 +519,122 @@
    ]
   },
   {
+   "path": "src/vite/build/ccd-start-errors-turn-plan.js",
+   "kind": "edit",
+   "baseSha256": "f410f44961835836c33b2010034339da0a57750754dfbbca3ec52ef96c68e584",
+   "resultSha256": "47f69217639031c2d56f645135741e372c5b1ebe2426ca466996c5314d9839d2",
+   "hunks": [
+    {
+     "at": 548,
+     "remove": 0,
+     "add": [
+      [
+       "          // Local change: Powertoys shows the time left and the finish time from these (see powertoysPlanToolNote).\n"
+      ],
+      [
+       "          estimate: {\n"
+      ],
+      [
+       "            type: \"number\",\n"
+      ],
+      [
+       "            description: \"Minutes you expect this step to take you, judged from the work it involves.\",\n"
+      ],
+      [
+       "          },\n"
+      ]
+     ]
+    },
+    {
+     "at": 805,
+     "remove": 0,
+     "add": [
+      [
+       "        // Local change: Powertoys times each step against its estimate and reports the finished ones.\n"
+      ],
+      [
+       "        let stepTimes = mainChunk.powertoysPlanFeedback?.(context.sessionId, i) ?? \"\";\n"
+      ]
+     ]
+    },
+    {
+     "at": 806,
+     "remove": 1,
+     "removeSha256": "f0db18be5a9c04526e4b67edfb8683a7caf23b874b662fa14f17c2e9acacd87c",
+     "add": [
+      [
+       [
+        806,
+        0,
+        312
+       ],
+       "${stepTimes}`,\n"
+      ]
+     ]
+    },
+    {
+     "at": 818,
+     "remove": 0,
+     "add": [
+      [
+       "      // Local change: Powertoys times each step against its estimate and reports the finished ones.\n"
+      ],
+      [
+       "      let stepTimes = mainChunk.powertoysPlanFeedback?.(context.sessionId, i) ?? \"\";\n"
+      ]
+     ]
+    },
+    {
+     "at": 821,
+     "remove": 1,
+     "removeSha256": "55b3ac0c9d81f818a73873b49d4f184fee358fc71c8fa0f352bb00a072fcd8f4",
+     "add": [
+      [
+       [
+        821,
+        0,
+        105
+       ],
+       "${stepTimes}`,\n"
+      ]
+     ]
+    },
+    {
+     "at": 994,
+     "remove": 1,
+     "removeSha256": "5912d515a433c8289172ad92ecb8f84449aa94ec176e9a0b6403e4279381bad9",
+     "add": [
+      [
+       [
+        994,
+        0,
+        8
+       ],
+       "// Local change: the plan tool asks for the estimates when the Powertoys setting is on.\n"
+      ],
+      [
+       [
+        994,
+        0,
+        68
+       ],
+       " + (mainChunk.powertoys",
+       [
+        994,
+        26,
+        34
+       ],
+       "Note?.() ?? \"\"),\n"
+      ]
+     ]
+    }
+   ]
+  },
+  {
    "path": "src/vite/build/claude-json-workspace-trust-config.js",
    "kind": "edit",
-   "baseSha256": "be1bba3e5b63637ab96bd8b9559eb9d1eb8c74dfe18565e44fea3e97818ff4c7",
-   "resultSha256": "555f9d0f933005fd01ad7a59a6c324a629c6c47062a96b1a5022fc53a419102f",
+   "baseSha256": "a48f571e778836bd15fb74eadda5026ef84f0041d2cdf02ff5f607a0f716cf57",
+   "resultSha256": "4f0048191d435176d2eddeed540527e8c8aa105709877072650c22d56635be2e",
    "hunks": [
     {
      "at": 997,
@@ -680,11 +689,11 @@
   {
    "path": "src/vite/build/git-worktree-manager/0003-worktree-trash-tombstones.js",
    "kind": "edit",
-   "baseSha256": "9d07955025daa499b5c512d61218ac7e58adc117623d590827f2addf25cb86c5",
-   "resultSha256": "e02d3a21e668ea7bde338724ba6568d0a22c52df46b54b8ec5a8fdc97a219c69",
+   "baseSha256": "c7ac889c4dd4ad9f93c5f712f0014e467bc0b8d228e5f01e1b3a5d4221f403fe",
+   "resultSha256": "381298a314da073bbb6aa92a898062c06ffd2b2fef02523884773376aca7f67a",
    "hunks": [
     {
-     "at": 1262,
+     "at": 1288,
      "remove": 0,
      "add": [
       [
@@ -749,19 +758,19 @@
    ]
   },
   {
-   "path": "src/vite/build/git-worktree-manager/0004-create-worktree-guards.js",
+   "path": "src/vite/build/git-worktree-manager/0005-create-worktree.js",
    "kind": "edit",
-   "baseSha256": "acdea5a467f09335ab0b566c6d6aad05d613cec1f22a3f0a2743556cbc3d97bf",
-   "resultSha256": "42e25eee94c4f01a542c52589525a3212fa516e6b9e2361515d3305dd29ced9c",
+   "baseSha256": "40afd4c5fdce8ab65e1ce09c22026b02bf5e67027cbc80667607a85a3bb7202d",
+   "resultSha256": "6ca66e33254447b57d3e69f120071d69612e0b5bb0611f7ea4964a120c355253",
    "hunks": [
     {
-     "at": 13595,
+     "at": 12356,
      "remove": 1,
      "removeSha256": "2350a0e2e44e0c3cfac0fabc86756f0b8af153beae3f62af80def6dc48bc4bea",
      "add": [
       [
        [
-        13595,
+        12356,
         0,
         25
        ],
@@ -772,13 +781,13 @@
    ]
   },
   {
-   "path": "src/vite/build/index.pre/telemetry-scrub/0036-error-withholding-breadcrumbs.js",
+   "path": "src/vite/build/index.pre/0038-unc-relocated.js",
    "kind": "edit",
-   "baseSha256": "024cac152e447fdb2be696357419669d9e76b9fcf577e5be0877d697d72271ee",
-   "resultSha256": "d4934ea623f1015f2bdcabd791e69beb8ef48157398b285a35e5e0984b20757d",
+   "baseSha256": "abec239ada415814b538f0238ef5bfdbb907c67b84103fe9e3372627366e1a43",
+   "resultSha256": "1d6782cffb08dbe8b4aeea85228df751e063f930b647d57c6e045740fa91202d",
    "hunks": [
     {
-     "at": 1541,
+     "at": 180,
      "remove": 0,
      "add": [
       [
@@ -816,13 +825,13 @@
    ]
   },
   {
-   "path": "src/vite/build/main/0282-support-bundle.js",
+   "path": "src/vite/build/main/0293-support-bundle.js",
    "kind": "edit",
-   "baseSha256": "9106a8b52194c51d67d69748b5b5bc902d2f2b35a04223c3c7a29d9c781dde7b",
-   "resultSha256": "952b0e9112d7ae85e7f81980a7b3a995119af6d3279267ff0a2a1b2107bd1bdb",
+   "baseSha256": "dc1267b8090caaae7c7d0daf2013413ece5f8b469b9a9e984e3c0bf05d609e55",
+   "resultSha256": "e837040d6a7d195899091c3bc397731438b3a36f2b29fdc663bfae9491b5cae3",
    "hunks": [
     {
-     "at": 1527,
+     "at": 459,
      "remove": 0,
      "add": [
       [
@@ -836,42 +845,13 @@
    ]
   },
   {
-   "path": "src/vite/build/main/0284-plan-usage.js",
-   "kind": "edit",
-   "baseSha256": "838b434a87694c8473bbac5303ccabb6f1432581c8273b59dce095979e8a41cf",
-   "resultSha256": "4691c111f596d0180403e38e4b7eb9e931c5cd9055bf95518b86c2667ed91c94",
-   "hunks": [
-    {
-     "at": 1246,
-     "remove": 0,
-     "add": [
-      [
-       "    buildPowertoysApplicationMenu(),\n"
-      ]
-     ]
-    },
-    {
-     "at": 1270,
-     "remove": 0,
-     "add": [
-      [
-       "    // Local change: waiting sessions, snippets, bookmarks and the Powertoys switches.\n"
-      ],
-      [
-       "    ...buildPowertoysTrayMenuItems(),\n"
-      ]
-     ]
-    }
-   ]
-  },
-  {
    "path": "src/vite/build/main/_manifest.json",
    "kind": "edit",
-   "baseSha256": "6921755a8b35be969532512e8c3f2b72842efb3009e71cd2365496358606fe32",
-   "resultSha256": "bcfec75feb616fb1d2b84ebad9dc49733636c36c6a08c63dc17bf20231a5212d",
+   "baseSha256": "64ea20f369610ad0029a8d9ad4c77534e4e35f580e7f1ae1ccab5e1f6cb3ad9b",
+   "resultSha256": "a125af884c3c508758dd5e3f95af3eaafa4d64870eb28b64d03781b8c1c3f501",
    "hunks": [
     {
-     "at": 1378,
+     "at": 1402,
      "remove": 0,
      "add": [
       [
@@ -1035,619 +1015,13 @@
    ]
   },
   {
-   "path": "src/vite/build/main/app/0239-session-notifications.js",
+   "path": "src/vite/build/main/app/0246-session-notifications.js",
    "kind": "edit",
-   "baseSha256": "529883047a9db03d6c26f992e00316e0f956af218cf34845cdef606b0bd0c898",
-   "resultSha256": "352bb8316d0f6e78689f283a480175b10b6d02e18aa8e367567568be33bae640",
+   "baseSha256": "4d7c9cb5233e6da52ba2d7f85796f4723a76cf7fcdbc4f072cffd73f47bc8893",
+   "resultSha256": "6c72d45ad4dc9a5b56aa2449b4ab766a808efb4dddecc4fb98c43ceafc9fcbd9",
    "hunks": [
     {
-     "at": 141,
-     "remove": 0,
-     "add": [
-      [
-       "// Local change: Windows notification layout built here instead of by Electron, so notifications stay on\n"
-      ],
-      [
-       "// screen until dismissed (scenario=\"reminder\") without the system \"Close\" button Electron adds to\n"
-      ],
-      [
-       "// reminders: Electron reports that button as a click on the body, which brings the app forward.\n"
-      ],
-      [
-       "// Everything else matches Electron 44's own layout (windows_toast_notification.cc GetToastXml), so\n"
-      ],
-      [
-       "// buttons (\"action\" events by index), drop-downs (an \"action\" event with the chosen item's index) and\n"
-      ],
-      [
-       "// the text box (\"reply\" event) behave as before.\n"
-      ],
-      [
-       "const WINDOWS_TOAST_MAX_BUTTONS = 5;\n"
-      ],
-      [
-       "function escapeToastXml(text) {\n"
-      ],
-      [
-       "  return String(text).replace(\n"
-      ],
-      [
-       "    /[<>&\"']/g,\n"
-      ],
-      [
-       "    (character) => ({ \"<\": \"&lt;\", \">\": \"&gt;\", \"&\": \"&amp;\", '\"': \"&quot;\", \"'\": \"&apos;\" })[character],\n"
-      ],
-      [
-       "  );\n"
-      ],
-      [
-       "}\n"
-      ],
-      [
-       "function buildWindowsToastXml(options, iconPath) {\n"
-      ],
-      [
-       "  let id = options.id;\n"
-      ],
-      [
-       "  let attribute = (name, value) => ` ${name}=\"${escapeToastXml(value)}\"`;\n"
-      ],
-      [
-       "  // Windows' own rules by default (Do Not Disturb, Focus, banner settings; one that times out moves to the\n"
-      ],
-      [
-       "  // notification centre, where its buttons still work). scenario=\"reminder\" keeps it on screen until\n"
-      ],
-      [
-       "  // dismissed but is a priority notification: it shows through Do Not Disturb, so only when asked for.\n"
-      ],
-      [
-       "  let stayOnScreen = powertoysSetting(\"notificationsStayOnScreen\") === true;\n"
-      ],
-      [
-       "  let xml = \"<toast\" + (stayOnScreen ? attribute(\"scenario\", \"reminder\") : \"\") + \">\";\n"
-      ],
-      [
-       "  if (options.groupId && options.groupTitle) {\n"
-      ],
-      [
-       "    xml += \"<header\" + attribute(\"id\", options.groupId) + attribute(\"title\", options.groupTitle) + attribute(\"arguments\", \"\") + \"/>\";\n"
-      ],
-      [
-       "  }\n"
-      ],
-      [
-       "  let lines = [options.title, options.body].filter((line) => line);\n"
-      ],
-      [
-       "  if (lines.length === 0) {\n"
-      ],
-      [
-       "    lines = [\"[no message]\"];\n"
-      ],
-      [
-       "  }\n"
-      ],
-      [
-       "  xml += '<visual><binding template=\"ToastGeneric\">';\n"
-      ],
-      [
-       "  xml += lines.map((line) => `<text>${escapeToastXml(line)}</text>`).join(\"\");\n"
-      ],
-      [
-       "  if (iconPath) {\n"
-      ],
-      [
-       "    xml += \"<image\" + attribute(\"id\", \"1\") + attribute(\"placement\", \"appLogoOverride\") + attribute(\"hint-crop\", \"none\") + attribute(\"src\", iconPath) + \"/>\";\n"
-      ],
-      [
-       "  }\n"
-      ],
-      [
-       "  xml += \"</binding></visual><actions>\";\n"
-      ],
-      [
-       "  let buttons = options.actions ?? [];\n"
-      ],
-      [
-       "  // Inputs come first, each drop-down's button sits beside it (hint-inputId), like the Reply button.\n"
-      ],
-      [
-       "  // The first item is chosen to start with, so the button always has an answer to send.\n"
-      ],
-      [
-       "  buttons.forEach((action, index) => {\n"
-      ],
-      [
-       "    if (action.type === \"selection\") {\n"
-      ],
-      [
-       "      xml += \"<input\" + attribute(\"id\", `selection${index}`) + attribute(\"type\", \"selection\") + attribute(\"defaultInput\", \"0\") + \">\";\n"
-      ],
-      [
-       "      xml += action.items.map((item, itemIndex) => \"<selection\" + attribute(\"id\", String(itemIndex)) + attribute(\"content\", item) + \"/>\").join(\"\");\n"
-      ],
-      [
-       "      xml += \"</input>\";\n"
-      ],
-      [
-       "    }\n"
-      ],
-      [
-       "  });\n"
-      ],
-      [
-       "  if (options.hasReply) {\n"
-      ],
-      [
-       "    xml += \"<input\" + attribute(\"id\", \"reply\") + attribute(\"type\", \"text\") + (options.replyPlaceholder ? attribute(\"placeHolderContent\", options.replyPlaceholder) : \"\") + \"/>\";\n"
-      ],
-      [
-       "  }\n"
-      ],
-      [
-       "  buttons.forEach((action, index) => {\n"
-      ],
-      [
-       "    xml += \"<action\" + attribute(\"activationType\", \"foreground\") + attribute(\"arguments\", `type=action&action=${index}&tag=${id}`) + attribute(\"content\", action.text) + (action.type === \"selection\" ? attribute(\"hint-inputId\", `selection${index}`) : \"\") + \"/>\";\n"
-      ],
-      [
-       "  });\n"
-      ],
-      [
-       "  if (options.hasReply) {\n"
-      ],
-      [
-       "    xml += \"<action\" + attribute(\"activationType\", \"foreground\") + attribute(\"arguments\", `type=reply&tag=${id}`) + attribute(\"content\", \"Reply\") + attribute(\"hint-inputId\", \"reply\") + \"/>\";\n"
-      ],
-      [
-       "  }\n"
-      ],
-      [
-       "  // Close, when there is room: an action with no index, which Electron drops (HandleToastActivation only\n"
-      ],
-      [
-       "  // dispatches action_index >= 0), so the app never sees it, while Windows still removes the notification.\n"
-      ],
-      [
-       "  // Foreground like Electron's own buttons: an unpackaged app has no background activator.\n"
-      ],
-      [
-       "  if (buttons.length + (options.hasReply ? 1 : 0) < WINDOWS_TOAST_MAX_BUTTONS) {\n"
-      ],
-      [
-       "    xml += \"<action\" + attribute(\"activationType\", \"foreground\") + attribute(\"arguments\", `type=action&action=-1&tag=${id}`) + attribute(\"content\", \"Close\") + \"/>\";\n"
-      ],
-      [
-       "  }\n"
-      ],
-      [
-       "  xml += \"</actions>\";\n"
-      ],
-      [
-       "  if (options.silent) {\n"
-      ],
-      [
-       "    xml += '<audio silent=\"true\"/>';\n"
-      ],
-      [
-       "  }\n"
-      ],
-      [
-       "  return xml + \"</toast>\";\n"
-      ],
-      [
-       "}\n"
-      ]
-     ]
-    },
-    {
-     "at": 182,
-     "remove": 0,
-     "add": [
-      [
-       "    // Local change: after a restart, only the notifications on screen before it come back (Powertoys).\n"
-      ],
-      [
-       "    if (powertoysStaleAfterRestart(notificationOptions)) {\n"
-      ],
-      [
-       "      return \"\";\n"
-      ],
-      [
-       "    }\n"
-      ],
-      [
-       "    // Local change: Powertoys' digest holds \"finished\" notifications and shows one summary instead.\n"
-      ],
-      [
-       "    if (powertoysDigestHold(notificationOptions)) {\n"
-      ],
-      [
-       "      return \"\";\n"
-      ],
-      [
-       "    }\n"
-      ],
-      [
-       "    // Local change: the Powertoys inbox records it and can replay its buttons later.\n"
-      ],
-      [
-       "    try {\n"
-      ],
-      [
-       "      onInteraction = powertoysInboxRecord(notificationOptions, notificationId, onInteraction);\n"
-      ],
-      [
-       "    ",
-       [
-        210,
-        4,
-        22
-       ],
-       "\n"
-      ],
-      [
-       "      logger.warn(\"[powertoys] inbox: recording a notification failed: %o\", caught);\n"
-      ],
-      [
-       "    }\n"
-      ]
-     ]
-    },
-    {
-     "at": 187,
-     "remove": 0,
-     "add": [
-      [
-       "      // Local change: notifications stay on screen until they are dismissed (Windows, Linux).\n"
-      ],
-      [
-       "      timeoutType: \"never\",\n"
-      ]
-     ]
-    },
-    {
-     "at": 202,
-     "remove": 4,
-     "removeSha256": "5f4eda7de00a486f9a2895af8577881df6a584c87ebdff0df6f0852c6a3ce855",
-     "add": [
-      [
-       "      // Local change: an action with a list of items is a drop-down with its own button.\n"
-      ],
-      [
-       [
-        202,
-        0,
-        49
-       ],
-       "\n"
-      ],
-      [
-       [
-        203,
-        0,
-        8
-       ],
-       "Array.isArray(action.selection)\n"
-      ],
-      [
-       [
-        203,
-        0,
-        8
-       ],
-       "  ? {\n"
-      ],
-      [
-       "      ",
-       [
-        203,
-        0,
-        15
-       ],
-       "selection\",\n"
-      ],
-      [
-       "              ",
-       [
-        204,
-        8,
-        26
-       ],
-       "\n"
-      ],
-      [
-       "              items",
-       [
-        204,
-        12,
-        21
-       ],
-       "selection,\n"
-      ],
-      [
-       [
-        203,
-        0,
-        8
-       ],
-       "    }\n"
-      ],
-      [
-       [
-        203,
-        0,
-        8
-       ],
-       "  : {\n"
-      ],
-      [
-       "              ",
-       [
-        203,
-        8,
-        23
-       ],
-       "\n"
-      ],
-      [
-       "              ",
-       [
-        204,
-        8,
-        26
-       ],
-       "\n"
-      ],
-      [
-       [
-        203,
-        0,
-        8
-       ],
-       "    },\n"
-      ],
-      [
-       "      );\n"
-      ],
-      [
-       "    }\n"
-      ],
-      [
-       "    // Inline text box (Windows, macOS); the typed text arrives as a \"reply\" interaction.\n"
-      ],
-      [
-       "    if (notificationOptions.reply) {\n"
-      ],
-      [
-       [
-        202,
-        0,
-        8
-       ],
-       "hasReply = true;\n"
-      ],
-      [
-       "      if (notificationOptions.reply.placeholder) {\n"
-      ],
-      [
-       "  ",
-       [
-        202,
-        0,
-        8
-       ],
-       "replyPlaceholder = notificationOptions.reply.placeholder;\n"
-      ],
-      [
-       "      }\n"
-      ],
-      [
-       "    }\n"
-      ],
-      [
-       "    if (process.platform === \"win32\") {\n"
-      ],
-      [
-       "      let iconPath = getAppIconPath();\n"
-      ],
-      [
-       [
-        202,
-        0,
-        8
-       ],
-       "toastXml = buildWindowsToastXml(i, fsModule.default.existsSync(iconPath) ? iconPath : undefined);\n"
-      ]
-     ]
-    },
-    {
-     "at": 246,
-     "remove": 1,
-     "removeSha256": "f925fe4ad89eaa4468532bd6d01ebbd3ebd45afc1f434038e8bd15c8a62480e8",
-     "add": [
-      [
-       [
-        246,
-        0,
-        30
-       ],
-       "event) => {\n"
-      ],
-      [
-       "      // A banner that times out moves to the",
-       [
-        246,
-        3,
-        16
-       ],
-       " centre (reason \"timedOut\"); keep it, so its\n"
-      ],
-      [
-       "      // buttons still reach this handler there and close() can still remove it.\n"
-      ],
-      [
-       "      if (event?.reason === \"timedOut\") {\n"
-      ],
-      [
-       "        return;\n"
-      ],
-      [
-       "      }\n"
-      ]
-     ]
-    },
-    {
-     "at": 256,
-     "remove": 1,
-     "removeSha256": "037199ce82fcdecceebffd0b4d35941e3b4e2a2cf9c719f4b99247d8af6bf527",
-     "add": [
-      [
-       "    // Windows delivers each button press and reply twice; only the first one counts.\n"
-      ],
-      [
-       "    let answered = false;\n"
-      ],
-      [
-       [
-        256,
-        0,
-        39
-       ],
-       ", legacySelectionIndex) => {\n"
-      ],
-      [
-       "      if (answered) {\n"
-      ],
-      [
-       "        return;\n"
-      ],
-      [
-       "      }\n"
-      ],
-      [
-       "      answered = true;\n"
-      ],
-      [
-       "      let actionIndex = typeof event?.actionIndex === \"number\" ? event.actionIndex : i;\n"
-      ],
-      [
-       "      let selectionIndex = typeof event?.selectionIndex === \"number\" ? event.selectionIndex : legacySelectionIndex;\n"
-      ]
-     ]
-    },
-    {
-     "at": 259,
-     "remove": 1,
-     "removeSha256": "fbda159d4ce7dd5e145b6274a6df9050991dd7ae7d58ebac4afbcde361b1fa04",
-     "add": [
-      [
-       [
-        259,
-        0,
-        38
-       ],
-       "actionIndex",
-       [
-        259,
-        39,
-        48
-       ]
-      ],
-      [
-       [
-        259,
-        0,
-        8
-       ],
-       "...(typeof selectionIndex === \"number\" &&\n"
-      ],
-      [
-       [
-        259,
-        0,
-        8
-       ],
-       "  selectionIndex >= 0 && {\n"
-      ],
-      [
-       [
-        259,
-        0,
-        8
-       ],
-       "    selectionIndex: selectionIndex,\n"
-      ],
-      [
-       [
-        259,
-        0,
-        8
-       ],
-       "  }),\n"
-      ]
-     ]
-    },
-    {
-     "at": 265,
-     "remove": 0,
-     "add": [
-      [
-       "    notification.on(\"reply\", (event, legacyReply) => {\n"
-      ],
-      [
-       "      if (answered) {\n"
-      ],
-      [
-       "        return;\n"
-      ],
-      [
-       "      }\n"
-      ],
-      [
-       "      answered = true;\n"
-      ],
-      [
-       "      let reply = typeof event?.reply === \"string\" ? event.reply : legacyReply;\n"
-      ],
-      [
-       "      onInteraction?.({\n"
-      ],
-      [
-       "        action: \"reply\",\n"
-      ],
-      [
-       "        reply: typeof reply === \"string\" ? reply : \"\",\n"
-      ],
-      [
-       "        ",
-       [
-        241,
-        8,
-        39
-       ],
-       "\n"
-      ],
-      [
-       "      });\n"
-      ],
-      [
-       "      ",
-       [
-        235,
-        8,
-        51
-       ],
-       "\n"
-      ],
-      [
-       "    });\n"
-      ]
-     ]
-    },
-    {
-     "at": 663,
+     "at": 341,
      "remove": 0,
      "add": [
       [
@@ -1818,7 +1192,7 @@
       [
        "  ",
        [
-        1157,
+        841,
         4,
         31
        ],
@@ -2097,7 +1471,7 @@
       [
        "    ",
        [
-        1137,
+        821,
         6,
         26
        ],
@@ -2169,7 +1543,7 @@
      ]
     },
     {
-     "at": 751,
+     "at": 429,
      "remove": 0,
      "add": [
       [
@@ -2181,7 +1555,7 @@
      ]
     },
     {
-     "at": 1085,
+     "at": 769,
      "remove": 0,
      "add": [
       [
@@ -2190,7 +1564,7 @@
       [
        "    ",
        [
-        1157,
+        841,
         4,
         31
        ],
@@ -2208,7 +1582,7 @@
       [
        "          ",
        [
-        1141,
+        825,
         14,
         71
        ],
@@ -2217,7 +1591,7 @@
       [
        "            ",
        [
-        343,
+        21,
         6,
         20
        ],
@@ -2244,7 +1618,7 @@
       [
        "          ",
        [
-        1141,
+        825,
         14,
         71
        ],
@@ -2253,7 +1627,7 @@
       [
        "            ",
        [
-        343,
+        21,
         6,
         20
        ],
@@ -2274,7 +1648,7 @@
      ]
     },
     {
-     "at": 1195,
+     "at": 879,
      "remove": 0,
      "add": [
       [
@@ -2292,23 +1666,47 @@
      ]
     },
     {
-     "at": 1336,
-     "remove": 0,
+     "at": 1020,
+     "remove": 1,
+     "removeSha256": "e4b975cd38e80e15dd98154fc2dd2c8594ac21ec8dcdc7eedde6a83ead70043e",
      "add": [
       [
        "    // Asks that only the card may approve still get Deny, like the card.\n"
+      ],
+      [
+       "    let electronN",
+       [
+        1020,
+        9,
+        44
+       ]
       ]
      ]
     },
     {
-     "at": 1347,
+     "at": 1022,
+     "remove": 1,
+     "removeSha256": "40faab87d499f40adbb490a9b0462a481bafb059853c970a20e544acbfdd9458",
+     "add": [
+      [
+       "    electronN",
+       [
+        1022,
+        5,
+        30
+       ]
+      ]
+     ]
+    },
+    {
+     "at": 1031,
      "remove": 8,
      "removeSha256": "cf396f597a81c61f8929ac797cc90991d065854eabdfae888c2ce9499280ef49",
      "add": [
       [
        "        actions: this.permissionNotificationActions(request,",
        [
-        1347,
+        1031,
         16,
         37
        ],
@@ -2317,19 +1715,19 @@
      ]
     },
     {
-     "at": 1363,
+     "at": 1047,
      "remove": 2,
      "removeSha256": "b57b1a98f699e704e10a95e9135184227cebd016e2ed7e1afb4b3a858080a221",
      "add": [
       [
        [
-        1363,
+        1047,
         0,
         12
        ],
        "decis",
        [
-        1363,
+        1047,
         81,
         90
        ],
@@ -2338,13 +1736,13 @@
       [
        "         ",
        [
-        1363,
+        1047,
         30,
         66
        ],
        "PERMISSION_NOTIFICATION_DECISIONS[",
        [
-        1363,
+        1047,
         66,
         88
        ],
@@ -2353,7 +1751,7 @@
       [
        "            ?",
        [
-        1363,
+        1047,
         65,
         88
        ],
@@ -2361,7 +1759,7 @@
       ],
       [
        [
-        1363,
+        1047,
         0,
         8
        ],
@@ -2370,7 +1768,7 @@
       [
        "        // While computer use is controlling the screen nothing is allowed from a n",
        [
-        1364,
+        1048,
         65,
         76
        ],
@@ -2378,7 +1776,7 @@
       ],
       [
        [
-        1363,
+        1047,
         0,
         8
        ],
@@ -2386,13 +1784,13 @@
       ],
       [
        [
-        1363,
+        1047,
         0,
         12
        ],
        "blocked = decisionType !== null && decisionType !== \"deny\"",
        [
-        1364,
+        1048,
         42,
         51
        ],
@@ -2400,7 +1798,7 @@
       ],
       [
        [
-        1364,
+        1048,
         0,
         13
        ],
@@ -2409,13 +1807,13 @@
       [
        "          decisionType && !blocked ? decisionType :",
        [
-        1363,
+        1047,
         30,
         63
        ],
        "? \"click\" :",
        [
-        1363,
+        1047,
         30,
         49
        ],
@@ -2424,13 +1822,21 @@
      ]
     },
     {
-     "at": 1368,
-     "remove": 1,
-     "removeSha256": "d41cf37531793508002dbc22fee0362a4c3b3568de55d84d38d04e5139e0f883",
+     "at": 1051,
+     "remove": 2,
+     "removeSha256": "a15a2dbe69edf34a421f8847aba2be06def9f10f792d58c04faf2749c0a95f8e",
      "add": [
       [
+       "          backend: electronN",
        [
-        1368,
+        1051,
+        20,
+        54
+       ]
+      ],
+      [
+       [
+        1052,
         0,
         19
        ],
@@ -2439,13 +1845,13 @@
      ]
     },
     {
-     "at": 1376,
+     "at": 1060,
      "remove": 2,
      "removeSha256": "c4fe42d34ceb6d6336ac32bdf5f1c35c95ddf1c21ec29e47bf173914a38b1dfe",
      "add": [
       [
        [
-        1376,
+        1060,
         0,
         12
        ],
@@ -2454,13 +1860,13 @@
       [
        "          // The",
        [
-        1377,
+        1061,
         49,
         62
        ],
        " closes when the session reports the request resolved (tool_p",
        [
-        1377,
+        1061,
         24,
         33
        ],
@@ -2468,7 +1874,7 @@
       ],
       [
        [
-        1377,
+        1061,
         0,
         11
        ],
@@ -2476,7 +1882,7 @@
       ],
       [
        [
-        1377,
+        1061,
         0,
         10
        ],
@@ -2485,7 +1891,7 @@
       [
        "  ",
        [
-        1376,
+        1060,
         0,
         12
        ],
@@ -2493,7 +1899,7 @@
       ],
       [
        [
-        1377,
+        1061,
         0,
         10
        ],
@@ -2501,7 +1907,7 @@
       ],
       [
        [
-        1377,
+        1061,
         0,
         10
        ],
@@ -2509,13 +1915,13 @@
       ],
       [
        [
-        1377,
+        1061,
         0,
         22
        ],
        "`Permission ${decision}",
        [
-        1377,
+        1061,
         44,
         62
        ],
@@ -2524,13 +1930,28 @@
      ]
     },
     {
-     "at": 1382,
+     "at": 1064,
+     "remove": 1,
+     "removeSha256": "32970578e38ad54f8bb80ecffff909b707d3ff7f6262132bef2ce7a8c879a5f7",
+     "add": [
+      [
+       "            backend: electronN",
+       [
+        1064,
+        22,
+        56
+       ]
+      ]
+     ]
+    },
+    {
+     "at": 1066,
      "remove": 1,
      "removeSha256": "c46b8d2891d2ba38abc6b5ef1758877765c9f7fd38e643a0fc630a0e19bc2c3b",
      "add": [
       [
        [
-        1382,
+        1066,
         0,
         8
        ],
@@ -2538,7 +1959,7 @@
       ],
       [
        [
-        1382,
+        1066,
         0,
         53
        ],
@@ -2546,7 +1967,7 @@
       ],
       [
        [
-        1382,
+        1066,
         0,
         8
        ],
@@ -2554,7 +1975,7 @@
       ],
       [
        [
-        1382,
+        1066,
         0,
         8
        ],
@@ -2563,7 +1984,7 @@
       [
        "              ",
        [
-        1130,
+        814,
         12,
         33
        ],
@@ -2572,7 +1993,7 @@
       [
        "    ",
        [
-        1382,
+        1066,
         0,
         9
        ],
@@ -2581,7 +2002,7 @@
       [
        "  ",
        [
-        1382,
+        1066,
         0,
         9
        ],
@@ -2590,22 +2011,72 @@
      ]
     },
     {
-     "at": 1397,
+     "at": 1075,
+     "remove": 1,
+     "removeSha256": "4b58ab8fa7288736b79fa515bd0defff1502d1c1bbbb66e6832f6cae03cd8a02",
+     "add": [
+      [
+       [
+        1075,
+        0,
+        69
+       ],
+       "electronN",
+       [
+        1075,
+        70,
+        105
+       ]
+      ]
+     ]
+    },
+    {
+     "at": 1079,
+     "remove": 1,
+     "removeSha256": "fd195a9b869801351e9937694b467032bc0577abee3cad9669c759b111a2a03a",
+     "add": [
+      [
+       "      backend: electronN",
+       [
+        1079,
+        16,
+        50
+       ]
+      ]
+     ]
+    },
+    {
+     "at": 1081,
      "remove": 1,
      "removeSha256": "8fe0ad70ca0d24ac53aa86128aa6fb4b282ae4ab8c995de8dfbde551ea59a3cd",
      "add": [
       [
-       "      has_action_buttons:",
+       "      has_action_buttons: electronN",
        [
-        1397,
-        49,
+        1081,
+        51,
         86
        ]
       ]
      ]
     },
     {
-     "at": 1406,
+     "at": 1087,
+     "remove": 1,
+     "removeSha256": "fd195a9b869801351e9937694b467032bc0577abee3cad9669c759b111a2a03a",
+     "add": [
+      [
+       "      backend: electronN",
+       [
+        1087,
+        16,
+        50
+       ]
+      ]
+     ]
+    },
+    {
+     "at": 1090,
      "remove": 0,
      "add": [
       [
@@ -2647,7 +2118,7 @@
       [
        "        ",
        [
-        1350,
+        1034,
         16,
         35
        ],
@@ -2656,7 +2127,7 @@
       [
        "        ",
        [
-        1351,
+        1035,
         16,
         35
        ],
@@ -2710,7 +2181,7 @@
      ]
     },
     {
-     "at": 1457,
+     "at": 1141,
      "remove": 0,
      "add": [
       [
@@ -2728,7 +2199,7 @@
      ]
     },
     {
-     "at": 1694,
+     "at": 1378,
      "remove": 0,
      "add": [
       [
@@ -2746,20 +2217,20 @@
      ]
     },
     {
-     "at": 1789,
+     "at": 1473,
      "remove": 13,
      "removeSha256": "226d517f0003f2a4ba37b5134acf6434beb1c060d1851485c2ec09286b357c37",
      "add": [
       [
        "      this.showElectronQuest",
        [
-        1796,
+        1480,
         26,
         41
        ],
        "(request, title2, body,",
        [
-        1794,
+        1478,
         17,
         27
        ],
@@ -2777,13 +2248,13 @@
       [
        "   * Shows the current ",
        [
-        1799,
+        1483,
         28,
         36
        ],
        " of an AskUserQuestion",
        [
-        1801,
+        1485,
         11,
         19
        ],
@@ -2792,13 +2263,13 @@
       [
        "   * buildQuest",
        [
-        1796,
+        1480,
         26,
         41
        ],
        "Layout). Questions are asked one",
        [
-        1795,
+        1479,
         14,
         27
        ],
@@ -2807,13 +2278,13 @@
       [
        "   * the session together after the last one, and the",
        [
-        1795,
+        1479,
         14,
         27
        ],
        " closes when the",
        [
-        1800,
+        1484,
         11,
         19
        ],
@@ -2822,7 +2293,7 @@
       [
        "   *",
        [
-        1801,
+        1485,
         11,
         19
        ],
@@ -2834,7 +2305,7 @@
       [
        "  showElectronQuest",
        [
-        1796,
+        1480,
         26,
         41
        ],
@@ -2843,18 +2314,18 @@
       [
        "    let { product: product,",
        [
-        1800,
+        1484,
         11,
         33
        ],
        [
-        1801,
+        1485,
         11,
         32
        ],
        " } =",
        [
-        1801,
+        1485,
         11,
         19
        ],
@@ -2863,7 +2334,7 @@
       [
        "    ",
        [
-        1724,
+        1408,
         4,
         54
        ],
@@ -2871,24 +2342,24 @@
       ],
       [
        [
-        1789,
+        1473,
         2,
         10
        ],
        [
-        1799,
+        1483,
         28,
         36
        ],
        "s = Array.isArray(request.",
        [
-        1799,
+        1483,
         28,
         36
        ],
        "s) ? request.",
        [
-        1799,
+        1483,
         28,
         36
        ],
@@ -2897,13 +2368,13 @@
       [
        "    let progress = this.quest",
        [
-        1796,
+        1480,
         26,
         41
        ],
        "Answers.get(",
        [
-        1801,
+        1485,
         12,
         21
        ],
@@ -2914,7 +2385,7 @@
       ],
       [
        [
-        1801,
+        1485,
         6,
         14
        ],
@@ -2925,18 +2396,18 @@
       ],
       [
        [
-        1789,
+        1473,
         2,
         10
        ],
        [
-        1799,
+        1483,
         28,
         36
        ],
        " = ",
        [
-        1799,
+        1483,
         28,
         36
        ],
@@ -2944,7 +2415,7 @@
       ],
       [
        [
-        1789,
+        1473,
         2,
         10
        ],
@@ -2953,7 +2424,7 @@
       [
        "      questions.length > 0 && questions.every((item) => buildQuest",
        [
-        1796,
+        1480,
         26,
         41
        ],
@@ -2962,13 +2433,13 @@
       [
        "        ? buildQuest",
        [
-        1796,
+        1480,
         26,
         41
        ],
        "Layout(",
        [
-        1799,
+        1483,
         28,
         36
        ],
@@ -2977,15 +2448,15 @@
       [
        "        ",
        [
-        119,
-        6,
-        18
+        695,
+        12,
+        24
        ],
        "\n"
       ],
       [
        [
-        1789,
+        1473,
         2,
         10
        ],
@@ -2999,7 +2470,7 @@
       ],
       [
        [
-        1791,
+        1475,
         0,
         8
        ],
@@ -3007,7 +2478,7 @@
       ],
       [
        [
-        1799,
+        1483,
         2,
         19
        ],
@@ -3015,7 +2486,7 @@
       ],
       [
        [
-        1792,
+        1476,
         0,
         11
        ],
@@ -3023,7 +2494,7 @@
       ],
       [
        [
-        1800,
+        1484,
         2,
         14
        ],
@@ -3031,7 +2502,7 @@
       ],
       [
        [
-        1791,
+        1475,
         0,
         8
        ],
@@ -3045,7 +2516,7 @@
       ],
       [
        [
-        1791,
+        1475,
         0,
         8
        ],
@@ -3053,7 +2524,7 @@
       ],
       [
        [
-        1799,
+        1483,
         2,
         19
        ],
@@ -3061,7 +2532,7 @@
       ],
       [
        [
-        1792,
+        1476,
         0,
         11
        ],
@@ -3069,7 +2540,7 @@
       ],
       [
        [
-        1791,
+        1475,
         0,
         8
        ],
@@ -3083,7 +2554,7 @@
       ],
       [
        [
-        1789,
+        1473,
         2,
         11
        ],
@@ -3092,7 +2563,7 @@
       [
        "      ? sanitize",
        [
-        1796,
+        1480,
         29,
         42
        ],
@@ -3100,42 +2571,42 @@
       ],
       [
        [
-        1792,
+        1476,
         0,
         10
        ],
        [
-        1799,
+        1483,
         28,
         36
        ],
        "s.length > 1 ? `(${progress.index + 1}/${",
        [
-        1799,
+        1483,
         28,
         36
        ],
        "s.length}) ${",
        [
-        1799,
+        1483,
         28,
         36
        ],
        ".",
        [
-        1799,
+        1483,
         28,
         36
        ],
        "}` : ",
        [
-        1799,
+        1483,
         28,
         36
        ],
        ".",
        [
-        1799,
+        1483,
         28,
         36
        ],
@@ -3143,7 +2614,7 @@
       ],
       [
        [
-        1791,
+        1475,
         0,
         8
        ],
@@ -3154,7 +2625,7 @@
       ],
       [
        [
-        1789,
+        1473,
         2,
         10
        ],
@@ -3163,13 +2634,13 @@
       [
        "      this.quest",
        [
-        1796,
+        1480,
         26,
         41
        ],
        "Answers.set(",
        [
-        1801,
+        1485,
         23,
         33
        ],
@@ -3178,7 +2649,7 @@
       [
        "      this.showElectronQuest",
        [
-        1796,
+        1480,
         26,
         41
        ],
@@ -3189,7 +2660,7 @@
       ],
       [
        [
-        1789,
+        1473,
         2,
         10
        ],
@@ -3197,7 +2668,7 @@
       ],
       [
        [
-        1789,
+        1473,
         0,
         10
        ],
@@ -3206,7 +2677,7 @@
       [
        "      if (responses.length < ",
        [
-        1799,
+        1483,
         28,
         36
        ],
@@ -3215,13 +2686,13 @@
       [
        "        logger.info(\"AskUserQuestion answer from",
        [
-        1795,
+        1479,
         14,
         27
        ],
        ", asking the next ",
        [
-        1799,
+        1483,
         28,
         38
        ],
@@ -3230,7 +2701,7 @@
       [
        "          ",
        [
-        1130,
+        814,
         12,
         33
        ],
@@ -3239,7 +2710,7 @@
       [
        "          ",
        [
-        961,
+        645,
         12,
         33
        ],
@@ -3247,7 +2718,7 @@
       ],
       [
        [
-        1792,
+        1476,
         0,
         10
        ],
@@ -3255,13 +2726,13 @@
       ],
       [
        [
-        1792,
+        1476,
         0,
         10
        ],
        "of: ",
        [
-        1799,
+        1483,
         28,
         36
        ],
@@ -3269,7 +2740,7 @@
       ],
       [
        [
-        1791,
+        1475,
         0,
         8
        ],
@@ -3277,7 +2748,7 @@
       ],
       [
        [
-        1794,
+        1478,
         2,
         11
        ],
@@ -3285,7 +2756,7 @@
       ],
       [
        [
-        1792,
+        1476,
         0,
         10
        ],
@@ -3293,7 +2764,7 @@
       ],
       [
        [
-        1801,
+        1485,
         2,
         14
        ],
@@ -3301,7 +2772,7 @@
       ],
       [
        [
-        1791,
+        1475,
         0,
         8
        ],
@@ -3309,7 +2780,7 @@
       ],
       [
        [
-        1801,
+        1485,
         4,
         14
        ],
@@ -3321,7 +2792,7 @@
       [
        "      logger.info(\"AskUserQuestion answered from",
        [
-        1795,
+        1479,
         14,
         27
        ],
@@ -3330,7 +2801,7 @@
       [
        "        ",
        [
-        1130,
+        814,
         12,
         33
        ],
@@ -3339,7 +2810,7 @@
       [
        "        ",
        [
-        961,
+        645,
         12,
         33
        ],
@@ -3351,13 +2822,13 @@
       [
        "      this.handlePermissionResponse(product,",
        [
-        1801,
+        1485,
         22,
         33
        ],
        " \"once\", buildQuestionAnswerInput(product, ",
        [
-        1799,
+        1483,
         28,
         36
        ],
@@ -3369,7 +2840,7 @@
       [
        "    ",
        [
-        1568,
+        1252,
         6,
         33
        ],
@@ -3378,7 +2849,7 @@
       [
        "    ",
        [
-        1569,
+        1253,
         6,
         19
        ],
@@ -3386,7 +2857,7 @@
       ],
       [
        [
-        1791,
+        1475,
         2,
         10
        ]
@@ -3394,7 +2865,7 @@
       [
        "        ",
        [
-        2135,
+        1828,
         10,
         23
        ],
@@ -3402,7 +2873,7 @@
       ],
       [
        [
-        1793,
+        1477,
         2,
         22
        ]
@@ -3410,7 +2881,7 @@
       [
        "        ",
        [
-        1343,
+        1027,
         8,
         23
        ],
@@ -3419,7 +2890,7 @@
       [
        "        ",
        [
-        1574,
+        1258,
         10,
         31
        ],
@@ -3428,7 +2899,7 @@
       [
        "        ",
        [
-        1345,
+        1029,
         8,
         54
        ],
@@ -3437,7 +2908,7 @@
       [
        "        ",
        [
-        1346,
+        1030,
         8,
         26
        ],
@@ -3445,7 +2916,7 @@
       ],
       [
        [
-        1791,
+        1475,
         0,
         8
        ],
@@ -3453,7 +2924,7 @@
       ],
       [
        [
-        1792,
+        1476,
         0,
         10
        ],
@@ -3461,7 +2932,7 @@
       ],
       [
        [
-        1791,
+        1475,
         0,
         8
        ],
@@ -3469,7 +2940,7 @@
       ],
       [
        [
-        1791,
+        1475,
         0,
         8
        ],
@@ -3477,7 +2948,7 @@
       ],
       [
        [
-        1801,
+        1485,
         2,
         14
        ],
@@ -3485,7 +2956,7 @@
       ],
       [
        [
-        1799,
+        1483,
         0,
         12
        ],
@@ -3494,7 +2965,7 @@
      ]
     },
     {
-     "at": 1803,
+     "at": 1487,
      "remove": 0,
      "add": [
       [
@@ -3506,7 +2977,7 @@
       [
        "          ",
        [
-        1759,
+        1443,
         12,
         38
        ],
@@ -3515,7 +2986,7 @@
       [
        "          ",
        [
-        961,
+        645,
         12,
         33
        ],
@@ -3524,7 +2995,7 @@
       [
        "          ",
        [
-        1130,
+        814,
         12,
         33
        ],
@@ -3533,7 +3004,7 @@
      ]
     },
     {
-     "at": 1804,
+     "at": 1488,
      "remove": 5,
      "removeSha256": "0a8cdfdaf2b811c9a78605abbcaefea1a928a56cc61be9cd6080c6d1bceedd02",
      "add": [
@@ -3543,7 +3014,7 @@
       [
        "      ",
        [
-        1362,
+        1046,
         6,
         24
        ],
@@ -3552,7 +3023,7 @@
       [
        "        ",
        [
-        952,
+        636,
         10,
         56
        ],
@@ -3561,7 +3032,7 @@
       [
        "          ",
        [
-        828,
+        510,
         10,
         24
        ],
@@ -3570,7 +3041,7 @@
       [
        "          ",
        [
-        1585,
+        1269,
         12,
         43
        ],
@@ -3578,26 +3049,26 @@
       ],
       [
        [
-        1808,
+        1492,
         2,
         52
        ],
        "||",
        [
-        1808,
+        1492,
         19,
         44
        ],
        "reply\" ? \"answer",
        [
-        1808,
+        1492,
         60,
         84
        ]
       ],
       [
        [
-        1804,
+        1488,
         0,
         8
        ],
@@ -3606,7 +3077,7 @@
       [
        "        ",
        [
-        1588,
+        1272,
         10,
         47
        ],
@@ -3615,7 +3086,7 @@
       [
        "          ",
        [
-        1589,
+        1273,
         12,
         110
        ],
@@ -3624,7 +3095,7 @@
       [
        "          ",
        [
-        1736,
+        1420,
         8,
         66
        ],
@@ -3633,7 +3104,7 @@
       [
        "          ",
        [
-        1076,
+        760,
         12,
         78
        ],
@@ -3642,7 +3113,7 @@
       [
        "            ",
        [
-        1814,
+        1498,
         14,
         50
        ],
@@ -3650,7 +3121,7 @@
       ],
       [
        [
-        1805,
+        1489,
         0,
         10
        ],
@@ -3658,7 +3129,7 @@
       ],
       [
        [
-        1805,
+        1489,
         0,
         10
        ],
@@ -3666,7 +3137,7 @@
       ],
       [
        [
-        1804,
+        1488,
         0,
         8
        ],
@@ -3674,7 +3145,7 @@
       ],
       [
        [
-        1804,
+        1488,
         0,
         8
        ],
@@ -3682,7 +3153,7 @@
       ],
       [
        [
-        1805,
+        1489,
         0,
         10
        ],
@@ -3690,7 +3161,7 @@
       ],
       [
        [
-        1804,
+        1488,
         0,
         8
        ],
@@ -3699,7 +3170,7 @@
       [
        "        if (",
        [
-        1808,
+        1492,
         20,
         44
        ],
@@ -3708,7 +3179,7 @@
       [
        "          let text =",
        [
-        1808,
+        1492,
         19,
         32
        ],
@@ -3716,7 +3187,7 @@
       ],
       [
        [
-        1805,
+        1489,
         0,
         10
        ],
@@ -3724,7 +3195,7 @@
       ],
       [
        [
-        1806,
+        1490,
         0,
         12
        ],
@@ -3732,7 +3203,7 @@
       ],
       [
        [
-        1805,
+        1489,
         0,
         10
        ],
@@ -3740,7 +3211,7 @@
       ],
       [
        [
-        1808,
+        1492,
         2,
         13
        ],
@@ -3748,7 +3219,7 @@
       ],
       [
        [
-        1806,
+        1490,
         0,
         12
        ],
@@ -3757,20 +3228,20 @@
      ]
     },
     {
-     "at": 1810,
+     "at": 1494,
      "remove": 6,
      "removeSha256": "570ebfdfe13d9822db506d5037a3d3d5bbc59ad5980edf1ffc04e416edde2fdf",
      "add": [
       [
        "        } else",
        [
-        1810,
+        1494,
         9,
         38
        ],
        "action\" && ",
        [
-        1810,
+        1494,
         14,
         32
        ],
@@ -3778,13 +3249,13 @@
       ],
       [
        [
-        1810,
+        1494,
         0,
         10
        ],
        "answ",
        [
-        1812,
+        1496,
         28,
         38
        ],
@@ -3792,7 +3263,7 @@
       ],
       [
        [
-        1811,
+        1495,
         0,
         12
        ],
@@ -3800,7 +3271,7 @@
       ],
       [
        [
-        1815,
+        1499,
         2,
         13
        ],
@@ -3809,13 +3280,13 @@
       [
        "        } else",
        [
-        1810,
+        1494,
         9,
         38
        ],
        "action\" && ",
        [
-        1810,
+        1494,
         14,
         32
        ],
@@ -3824,7 +3295,7 @@
       [
        "          let option = layout.options[",
        [
-        1810,
+        1494,
         14,
         26
        ],
@@ -3832,7 +3303,7 @@
       ],
       [
        [
-        1810,
+        1494,
         0,
         14
        ],
@@ -3840,7 +3311,7 @@
       ],
       [
        [
-        1811,
+        1495,
         0,
         12
        ],
@@ -3848,7 +3319,7 @@
       ],
       [
        [
-        1814,
+        1498,
         2,
         15
        ],
@@ -3856,7 +3327,7 @@
       ],
       [
        [
-        1811,
+        1495,
         0,
         12
        ],
@@ -3865,14 +3336,14 @@
      ]
     },
     {
-     "at": 1817,
+     "at": 1501,
      "remove": 14,
      "removeSha256": "c5702b9ff0acaf636536da1077c2b4186745eaafe0731729d5dd0ed6ade12a7d",
      "add": [
       [
        "          answ",
        [
-        1826,
+        1510,
         32,
         42
        ],
@@ -3880,7 +3351,7 @@
       ],
       [
        [
-        1817,
+        1501,
         0,
         8
        ],
@@ -3889,7 +3360,7 @@
       [
        "    ",
        [
-        1821,
+        1505,
         0,
         11
        ],
@@ -3897,7 +3368,7 @@
       ],
       [
        [
-        1817,
+        1501,
         0,
         8
        ],
@@ -3906,7 +3377,7 @@
       [
        "    ",
        [
-        1817,
+        1501,
         0,
         9
        ],
@@ -3915,14 +3386,14 @@
       [
        "    ",
        [
-        1825,
+        1509,
         0,
         10
        ]
       ],
       [
        [
-        1817,
+        1501,
         0,
         9
        ],
@@ -3930,7 +3401,7 @@
       ],
       [
        [
-        1817,
+        1501,
         2,
         11
        ]
@@ -3938,7 +3409,7 @@
       [
        "      ",
        [
-        1592,
+        1276,
         8,
         103
        ],
@@ -3950,7 +3421,7 @@
       [
        "    ",
        [
-        1293,
+        977,
         6,
         46
        ],
@@ -3959,7 +3430,7 @@
       [
        "      ",
        [
-        828,
+        510,
         10,
         24
        ],
@@ -3968,7 +3439,7 @@
       [
        "      ",
        [
-        1585,
+        1269,
         12,
         43
        ],
@@ -3976,13 +3447,13 @@
       ],
       [
        [
-        1823,
+        1507,
         2,
         28
        ],
        "layout !==",
        [
-        1818,
+        1502,
         68,
         79
        ],
@@ -3991,7 +3462,7 @@
       [
        "      ",
        [
-        1298,
+        982,
         8,
         36
        ],
@@ -3999,7 +3470,7 @@
       ],
       [
        [
-        1825,
+        1509,
         2,
         10
        ]
@@ -4007,7 +3478,7 @@
       [
        "    logger.debug(\"Showed Electron",
        [
-        1826,
+        1510,
         26,
         60
        ]
@@ -4015,7 +3486,7 @@
       [
        "      ",
        [
-        961,
+        645,
         12,
         33
        ],
@@ -4024,7 +3495,7 @@
       [
        "      ",
        [
-        1130,
+        814,
         12,
         33
        ],
@@ -4035,7 +3506,7 @@
       ],
       [
        [
-        1825,
+        1509,
         2,
         10
        ]
@@ -4043,7 +3514,7 @@
      ]
     },
     {
-     "at": 1833,
+     "at": 1517,
      "remove": 0,
      "add": [
       [
@@ -4052,7 +3523,7 @@
      ]
     },
     {
-     "at": 1865,
+     "at": 1549,
      "remove": 0,
      "add": [
       [
@@ -4061,7 +3532,7 @@
      ]
     },
     {
-     "at": 1904,
+     "at": 1588,
      "remove": 1,
      "removeSha256": "953b40d3a31548c34ca9cffc33e089e51dbf8e3f0270521261a74624e26b40f4",
      "add": [
@@ -4071,7 +3542,7 @@
       [
        "      // (which reports ",
        [
-        1904,
+        1588,
         23,
         35
        ],
@@ -4080,7 +3551,7 @@
       [
        "      (this.mainWindow.isMinimized() ? this.mainWindow.restore() : ",
        [
-        1904,
+        1588,
         7,
         62
        ]
@@ -4088,7 +3559,7 @@
      ]
     },
     {
-     "at": 2026,
+     "at": 1719,
      "remove": 0,
      "add": [
       [
@@ -4100,7 +3571,7 @@
       [
        "      ",
        [
-        2028,
+        1721,
         6,
         23
        ],
@@ -4115,7 +3586,7 @@
      ]
     },
     {
-     "at": 2398,
+     "at": 2089,
      "remove": 1,
      "removeSha256": "9f49d5ddded342f8184c0ae9ad7394e52a1f8f41ac7ced56607bafeae43fb26e",
      "add": [
@@ -4127,20 +3598,20 @@
    ]
   },
   {
-   "path": "src/vite/build/main/app/0333-device-storage-api.js",
+   "path": "src/vite/build/main/app/0342-device-storage-api.js",
    "kind": "edit",
-   "baseSha256": "4fdefb4c1ff989ae609ec2c3910d3fc1a50a8fb017c87f6ff1353fe63d29c4dd",
-   "resultSha256": "e4bc772928af419bd47a6095a226c10a45124059ff9c392ff3e7496bcbe261b6",
+   "baseSha256": "f42a7f764170500fe4ff0004eb626c66cb804184dec5e51cdfb6dc754fb76347",
+   "resultSha256": "3f381b9e041c40ea6b62a0b923dfee996b93124af3603846154e2c816e3917f6",
    "hunks": [
     {
-     "at": 1144,
+     "at": 1211,
      "remove": 1,
      "removeSha256": "4ecf0acf9fbbe50e3bd6e536741df003d9dafda203019da58a28a46690cd4ffb",
      "add": [
       [
        "    let localSessionsApi =",
        [
-        1144,
+        1211,
         10,
         35
        ]
@@ -4148,7 +3619,7 @@
      ]
     },
     {
-     "at": 1151,
+     "at": 1218,
      "remove": 0,
      "add": [
       [
@@ -4163,13 +3634,13 @@
      ]
     },
     {
-     "at": 2080,
+     "at": 2177,
      "remove": 1,
      "removeSha256": "26fa719a8bcdf390914d6dd04fce42a1380b20dcc886af2861a5ae59e3883bd7",
      "add": [
       [
        [
-        2080,
+        2177,
         0,
         10
        ],
@@ -4178,7 +3649,7 @@
       [
        "          if (",
        [
-        2080,
+        2177,
         15,
         31
        ],
@@ -4187,7 +3658,7 @@
       [
        "            ",
        [
-        2080,
+        2177,
         15,
         29
        ],
@@ -4196,7 +3667,7 @@
       [
        "          } else",
        [
-        2080,
+        2177,
         9,
         44
        ]
@@ -4206,13 +3677,13 @@
    ]
   },
   {
-   "path": "src/vite/build/main/app/0349-app-ipc-preferences.js",
+   "path": "src/vite/build/main/app/0356-app-ipc-preferences.js",
    "kind": "edit",
-   "baseSha256": "6145341494eb1fd854982024890cdf5840f6f31ce5e93c8bfa039cff4ffadeb5",
-   "resultSha256": "4eccec150e540aa6b538709f6a7de237ef490145f72457d80d0d6ea6c14f7b6b",
+   "baseSha256": "f44b2787d89c42020d730893569872236862dc5e215e8c12099cbc739b95fc36",
+   "resultSha256": "ee226dd80b2ce40092de1a8badf6a6b7426f99afdf74b5327cbd5f6e10219144",
    "hunks": [
     {
-     "at": 132,
+     "at": 144,
      "remove": 0,
      "add": [
       [
@@ -4224,19 +3695,19 @@
      ]
     },
     {
-     "at": 133,
+     "at": 145,
      "remove": 1,
      "removeSha256": "25cb5515ada9902dc04e70e1b2c21bc37f102f67c218fd5f62bc9c635d473900",
      "add": [
       [
        [
-        133,
+        145,
         0,
         10
        ],
        "fsModule.existsSync(squirrelStubPath) ? squirrelStubPath : ",
        [
-        133,
+        145,
         52,
         60
        ],
@@ -4247,13 +3718,13 @@
    ]
   },
   {
-   "path": "src/vite/build/main/app/0350-main-window-squirrel.js",
+   "path": "src/vite/build/main/app/0357-main-window-squirrel.js",
    "kind": "edit",
-   "baseSha256": "bdb28b88f1db6833bcd773faac9fcd04bd9bbd97d25c28c04ceef25a4044704a",
-   "resultSha256": "865069c7fb3a7b416ceab2059662a2c7079e21c78999658adb61871586b7d84b",
+   "baseSha256": "9bb991c98fd768f6cf2bd9ac6f1300e95cdc965e69738dd0a0cd4267f6e0ee7d",
+   "resultSha256": "5c8445090837dea9b55f64e78aeca22602ae05bed4c876e25ebffeb41180d266",
    "hunks": [
     {
-     "at": 522,
+     "at": 537,
      "remove": 1,
      "removeSha256": "f4e8dc499cf6518682553b9980d844ae62cc1f0e71d773a7f378581b15d94bb0",
      "add": [
@@ -4263,7 +3734,7 @@
       [
        "  let configure = (powertoysCodeWindowC",
        [
-        522,
+        537,
         7,
         36
        ]
@@ -4271,7 +3742,7 @@
      ]
     },
     {
-     "at": 561,
+     "at": 576,
      "remove": 1,
      "removeSha256": "42a2cb25a122b44221a6234ec660a7b5fb7f9bde7b3b9e2b3c559a0d96fac739",
      "add": [
@@ -4281,13 +3752,13 @@
      ]
     },
     {
-     "at": 822,
+     "at": 837,
      "remove": 4,
      "removeSha256": "ac6b4faf4deecfc301f6cf100e062cae56298e8841bde0b64f0629d0e5f5e602",
      "add": [
       [
        [
-        822,
+        837,
         0,
         8
        ],
@@ -4295,13 +3766,13 @@
       ],
       [
        [
-        822,
+        837,
         0,
         23
        ],
        "powertoys",
        [
-        822,
+        837,
         30,
         40
        ],
@@ -4310,7 +3781,7 @@
       [
        "         ",
        [
-        822,
+        837,
         22,
         67
        ]
@@ -4318,7 +3789,7 @@
       [
        "            ",
        [
-        823,
+        838,
         10,
         58
        ],
@@ -4327,7 +3798,7 @@
       [
        "            ",
        [
-        824,
+        839,
         10,
         45
        ],
@@ -4335,7 +3806,7 @@
       ],
       [
        [
-        823,
+        838,
         0,
         10
        ],
@@ -4343,7 +3814,7 @@
       ],
       [
        [
-        822,
+        837,
         0,
         8
        ],
@@ -4352,7 +3823,7 @@
      ]
     },
     {
-     "at": 2291,
+     "at": 2392,
      "remove": 0,
      "add": [
       [
@@ -4363,13 +3834,13 @@
    ]
   },
   {
-   "path": "src/vite/build/main/app/0351-app-main-tray.js",
+   "path": "src/vite/build/main/app/0358-app-main-tray.js",
    "kind": "edit",
-   "baseSha256": "a273d244d4cb6a82cbaa588b8cf5b0c4cdafe0ffdd6dda862f138cdf9761b715",
-   "resultSha256": "d47dad128016dc74ab9bb6ebace680154da6b1dd9cd74346888eac58ed173a12",
+   "baseSha256": "107945960f669cc96b19d3567fee93f384649ee5cd2e05a2477752daea9935e1",
+   "resultSha256": "4093b4f067b321daafaf85314f0e646816a815929c03de330a15cc0ec0693903",
    "hunks": [
     {
-     "at": 228,
+     "at": 244,
      "remove": 3,
      "removeSha256": "018126f3ca74ff15aafb5bbb3e17597cab43be667793d8a2769d6afeb52871a3",
      "add": [
@@ -4382,18 +3853,18 @@
       [
        "    ",
        [
-        229,
+        245,
         9,
         117
        ],
        [
-        229,
+        245,
         47,
         58
        ],
        "submenu ? signatureOf(menuItem.sub",
        [
-        229,
+        245,
         4,
         14
        ],
@@ -4401,13 +3872,13 @@
       ],
       [
        [
-        228,
+        244,
         0,
         24
        ],
        "signatureOf(",
        [
-        229,
+        245,
         4,
         14
        ],
@@ -4416,7 +3887,7 @@
      ]
     },
     {
-     "at": 357,
+     "at": 373,
      "remove": 1,
      "removeSha256": "55d505fc174cbf0f10091d9122384d518cea626ecac4d8a304e9d703c7a57943",
      "add": [
@@ -4435,7 +3906,7 @@
       [
        "        ",
        [
-        357,
+        373,
         6,
         43
        ],
@@ -4449,10 +3920,39 @@
    ]
   },
   {
+   "path": "src/vite/build/main/chrome/0295-browser-launch-extension-install.js",
+   "kind": "edit",
+   "baseSha256": "b729505886157be166a1f1fd633b0514ee72dc9d35d6568e4a6503a4e244002d",
+   "resultSha256": "fa76d10cb66f6a0be8f20c69881c7c16debc1f50f07ecb98b0b7972892e57ae7",
+   "hunks": [
+    {
+     "at": 77,
+     "remove": 0,
+     "add": [
+      [
+       "    buildPowertoysApplicationMenu(),\n"
+      ]
+     ]
+    },
+    {
+     "at": 101,
+     "remove": 0,
+     "add": [
+      [
+       "    // Local change: waiting sessions, snippets, bookmarks and the Powertoys switches.\n"
+      ],
+      [
+       "    ...buildPowertoysTrayMenuItems(),\n"
+      ]
+     ]
+    }
+   ]
+  },
+  {
    "path": "src/vite/build/main/platform/0028-electron-store-sync-timing.js",
    "kind": "edit",
-   "baseSha256": "b4414478724f73bb791a51375485a235484ad4cebe48e7afb9108e57924fa580",
-   "resultSha256": "3decfea39a43b42876f541c00e69b4f5120c671f9ff4e04d3202525c0cc2a30d",
+   "baseSha256": "3579cc464461d24da83ea96dff87249c4d429d1d6cbb5991ed75fc659d23d8d9",
+   "resultSha256": "864122e6306a4966a057604bc6c395d704d1f6bda6ebc3f944416aaac1d07419",
    "hunks": [
     {
      "at": 3,
@@ -4490,13 +3990,638 @@
    ]
   },
   {
-   "path": "src/vite/build/main/platform/0242-gpu-state-telemetry.js",
+   "path": "src/vite/build/main/platform/0245-swift-native-bridge.js",
    "kind": "edit",
-   "baseSha256": "7d294cb7d4fae1f29fb36dac8d5252638cf96d58249e1ea18b93c4d3955063b5",
-   "resultSha256": "2185982b18f00bdc384d2c596464d7570f21ed2c4a83dd2647260fb454fe03e6",
+   "baseSha256": "4f3302149e1e48a237c69e74ddf1c13b265bb71f9d1868db5ea51f9d2e49cdd6",
+   "resultSha256": "ad38a9dd24df6eca70f30d53ee726c7236e5b1515e7ca444563968906a237c6b",
    "hunks": [
     {
-     "at": 750,
+     "at": 1450,
+     "remove": 0,
+     "add": [
+      [
+       "// Local change: Windows notification layout built here instead of by Electron, so notifications stay on\n"
+      ],
+      [
+       "// screen until dismissed (scenario=\"reminder\") without the system \"Close\" button Electron adds to\n"
+      ],
+      [
+       "// reminders: Electron reports that button as a click on the body, which brings the app forward.\n"
+      ],
+      [
+       "// Everything else matches Electron 44's own layout (windows_toast_notification.cc GetToastXml), so\n"
+      ],
+      [
+       "// buttons (\"action\" events by index), drop-downs (an \"action\" event with the chosen item's index) and\n"
+      ],
+      [
+       "// the text box (\"reply\" event) behave as before.\n"
+      ],
+      [
+       "const WINDOWS_TOAST_MAX_BUTTONS = 5;\n"
+      ],
+      [
+       "function escapeToastXml(text) {\n"
+      ],
+      [
+       "  return String(text).replace(\n"
+      ],
+      [
+       "    /[<>&\"']/g,\n"
+      ],
+      [
+       "    (character) => ({ \"<\": \"&lt;\", \">\": \"&gt;\", \"&\": \"&amp;\", '\"': \"&quot;\", \"'\": \"&apos;\" })[character],\n"
+      ],
+      [
+       "  );\n"
+      ],
+      [
+       "}\n"
+      ],
+      [
+       "function buildWindowsToastXml(options, iconPath) {\n"
+      ],
+      [
+       "  let id = options.id;\n"
+      ],
+      [
+       "  let attribute = (name, value) => ` ${name}=\"${escapeToastXml(value)}\"`;\n"
+      ],
+      [
+       "  // Windows' own rules by default (Do Not Disturb, Focus, banner settings; one that times out moves to the\n"
+      ],
+      [
+       "  // notification centre, where its buttons still work). scenario=\"reminder\" keeps it on screen until\n"
+      ],
+      [
+       "  // dismissed but is a priority notification: it shows through Do Not Disturb, so only when asked for.\n"
+      ],
+      [
+       "  let stayOnScreen = powertoysSetting(\"notificationsStayOnScreen\") === true;\n"
+      ],
+      [
+       "  let xml = \"<toast\" + (stayOnScreen ? attribute(\"scenario\", \"reminder\") : \"\") + \">\";\n"
+      ],
+      [
+       "  if (options.groupId && options.groupTitle) {\n"
+      ],
+      [
+       "    xml += \"<header\" + attribute(\"id\", options.groupId) + attribute(\"title\", options.groupTitle) + attribute(\"arguments\", \"\") + \"/>\";\n"
+      ],
+      [
+       "  }\n"
+      ],
+      [
+       "  let lines = [options.title, options.body].filter((line) => line);\n"
+      ],
+      [
+       "  if (lines.length === 0) {\n"
+      ],
+      [
+       "    lines = [\"[no message]\"];\n"
+      ],
+      [
+       "  }\n"
+      ],
+      [
+       "  xml += '<visual><binding template=\"ToastGeneric\">';\n"
+      ],
+      [
+       "  xml += lines.map((line) => `<text>${escapeToastXml(line)}</text>`).join(\"\");\n"
+      ],
+      [
+       "  if (iconPath) {\n"
+      ],
+      [
+       "    xml += \"<image\" + attribute(\"id\", \"1\") + attribute(\"placement\", \"appLogoOverride\") + attribute(\"hint-crop\", \"none\") + attribute(\"src\", iconPath) + \"/>\";\n"
+      ],
+      [
+       "  }\n"
+      ],
+      [
+       "  xml += \"</binding></visual><actions>\";\n"
+      ],
+      [
+       "  let buttons = options.actions ?? [];\n"
+      ],
+      [
+       "  // Inputs come first, each drop-down's button sits beside it (hint-inputId), like the Reply button.\n"
+      ],
+      [
+       "  // The first item is chosen to start with, so the button always has an answer to send.\n"
+      ],
+      [
+       "  buttons.forEach((action, index) => {\n"
+      ],
+      [
+       "    if (action.type === \"selection\") {\n"
+      ],
+      [
+       "      xml += \"<input\" + attribute(\"id\", `selection${index}`) + attribute(\"type\", \"selection\") + attribute(\"defaultInput\", \"0\") + \">\";\n"
+      ],
+      [
+       "      xml += action.items.map((item, itemIndex) => \"<selection\" + attribute(\"id\", String(itemIndex)) + attribute(\"content\", item) + \"/>\").join(\"\");\n"
+      ],
+      [
+       "      xml += \"</input>\";\n"
+      ],
+      [
+       "    }\n"
+      ],
+      [
+       "  });\n"
+      ],
+      [
+       "  if (options.hasReply) {\n"
+      ],
+      [
+       "    xml += \"<input\" + attribute(\"id\", \"reply\") + attribute(\"type\", \"text\") + (options.replyPlaceholder ? attribute(\"placeHolderContent\", options.replyPlaceholder) : \"\") + \"/>\";\n"
+      ],
+      [
+       "  }\n"
+      ],
+      [
+       "  buttons.forEach((action, index) => {\n"
+      ],
+      [
+       "    xml += \"<action\" + attribute(\"activationType\", \"foreground\") + attribute(\"arguments\", `type=action&action=${index}&tag=${id}`) + attribute(\"content\", action.text) + (action.type === \"selection\" ? attribute(\"hint-inputId\", `selection${index}`) : \"\") + \"/>\";\n"
+      ],
+      [
+       "  });\n"
+      ],
+      [
+       "  if (options.hasReply) {\n"
+      ],
+      [
+       "    xml += \"<action\" + attribute(\"activationType\", \"foreground\") + attribute(\"arguments\", `type=reply&tag=${id}`) + attribute(\"content\", \"Reply\") + attribute(\"hint-inputId\", \"reply\") + \"/>\";\n"
+      ],
+      [
+       "  }\n"
+      ],
+      [
+       "  // Close, when there is room: an action with no index, which Electron drops (HandleToastActivation only\n"
+      ],
+      [
+       "  // dispatches action_index >= 0), so the app never sees it, while Windows still removes the notification.\n"
+      ],
+      [
+       "  // Foreground like Electron's own buttons: an unpackaged app has no background activator.\n"
+      ],
+      [
+       "  if (buttons.length + (options.hasReply ? 1 : 0) < WINDOWS_TOAST_MAX_BUTTONS) {\n"
+      ],
+      [
+       "    xml += \"<action\" + attribute(\"activationType\", \"foreground\") + attribute(\"arguments\", `type=action&action=-1&tag=${id}`) + attribute(\"content\", \"Close\") + \"/>\";\n"
+      ],
+      [
+       "  }\n"
+      ],
+      [
+       "  xml += \"</actions>\";\n"
+      ],
+      [
+       "  if (options.silent) {\n"
+      ],
+      [
+       "    xml += '<audio silent=\"true\"/>';\n"
+      ],
+      [
+       "  }\n"
+      ],
+      [
+       "  return xml + \"</toast>\";\n"
+      ],
+      [
+       "}\n"
+      ]
+     ]
+    },
+    {
+     "at": 1491,
+     "remove": 0,
+     "add": [
+      [
+       "    // Local change: after a restart, only the notifications on screen before it come back (Powertoys).\n"
+      ],
+      [
+       "    if (powertoysStaleAfterRestart(notificationOptions)) {\n"
+      ],
+      [
+       "      return \"\";\n"
+      ],
+      [
+       "    }\n"
+      ],
+      [
+       "    // Local change: Powertoys' digest holds \"finished\" notifications and shows one summary instead.\n"
+      ],
+      [
+       "    if (powertoysDigestHold(notificationOptions)) {\n"
+      ],
+      [
+       "      return \"\";\n"
+      ],
+      [
+       "    }\n"
+      ],
+      [
+       "    // Local change: the Powertoys inbox records it and can replay its buttons later.\n"
+      ],
+      [
+       "    try {\n"
+      ],
+      [
+       "      onInteraction = powertoysInboxRecord(notificationOptions, notificationId, onInteraction);\n"
+      ],
+      [
+       "    ",
+       [
+        19,
+        4,
+        22
+       ],
+       "\n"
+      ],
+      [
+       "      logger.warn(\"[powertoys] inbox: recording a notification failed: %o\", caught);\n"
+      ],
+      [
+       "    }\n"
+      ]
+     ]
+    },
+    {
+     "at": 1496,
+     "remove": 0,
+     "add": [
+      [
+       "      // Local change: notifications stay on screen until they are dismissed (Windows, Linux).\n"
+      ],
+      [
+       "      timeoutType: \"never\",\n"
+      ]
+     ]
+    },
+    {
+     "at": 1511,
+     "remove": 4,
+     "removeSha256": "5f4eda7de00a486f9a2895af8577881df6a584c87ebdff0df6f0852c6a3ce855",
+     "add": [
+      [
+       "      // Local change: an action with a list of items is a drop-down with its own button.\n"
+      ],
+      [
+       [
+        1511,
+        0,
+        49
+       ],
+       "\n"
+      ],
+      [
+       [
+        1512,
+        0,
+        8
+       ],
+       "Array.isArray(action.selection)\n"
+      ],
+      [
+       [
+        1512,
+        0,
+        8
+       ],
+       "  ? {\n"
+      ],
+      [
+       "      ",
+       [
+        1512,
+        0,
+        15
+       ],
+       "selection\",\n"
+      ],
+      [
+       "              ",
+       [
+        1513,
+        8,
+        26
+       ],
+       "\n"
+      ],
+      [
+       "              items",
+       [
+        1513,
+        12,
+        21
+       ],
+       "selection,\n"
+      ],
+      [
+       [
+        1512,
+        0,
+        8
+       ],
+       "    }\n"
+      ],
+      [
+       [
+        1512,
+        0,
+        8
+       ],
+       "  : {\n"
+      ],
+      [
+       "              ",
+       [
+        1512,
+        8,
+        23
+       ],
+       "\n"
+      ],
+      [
+       "              ",
+       [
+        1513,
+        8,
+        26
+       ],
+       "\n"
+      ],
+      [
+       [
+        1512,
+        0,
+        8
+       ],
+       "    },\n"
+      ],
+      [
+       "      );\n"
+      ],
+      [
+       "    }\n"
+      ],
+      [
+       "    // Inline text box (Windows, macOS); the typed text arrives as a \"reply\" interaction.\n"
+      ],
+      [
+       "    if (notificationOptions.reply) {\n"
+      ],
+      [
+       [
+        1511,
+        0,
+        8
+       ],
+       "hasReply = true;\n"
+      ],
+      [
+       "      if (notificationOptions.reply.placeholder) {\n"
+      ],
+      [
+       "  ",
+       [
+        1511,
+        0,
+        8
+       ],
+       "replyPlaceholder = notificationOptions.reply.placeholder;\n"
+      ],
+      [
+       "      }\n"
+      ],
+      [
+       "    }\n"
+      ],
+      [
+       "    if (process.platform === \"win32\") {\n"
+      ],
+      [
+       "      let iconPath = getAppIconPath();\n"
+      ],
+      [
+       [
+        1511,
+        0,
+        8
+       ],
+       "toastXml = buildWindowsToastXml(i, fsModule.default.existsSync(iconPath) ? iconPath : undefined);\n"
+      ]
+     ]
+    },
+    {
+     "at": 1535,
+     "remove": 1,
+     "removeSha256": "5a3aeb5a037b5aee22f9cec822f913bde7c9157aaba90242439b831f3b007660",
+     "add": [
+      [
+       [
+        1535,
+        0,
+        33
+       ],
+       "notification2",
+       [
+        1535,
+        38,
+        52
+       ]
+      ]
+     ]
+    },
+    {
+     "at": 1556,
+     "remove": 0,
+     "add": [
+      [
+       "      // A banner that times out moves to the notification centre (reason \"timedOut\"); keep it, so its\n"
+      ],
+      [
+       "      // buttons still reach this handler there and close() can still remove it.\n"
+      ],
+      [
+       "      if (event?.reason === \"timedOut\") {\n"
+      ],
+      [
+       "        return;\n"
+      ],
+      [
+       "      }\n"
+      ]
+     ]
+    },
+    {
+     "at": 1559,
+     "remove": 1,
+     "removeSha256": "afe47a48cc9a9ab75e52b7d22eb388c82306d8ed736022738e472f3a5179d34c",
+     "add": []
+    },
+    {
+     "at": 1566,
+     "remove": 1,
+     "removeSha256": "037199ce82fcdecceebffd0b4d35941e3b4e2a2cf9c719f4b99247d8af6bf527",
+     "add": [
+      [
+       "    // Windows delivers each button press and reply twice; only the first one counts.\n"
+      ],
+      [
+       "    let answered = false;\n"
+      ],
+      [
+       [
+        1566,
+        0,
+        39
+       ],
+       ", legacySelectionIndex) => {\n"
+      ],
+      [
+       "      if (answered) {\n"
+      ],
+      [
+       "        return;\n"
+      ],
+      [
+       "      }\n"
+      ],
+      [
+       "      answered = true;\n"
+      ],
+      [
+       "      let actionIndex = typeof event?.actionIndex === \"number\" ? event.actionIndex : i;\n"
+      ],
+      [
+       "      let selectionIndex = typeof event?.selectionIndex === \"number\" ? event.selectionIndex : legacySelectionIndex;\n"
+      ]
+     ]
+    },
+    {
+     "at": 1569,
+     "remove": 1,
+     "removeSha256": "fbda159d4ce7dd5e145b6274a6df9050991dd7ae7d58ebac4afbcde361b1fa04",
+     "add": [
+      [
+       [
+        1569,
+        0,
+        38
+       ],
+       "actionIndex",
+       [
+        1569,
+        39,
+        48
+       ]
+      ],
+      [
+       [
+        1569,
+        0,
+        8
+       ],
+       "...(typeof selectionIndex === \"number\" &&\n"
+      ],
+      [
+       [
+        1569,
+        0,
+        8
+       ],
+       "  selectionIndex >= 0 && {\n"
+      ],
+      [
+       [
+        1569,
+        0,
+        8
+       ],
+       "    selectionIndex: selectionIndex,\n"
+      ],
+      [
+       [
+        1569,
+        0,
+        8
+       ],
+       "  }),\n"
+      ]
+     ]
+    },
+    {
+     "at": 1575,
+     "remove": 0,
+     "add": [
+      [
+       "    notification.on(\"reply\", (event, legacyReply) => {\n"
+      ],
+      [
+       "      if (answered) {\n"
+      ],
+      [
+       "        return;\n"
+      ],
+      [
+       "      }\n"
+      ],
+      [
+       "      answered = true;\n"
+      ],
+      [
+       "      let reply = typeof event?.reply === \"string\" ? event.reply : legacyReply;\n"
+      ],
+      [
+       "      onInteraction?.({\n"
+      ],
+      [
+       "        action: \"reply\",\n"
+      ],
+      [
+       "        reply: typeof reply === \"string\" ? reply : \"\",\n"
+      ],
+      [
+       "        ",
+       [
+        1550,
+        8,
+        39
+       ],
+       "\n"
+      ],
+      [
+       "      });\n"
+      ],
+      [
+       "      ",
+       [
+        1544,
+        8,
+        51
+       ],
+       "\n"
+      ],
+      [
+       "    });\n"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "path": "src/vite/build/main/platform/0249-gpu-state-telemetry.js",
+   "kind": "edit",
+   "baseSha256": "9d4b59fd091e3a109abe500159fa3a0b548d928ea70eae0311fae4672cbf6fa0",
+   "resultSha256": "00b1926354288fa5f82141a5a3f143365c34c23e88162b64fc02c872f25c92ff",
+   "hunks": [
+    {
+     "at": 847,
      "remove": 0,
      "add": [
       [
@@ -4511,7 +4636,7 @@
       [
        "    ",
        [
-        576,
+        673,
         2,
         20
        ],
@@ -4535,12 +4660,12 @@
   {
    "path": "src/vite/build/main/powertoys/0341-powertoys-transcripts.js",
    "kind": "add",
-   "sha256": "e7db0a5a41a6a4073d2bf07495085efd913cf33d18ac0cf8c03fc53b2e8321ad"
+   "sha256": "daf98e9891ed79763a40e2dde80ce519727c1760b1fa0bcbd0932584b496bbcd"
   },
   {
    "path": "src/vite/build/main/powertoys/0342-powertoys-sessions.js",
    "kind": "add",
-   "sha256": "6076c8b31c47728b10c487d2bbc6483787bd181363692801814dc5c9ade323c6"
+   "sha256": "fb2aa2e4de983ca1dedf02f278b8f342f9afebe95bfd4153d92ae3a9e355d44f"
   },
   {
    "path": "src/vite/build/main/powertoys/0343-powertoys-hotkeys-menus.js",
@@ -4550,7 +4675,7 @@
   {
    "path": "src/vite/build/main/powertoys/0344-powertoys-ipc.js",
    "kind": "add",
-   "sha256": "668086746de151e12f3aa6d78c3bee9894708d3d13cf558e3a0554d77ca6b594"
+   "sha256": "8953c90bd633c885976ed5dd632fcd24fd730684d304c1324b69ec72071efcf7"
   },
   {
    "path": "src/vite/build/main/powertoys/0345-powertoys-system.js",
@@ -4560,12 +4685,12 @@
   {
    "path": "src/vite/build/main/powertoys/0346-powertoys-extra.js",
    "kind": "add",
-   "sha256": "4ba419f93e4a28ce68b7c611df64baed65e9b9d040cf34ae50f9204876a3047b"
+   "sha256": "0c0d3b2f5a9ed14677da753b125b910ddb93e3facf6dd9048fac2e059b32484b"
   },
   {
    "path": "src/vite/build/main/powertoys/0349-powertoys-notify.js",
    "kind": "add",
-   "sha256": "537e69f041d3c836a7083aeb94f3ce3af551f711fa84f4cd8237233ae385e0a3"
+   "sha256": "9bd0f5459f77cc6b1612c799c7153ea82461e9dab05b894ac7d159965131b97c"
   },
   {
    "path": "src/vite/build/main/powertoys/0350-powertoys-restart.js",
@@ -4580,7 +4705,7 @@
   {
    "path": "src/vite/build/main/powertoys/0352-powertoys-flow.js",
    "kind": "add",
-   "sha256": "aaadb83c3f31b1fe6050dd8f9827bf02e35f66225b3b67f8df5e40992ba14d90"
+   "sha256": "e0cfe58d655cc5f395059daf904ab369ebf2c8af417623a46b05cfc51f42028f"
   },
   {
    "path": "src/vite/build/main/powertoys/0353-powertoys-previews.js",
@@ -4593,10 +4718,10 @@
    "sha256": "7922804897cb2c3a35b5974e95a1d3f481d9631e65da7106b16e96f93b0f1561"
   },
   {
-   "path": "src/vite/build/main/settings/0237-supported-features.js",
+   "path": "src/vite/build/main/settings/0244-supported-features.js",
    "kind": "edit",
-   "baseSha256": "9af8a06e0ecc8e2ec5c3413c5b5c18fedd0f02c4205b1026130aceea150fa567",
-   "resultSha256": "991389a4ab4ee3a42bfa219c87b7d5267a05a4770c6c5e83cf7370c332a0b38b",
+   "baseSha256": "dad9c9d9617ce6bca4c466c79f9b5211acc0e776bf763dab52a6da1f1474583d",
+   "resultSha256": "64d1c7acf60ea27b1d4240eb5684f9cb3a3895ffd8d3eeb0d5f9dc8ed9fb92ca",
    "hunks": [
     {
      "at": 185,
@@ -4634,13 +4759,13 @@
    ]
   },
   {
-   "path": "src/vite/build/main/vm/0183-vm-proxy-credentials.js",
+   "path": "src/vite/build/main/vm/0194-vm-rpc-client.js",
    "kind": "edit",
-   "baseSha256": "0936f4c66b089ad00b2bd3f4144d8b9b759f717f699557918441e820abe59a69",
-   "resultSha256": "e25e4e5c0747c3e03b30ca444b4f9fb422fca58a52e3af2b2d9f78d5a10a53e3",
+   "baseSha256": "5d1085787252094d6b3f62d428ac5627f0a41ff511b79b5129ad314d989f2f71",
+   "resultSha256": "86ffbfdc46d6973b841c249433c37766730114195818f00aae2ba6cde2d8c9ea",
    "hunks": [
     {
-     "at": 1582,
+     "at": 56,
      "remove": 0,
      "add": [
       [
@@ -4656,17 +4781,9 @@
        "  }\n"
       ]
      ]
-    }
-   ]
-  },
-  {
-   "path": "src/vite/build/main/vm/0184-vm-rpc-client.js",
-   "kind": "edit",
-   "baseSha256": "22d2be96411552cccb7d4dfa292f67d81800a3ebc6c6edf795287b4645831c3e",
-   "resultSha256": "03fb6ca92849997465d7474e81eeb437def32ae6abb244fae26a52ab5bc60a3e",
-   "hunks": [
+    },
     {
-     "at": 713,
+     "at": 804,
      "remove": 0,
      "add": [
       [
@@ -4678,7 +4795,7 @@
       [
        "    ",
        [
-        462,
+        563,
         4,
         16
        ],
@@ -4692,13 +4809,13 @@
    ]
   },
   {
-   "path": "src/vite/build/main/vm/0258-vm-bundle-download.js",
+   "path": "src/vite/build/main/vm/0266-vm-bundle-download.js",
    "kind": "edit",
-   "baseSha256": "2146824f0ceedc9b2667561dc919eeb37a946dfd0ab69f7271c4c806f8e592e4",
-   "resultSha256": "03986ef3df4c808a71aaf45c9b8e9cf0326c8b37d4cce1c00ae79eaac11fe9b8",
+   "baseSha256": "f7f72f8b2596e2bd7fb7418740d5c76f37c55c45ee1cd0a9d4890e436b45aa64",
+   "resultSha256": "18e864ce9760ce91aa99e843ab0507e7afdaf220551a87376c5ddbcf61e0bbea",
    "hunks": [
     {
-     "at": 940,
+     "at": 991,
      "remove": 0,
      "add": [
       [
@@ -4721,19 +4838,19 @@
    ]
   },
   {
-   "path": "src/vite/build/main/windows/0208-session-handoff-activity.js",
+   "path": "src/vite/build/main/windows/0214-session-handoff-activity.js",
    "kind": "edit",
-   "baseSha256": "821c3449d48fb6aea47bfdf7650d672642cfb5288f88577b9f4e99208cba0d2c",
-   "resultSha256": "45d1fc60235aa4abdbbfdbc4cfb9310d678579b5342a37972c1ceaa9d7d38a68",
+   "baseSha256": "d8c5b2f578eadb0c1fcbc22e261c023dc60afffa7163021e8843cc5e83783a89",
+   "resultSha256": "58073182063d4ac7e2482a88e62a941e53a5e80905c684aef53938bcc53029f6",
    "hunks": [
     {
-     "at": 630,
+     "at": 656,
      "remove": 1,
      "removeSha256": "12b40b81468b904abce60d89e4f2915376c114df84467dc0ca8b208b909e8800",
      "add": [
       [
        [
-        630,
+        656,
         0,
         8
        ],
@@ -4741,7 +4858,7 @@
       ],
       [
        [
-        630,
+        656,
         0,
         16
        ],
@@ -4752,13 +4869,13 @@
    ]
   },
   {
-   "path": "src/vite/build/main/windows/0344-main-view-input-errors.js",
+   "path": "src/vite/build/main/windows/0351-main-view-input-errors.js",
    "kind": "edit",
-   "baseSha256": "7699562716b53b85af518e4bab89a2a71d990201f214e11af78a36adaf124810",
-   "resultSha256": "d44069d96360801039387aa2fcea403720364c04500f33a8b77b1e2923436f5b",
+   "baseSha256": "2109da1918cb0074c95b6ced1e923c29d05e0f6df064c2c569f56eb88a6e4b8a",
+   "resultSha256": "efdc7d3e8f2e9b1654f1d286561d88f7cc264da4b300ec82c38c24380e056ca2",
    "hunks": [
     {
-     "at": 1457,
+     "at": 1759,
      "remove": 0,
      "add": [
       [
@@ -4767,7 +4884,7 @@
      ]
     },
     {
-     "at": 1495,
+     "at": 1797,
      "remove": 0,
      "add": [
       [
@@ -4776,7 +4893,7 @@
      ]
     },
     {
-     "at": 1513,
+     "at": 1815,
      "remove": 0,
      "add": [
       [
@@ -4791,7 +4908,7 @@
      ]
     },
     {
-     "at": 2068,
+     "at": 2420,
      "remove": 0,
      "add": [
       [
@@ -4800,7 +4917,7 @@
      ]
     },
     {
-     "at": 2092,
+     "at": 2444,
      "remove": 0,
      "add": [
       [
@@ -4809,7 +4926,7 @@
      ]
     },
     {
-     "at": 2123,
+     "at": 2476,
      "remove": 0,
      "add": [
       [
@@ -4821,7 +4938,7 @@
       [
        "        ",
        [
-        1408,
+        1710,
         8,
         62
        ],
@@ -4843,28 +4960,28 @@
   {
    "path": "src/vite/build/mainView/0003-powertoys-page.js",
    "kind": "add",
-   "sha256": "9a9b0ad77ab6e2f6fe0406b31c9443464a890be9f75af61540fb80ed26a6e2f0"
+   "sha256": "485da0a580c5f54c908377a08354fe8db9ede4d6c90ea039d8320dbaa69795d5"
   },
   {
    "path": "src/vite/build/mainView/0007-window-manager-vm-bridges.js",
    "kind": "edit",
-   "baseSha256": "a805dbbd430c4ef742105eea4dd894590fcd698c11bad48ff1bc027fd03e06c1",
-   "resultSha256": "d2bacf017b0f3163db534aa013dc43cffa5711b1d83e1be06c55746767c373b2",
+   "baseSha256": "ebc6bad787f3f083188fd27857a2a89de1c4a804896b6dc1c65596971b2f0a9b",
+   "resultSha256": "1ae0e80a71f4d17ebea07ef054e90c8b0f9f3bd9c31051e1791601dfa2605057",
    "hunks": [
     {
-     "at": 585,
+     "at": 596,
      "remove": 1,
      "removeSha256": "7870e9ec76133d3bc969cb33d072770965e4108ede7d535242cfd564ef5cd05d",
      "add": [
       [
        [
-        585,
+        596,
         0,
         70
        ],
        " || powertoysPastedFilePath",
        [
-        585,
+        596,
         64,
         72
        ]
@@ -4876,8 +4993,8 @@
   {
    "path": "src/vite/build/mainView/_manifest.json",
    "kind": "edit",
-   "baseSha256": "e07602bfab80586bb883efc0bb0f4ad915b4e4a3fc1f118919d7009b26b682fa",
-   "resultSha256": "7c4a1ec8b1de8482b3493a34aac187a1129b2be2f5923ef24c11819c3c31f2f9",
+   "baseSha256": "12e6210c7b86a450d6bdc0ad2bffe93e98af714cb21c02c0fd058b533312c2c1",
+   "resultSha256": "2a1382299a1685602cf79e13d5413f2eb19e60e38bf03eda32cf5aa808ad66da",
    "hunks": [
     {
      "at": 34,

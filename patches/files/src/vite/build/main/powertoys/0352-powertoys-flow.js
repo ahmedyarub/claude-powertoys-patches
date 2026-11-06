@@ -289,6 +289,18 @@ async function powertoysOnPrChanged(rows) {
         powertoysLog(`ticket status: PR ${key} is ${state}, but ${view.sessionId} has no ticket`);
         continue;
       }
+      // Sessions in one folder all list that folder's PRs, so a PR whose branch names a ticket moves only that ticket
+      // (fix/iss-2045-… went to the ISS-2054 session too, 2026-11-04).
+      let branch = String(
+        (view.prs ?? []).find((pr) => String(pr.repo).toLowerCase() === String(row.repo).toLowerCase() && String(pr.prNumber) === String(row.identifier))?.branch ??
+          row.details?.headRefName ??
+          "",
+      );
+      let named = branch.toUpperCase().match(/[A-Z][A-Z0-9]*-\d+/g) ?? [];
+      if (named.length && !named.includes(String(ticket.id).toUpperCase())) {
+        powertoysLog(`ticket status: PR ${key} (branch ${branch}) is not ${view.sessionId}'s ticket ${ticket.id}; not asked`);
+        continue;
+      }
       let event = state === "merged" ? "was merged" : "is ready for review";
       powertoysLog(`ticket status: PR ${key} ${event}; asking ${view.sessionId} to set ${ticket.id} to "${status}"`);
       powertoysQueuePrompt(
@@ -314,31 +326,42 @@ function powertoysMostUrgent() {
 }
 let powertoysDigestHeld = [];
 let powertoysDigestTimer = null;
+let powertoysDigestFirst = null; // the session whose "finished" started the window (shown at once)
 /**
  * Groups "finished" notifications (finishedDigestMinutes > 0): the first one shows at once and opens the window;
- * the ones that follow inside it are held for one summary at its end. True when held, not shown.
+ * the ones that follow inside it from OTHER sessions are held for one summary at its end. True when held, not shown.
+ * The same session finishing again shows at once: its earlier one was already seen, and holding the only pending
+ * "finished" for the rest of the window just made it late (9 min, 2026-11-05 05:29 -> 05:38).
  */
 function powertoysDigestHold(options) {
   let minutes = Number(powertoysSetting("finishedDigestMinutes")) || 0;
   if (minutes <= 0 || !/^idle/.test(String(options?.data?.type ?? ""))) {
     return false;
   }
+  let sessionId = powertoysNotificationSessionId(options);
   if (!powertoysDigestTimer) {
+    powertoysDigestFirst = sessionId;
     powertoysDigestTimer = setTimeout(powertoysShowDigest, minutes * 60000);
     return false;
   }
-  powertoysDigestHeld.push({ title: String(options.title ?? ""), sessionId: powertoysNotificationSessionId(options), at: Date.now() });
+  if (sessionId && sessionId === powertoysDigestFirst) {
+    powertoysLog(`digest: ${sessionId} finished again inside the window; shown at once`);
+    return false;
+  }
+  powertoysDigestHeld.push({ title: String(options.title ?? ""), sessionId, at: Date.now() });
+  powertoysLog(`digest: "${String(options.title ?? "").slice(0, 60)}" held for the summary (${powertoysDigestHeld.length} held)`);
   return true;
 }
 function powertoysShowDigest() {
   powertoysDigestTimer = null;
+  powertoysDigestFirst = null;
   let held = powertoysDigestHeld;
   powertoysDigestHeld = [];
   if (held.length === 0) {
     return;
   }
   let names = [...new Set(held.map((item) => item.title).filter(Boolean))];
-  notificationBackend.show(
+  electronNotificationBackend.show(
     {
       title: held.length === 1 ? names[0] || "A session finished" : `${held.length} sessions finished`,
       body: names.slice(0, 6).join(" · "),
@@ -470,7 +493,7 @@ async function powertoysSessionLimits(sessionIds) {
       if (!warned[kind]) {
         warned[kind] = true;
         let view = powertoysSessionViews.get(sessionId);
-        notificationBackend.show(
+        electronNotificationBackend.show(
           {
             title: kind === "cost" ? `Over $${costLimit}: ${powertoysSessionTitle(view)}` : `Context ${contextPercent}% full: ${powertoysSessionTitle(view)}`,
             body: kind === "cost" ? `About $${cost.toFixed(2)} so far. Its tab's menu has "Compact now".` : "Its tab's menu has \"Compact now\".",
