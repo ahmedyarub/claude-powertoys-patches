@@ -473,6 +473,9 @@ function powertoysPageMain() {
     .tab .ci.failed { color: #f85149; }
     .tab .ci.pending { color: #d29922; }
     .tab .queued { flex: none; font-size: 11px; cursor: pointer; color: hsl(var(--text-300, 55 9% 74%)); }
+    .tab .ctx { flex: none; font-size: 10.5px; font-variant-numeric: tabular-nums; cursor: pointer; opacity: .55; color: hsl(var(--text-300, 55 9% 74%)); }
+    .tab .ctx:hover { opacity: .9; }
+    .tab .ctx.over { opacity: 1; color: #e0a040; font-weight: 600; }
     /* The context map window. */
     .history.ctxmap { inset: 4vh 5vw; }
     .ctxmap .body { flex: 1; overflow: auto; padding: 12px 18px 20px; display: flex; flex-direction: column; gap: 18px; font-size: 13px; }
@@ -1993,7 +1996,9 @@ function powertoysPageMain() {
       tabLimitsAt = Date.now();
       call("sessionLimits", [...ids]).then(
         (limits) => {
-          let changed = JSON.stringify(Object.entries(limits).map(([id, limit]) => [id, limit.over])) !== JSON.stringify(Object.entries(tabLimits).map(([id, limit]) => [id, limit.over]));
+          // Redrawn when a warning changes, or a context size shown on a tab moves by 10k or more.
+          let shape = (all) => JSON.stringify(Object.entries(all).map(([id, limit]) => [id, limit.over, Math.round((limit.contextTokens ?? 0) / 10000)]));
+          let changed = shape(limits) !== shape(tabLimits);
           tabLimits = limits;
           if (changed) {
             tabsKey = "";
@@ -3021,13 +3026,33 @@ function powertoysPageMain() {
       (caught) => flash(ipcError(caught)),
     );
   }
-  /** "Compact now" is offered while a cost or context warning is set (costWarnUsd, contextWarnPercent). */
-  const compactOffered = () => Number(settings?.costWarnUsd) > 0 || Number(settings?.contextWarnPercent) > 0;
+  /** "Compact now" and "Start fresh" are offered while a cost or context warning is set (costWarnUsd, contextWarnPercent, contextNudgeTokens). */
+  const compactOffered = () => Number(settings?.costWarnUsd) > 0 || Number(settings?.contextWarnPercent) > 0 || Number(settings?.contextNudgeTokens) > 0;
   function compactNow(sessionId) {
     call("compactNow", sessionId).then(
       () => flash("Compacting (now, or when its turn ends)"),
       (caught) => flash(ipcError(caught)),
     );
+  }
+  function startFresh(sessionId) {
+    call("startFresh", sessionId).then(
+      () => flash("Asked it for a handoff; a fresh session starts from it when it comes back"),
+      (caught) => flash(ipcError(caught)),
+    );
+  }
+  /** The tab's context chip: compact, or start fresh from a handoff. */
+  function contextChoices(sessionId, limit) {
+    let size = `${Math.round((limit?.contextTokens ?? 0) / 1000)}k`;
+    listPopup({
+      title: `Context: ${size} tokens, re-read by every reply`,
+      items: [
+        { value: "compact", label: "Compact now", detail: "Claude Code summarizes the conversation in place (/compact)" },
+        { value: "fresh", label: "Start fresh", detail: "It writes a short handoff, and a new session in the same folder starts from that" },
+      ],
+      place: placeCentred(0.2),
+      width: 560,
+      onPick: (picked) => (picked === "fresh" ? startFresh(sessionId) : compactNow(sessionId)),
+    });
   }
   function goToMostUrgent() {
     call("mostUrgent").then(
@@ -4423,6 +4448,7 @@ function powertoysPageMain() {
       ["Archived sessions", openArchived],
       ["Snippets", showSnippets, "Ctrl+Shift+Space"],
       ["Quick send to a session", () => call("quickSend")],
+      ["Token use dashboard (any period, filters, warnings)", () => call("openDashboard").catch((caught) => flash(ipcError(caught)))],
       ["Token use and cost by project (last 7 days)", () => showUsageReport(7)],
       ["Topic: this conversation's ticket, progress and PR", () => {
         let sessionId = paneSessionId(activePane());
@@ -4457,7 +4483,7 @@ function powertoysPageMain() {
         ["This conversation: rebuild Claude, restart and continue here", () => restartAndContinue(sessionId)],
         [sessionNotes[sessionId] ? "This conversation: edit its note" : "This conversation: add a note", () => editNote(sessionId, tabRows.find((row) => row.id === sessionId)?.title)],
         ["This conversation: fix CI", () => fixCi(sessionId)],
-        ...(compactOffered() ? [["This conversation: compact now", () => compactNow(sessionId)]] : []),
+        ...(compactOffered() ? [["This conversation: compact now", () => compactNow(sessionId)], ["This conversation: start fresh from a handoff", () => startFresh(sessionId)]] : []),
         ["This project: instructions for new sessions", () => editProjectInstructions(tabRows.find((row) => row.kind === "code" && row.id === sessionId))],
         ["This conversation: export as Markdown", () => exportConversation(pane, "markdown")],
         ["This conversation: export as HTML", () => exportConversation(pane, "html")],
@@ -6166,16 +6192,27 @@ function powertoysPageMain() {
       });
       tab.appendChild(queued);
     }
+    // The conversation's context size (re-read by every reply); ⚠ once a cost or context threshold is passed.
     let limit = tabLimits[row.id];
-    if (limit?.over?.length) {
-      let warn = element("span", "queued", "⚠");
-      warn.title = `${[limit.over.includes("cost") ? `about $${limit.cost.toFixed(2)} so far` : "", limit.over.includes("context") ? `context ${limit.contextPercent}% full` : ""].filter(Boolean).join(", ")} (click to compact)`;
-      warn.addEventListener("mousedown", (event) => {
+    let over = limit?.over?.length > 0;
+    let showSize = settings?.tabContextSize !== false && limit?.contextTokens > 0;
+    if (over || showSize) {
+      let size = limit?.contextTokens > 0 ? `${Math.round(limit.contextTokens / 1000)}k` : "";
+      let chip = element("span", `ctx${over ? " over" : ""}`, over ? `⚠${size ? ` ${size}` : ""}` : size);
+      chip.title = [
+        size ? `Context: ${size} tokens (${limit.contextPercent}% of the window), re-read by every reply` : "",
+        limit?.over?.includes("cost") ? `about $${limit.cost.toFixed(2)} so far` : "",
+        limit?.over?.includes("size") ? "past the nudge threshold" : "",
+        "click: compact or start fresh",
+      ]
+        .filter(Boolean)
+        .join("\n");
+      chip.addEventListener("mousedown", (event) => {
         event.preventDefault();
         event.stopPropagation();
-        compactNow(row.id);
+        contextChoices(row.id, limit);
       });
-      tab.appendChild(warn);
+      tab.appendChild(chip);
     }
     if (isMuted(row.id)) {
       tab.appendChild(element("span", "muted", "🔕"));
@@ -6302,7 +6339,7 @@ function powertoysPageMain() {
           { label: "Set the Notion ticket…", onClick: () => setTicket(row.id, row.title) },
           { label: "Context map…", onClick: () => openContextMap(row.id, row.title) },
           ...(ciOf(tabExtras[row.id])?.checks === "failed" ? [{ label: "Fix CI (asks it to read the failing checks' logs)", onClick: () => fixCi(row.id) }] : []),
-          ...(compactOffered() ? [{ label: "Compact now", onClick: () => compactNow(row.id) }] : []),
+          ...(compactOffered() ? [{ label: "Compact now", onClick: () => compactNow(row.id) }, { label: "Start fresh from a handoff", onClick: () => startFresh(row.id) }] : []),
           ...(row.project?.folder ? [{ label: `Instructions for new sessions in ${row.project.name}…`, onClick: () => editProjectInstructions(row) }] : []),
           ...(tabExtras[row.id]?.taskList === false ? [{ label: "Add the task list to this session", onClick: () => addTaskList(row.id) }] : []),
           isMuted(row.id)
@@ -6492,23 +6529,63 @@ function powertoysPageMain() {
       if (menu.querySelector("[data-powertoys-folded-item]")) {
         return;
       }
-      // Entries look like the menu's own: a shallow copy of its first item (classes, no handlers).
-      let template = menu.querySelector('[role="menuitem"]');
+      // Entries look like the menu's own: a deep copy of a plain item (its inner layout carries the padding and
+      // the highlight styles since 4.23118.0), with its label swapped and its icon and shortcut dropped, placed in
+      // the same container as the real items. A shallow copy on the menu's root showed bare, unhighlighted text.
+      // The items can be checkbox or radio items (menuitemcheckbox / menuitemradio), not only plain ones.
+      let items = [...menu.querySelectorAll('[role^="menuitem"]')].filter((candidate) => !candidate.hasAttribute("data-powertoys-folded-item"));
+      let template = items.find((candidate) => candidate.getAttribute("role") === "menuitem" && !candidate.querySelector('[role="switch"], input')) ?? items.find((candidate) => !candidate.querySelector('[role="switch"], input')) ?? items[0];
+      let container = template?.parentElement ?? menu;
+      if (!menu.hasAttribute("data-powertoys-template-logged")) {
+        menu.setAttribute("data-powertoys-template-logged", "");
+        log(template ? `View options menu: folded entries copy ${template.outerHTML.replace(/\s+/g, " ").slice(0, 400)}` : `View options menu: no item to copy; the menu is ${menu.outerHTML.replace(/\s+/g, " ").slice(0, 800)}`);
+      }
       let separator = menu.querySelector('[role="separator"]')?.cloneNode(true);
       if (separator) {
         separator.setAttribute("data-powertoys-folded-item", "");
-        menu.appendChild(separator);
+        container.appendChild(separator);
       }
+      let unhighlight = () => container.querySelectorAll("[data-powertoys-folded-item][data-highlighted]").forEach((other) => other.removeAttribute("data-highlighted"));
       for (let button of folded) {
-        let item = template ? template.cloneNode(false) : document.createElement("div");
-        item.removeAttribute("id");
-        item.removeAttribute("data-highlighted");
+        let item = template ? template.cloneNode(true) : document.createElement("div");
+        for (let node of [item, ...item.querySelectorAll("*")]) {
+          node.removeAttribute("id");
+          node.removeAttribute("data-highlighted");
+          node.removeAttribute("aria-checked");
+          node.removeAttribute("aria-keyshortcuts");
+        }
+        // The item's parts (4.23118.0): an icon slot holding a glyph of the icon font (span[data-cds=Icon], text, not
+        // an svg), the label (span.truncate), and a trailing slot with the check mark and the shortcut
+        // (span[data-cds=Shortcut]). The icon becomes the title bar button's own; the shortcut goes.
+        let icon = item.querySelector('[data-cds="Icon"], svg, img');
+        let ownIcon = button.querySelector('[data-cds="Icon"], svg, img');
+        if (icon && ownIcon) {
+          let copy = ownIcon.cloneNode(true);
+          if (icon.hasAttribute("style")) {
+            copy.setAttribute("style", icon.getAttribute("style"));
+          }
+          icon.replaceWith(copy);
+        } else if (icon) {
+          icon.style.visibility = "hidden";
+        }
+        item.querySelectorAll('[data-cds="Shortcut"]').forEach((shortcut) => shortcut.remove());
+        let label = item.querySelector(".truncate");
+        if (label) {
+          label.textContent = buttonLabel(button);
+        } else {
+          log(`View options menu: no label slot (span.truncate) in the copied item; the label goes at the end`);
+          item.append(buttonLabel(button));
+        }
         item.setAttribute("role", "menuitem");
         item.setAttribute("data-powertoys-folded-item", "");
         item.tabIndex = -1;
-        item.textContent = buttonLabel(button);
         item.toggleAttribute("aria-disabled", button.disabled);
-        item.addEventListener("pointerenter", () => item.setAttribute("data-highlighted", ""));
+        // Highlighted like the menu's own items while the pointer is on it (one at a time).
+        item.addEventListener("pointerenter", () => {
+          unhighlight();
+          menu.querySelectorAll("[data-highlighted]").forEach((other) => other !== item && other.removeAttribute("data-highlighted"));
+          item.setAttribute("data-highlighted", "");
+        });
         item.addEventListener("pointerleave", () => item.removeAttribute("data-highlighted"));
         item.addEventListener("click", (event) => {
           event.preventDefault();
@@ -6519,7 +6596,7 @@ function powertoysPageMain() {
           menu.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
           setTimeout(() => button.click(), 50);
         });
-        menu.appendChild(item);
+        container.appendChild(item);
       }
     };
     requestAnimationFrame(poll);

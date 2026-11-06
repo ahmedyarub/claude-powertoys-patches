@@ -25,12 +25,12 @@ patches/patches.json        the patch manifest: every file, its hashes and its e
 patches/files/...           files that are entirely new (written for Powertoys), copied in as they are
 ```
 
-`patches/patches.json` lists 40 files:
+`patches/patches.json` lists 49 files:
 
-- **15 new files** (`"kind": "add"`), all written for Powertoys:
-  - `src/vite/build/main/powertoys/0340` … `0351`: the main-process half (settings and stores, the transcript
+- **19 new files** (`"kind": "add"`), all written for Powertoys:
+  - `src/vite/build/main/powertoys/0340` … `0355`: the main-process half (settings and stores, the transcript
     reader worker, session status, hotkeys and menus, IPC, system integration, extra windows, notifications
-    inbox, restart, and the newer features).
+    inbox, restart, the newer features, link previews and the token use dashboard).
   - `src/vite/build/mainView/0003-powertoys-page.js`: the in-page half (tabs, switcher, panels, keys, the
     windows Powertoys draws inside the app).
   - `scripts/restart-and-continue.mjs`, `scripts/swap-and-launch.mjs`, `scripts/check-syntax.mjs`:
@@ -172,6 +172,13 @@ pastes). Every feature has a switch in the Powertoys settings window (tray menu 
 - **Bookmarks:** add one from the message right-click menu, and organize them in a bookmark manager.
 - **Exporting:** a conversation can be saved as Markdown or HTML, and its edited files opened in your IDE.
 - **Token use and estimated cost** per project and session.
+- **Token use dashboard** (command palette, "Token use dashboard"): any period, filtered by project, session,
+  model, tool and main / subagents, measured in tokens, estimated cost or requests. Warnings for large contexts,
+  caches rewritten after a pause, bursts of requests, forks that started with a big inherited context,
+  subagent-heavy sessions and unusual days; a timeline, shares, kinds of tokens, a context histogram, a
+  weekday × hour heatmap, per-session detail, a sortable table and CSV export.
+- **Context size on each tab**, red past 300k tokens (a setting), with a notification offering to compact the
+  conversation or start fresh (the session writes a handoff summary and a new session starts from it).
 - **Away summary:** what the sessions did in the last hour or today.
 
 **From ticket to PR**

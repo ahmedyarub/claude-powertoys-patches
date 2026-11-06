@@ -1015,7 +1015,137 @@ function powertoysTranscriptWorkerMain() {
     }
   }
 
+  // --- Token use per request, for the dashboard -------------------------------------------------------
+  // Per transcript (subagents' too), read incrementally: one row per API response (several lines of one
+  // response share its usage, so they count once), and the times of the person's prompts.
+  const usageCache = new Map(); // file -> { offset, seen, requests, prompts, meta }
+  function usageOf(file) {
+    let state = usageCache.get(file) ?? { offset: 0, seen: new Set(), requests: [], prompts: [], meta: { cwd: "", branch: "", firstPrompt: "" } };
+    usageCache.set(file, state);
+    let fd;
+    try {
+      fd = fs.openSync(file, "r");
+      let size = fs.fstatSync(fd).size;
+      if (size < state.offset) {
+        usageCache.delete(file);
+        fs.closeSync(fd);
+        fd = undefined;
+        return usageOf(file);
+      }
+      for (let line of newLines(fd, size, state)) {
+        let isAssistant = line.includes('"type":"assistant"');
+        if (!isAssistant && !line.includes('"type":"user"')) {
+          continue;
+        }
+        let entry;
+        try {
+          entry = JSON.parse(line);
+        } catch {
+          continue;
+        }
+        if (!state.meta.cwd && typeof entry.cwd === "string") {
+          state.meta.cwd = entry.cwd;
+        }
+        if (typeof entry.gitBranch === "string" && entry.gitBranch) {
+          state.meta.branch = entry.gitBranch;
+        }
+        let at = timestampOf(entry);
+        if (entry.type === "user") {
+          let prompt = entry.isSidechain ? null : promptOf(entry);
+          if (prompt && at) {
+            state.prompts.push(at);
+            state.meta.firstPrompt ||= clean(prompt).slice(0, 160);
+          }
+          continue;
+        }
+        let message = entry.message ?? {};
+        let usage = message.usage;
+        let key = message.id ?? entry.requestId ?? entry.uuid;
+        if (!usage || !at || !key || state.seen.has(key)) {
+          continue;
+        }
+        state.seen.add(key);
+        let creation = usage.cache_creation;
+        let write = usage.cache_creation_input_tokens ?? 0;
+        let write1h = creation && typeof creation === "object" ? (creation.ephemeral_1h_input_tokens ?? 0) : 0;
+        let tool = (Array.isArray(message.content) ? message.content : []).find((block) => block?.type === "tool_use")?.name ?? "";
+        // [time, model, input, cache write 5m, cache write 1h, cache read, output, first tool called]
+        state.requests.push([at, String(message.model ?? ""), usage.input_tokens ?? 0, Math.max(0, write - write1h), write1h, usage.cache_read_input_tokens ?? 0, usage.output_tokens ?? 0, tool]);
+      }
+    } catch {
+      // unreadable now; what was read stays
+    } finally {
+      if (fd !== undefined) {
+        fs.closeSync(fd);
+      }
+    }
+    return state;
+  }
+  /**
+   * Every request in [since, until) across the transcripts written since `since`, subagents' included (they
+   * count toward the session that started them). Rows are arrays with indexes into the files, models and tools
+   * tables, to keep a month of requests small.
+   */
+  function tokenUsage(root, { since = 0, until = Infinity } = {}) {
+    let files = [];
+    for (let transcript of allTranscripts(root)) {
+      files.push({ ...transcript, subagent: "" });
+      let folder = path.join(root, transcript.project, transcript.cliSessionId, "subagents");
+      let names = [];
+      try {
+        names = fs.readdirSync(folder).filter((name) => name.endsWith(".jsonl"));
+      } catch {}
+      for (let name of names) {
+        let file = path.join(folder, name);
+        try {
+          files.push({ file, project: transcript.project, cliSessionId: transcript.cliSessionId, subagent: name.slice(0, -6), mtimeMs: fs.statSync(file).mtimeMs });
+        } catch {}
+      }
+    }
+    let out = { files: [], models: [], tools: [], requests: [], prompts: [] };
+    let modelIndex = new Map();
+    let toolIndex = new Map();
+    let indexOf = (map, list, value) => {
+      if (!map.has(value)) {
+        map.set(value, list.length);
+        list.push(value);
+      }
+      return map.get(value);
+    };
+    for (let transcript of files) {
+      if (transcript.mtimeMs < since) {
+        continue; // nothing written in the window
+      }
+      let state = usageOf(transcript.file);
+      let inWindow = state.requests.filter(([at]) => at >= since && at < until);
+      if (inWindow.length === 0) {
+        continue;
+      }
+      let fileIndex = out.files.length;
+      for (let [at, model, input, write5m, write1h, read, output, tool] of inWindow) {
+        out.requests.push([fileIndex, at, indexOf(modelIndex, out.models, model), input, write5m, write1h, read, output, indexOf(toolIndex, out.tools, tool)]);
+      }
+      for (let at of state.prompts) {
+        if (at >= since && at < until) {
+          out.prompts.push([fileIndex, at]);
+        }
+      }
+      out.files.push({
+        cliSessionId: transcript.cliSessionId,
+        subagent: transcript.subagent,
+        project: transcript.project,
+        cwd: state.meta.cwd,
+        branch: state.meta.branch,
+        firstPrompt: state.meta.firstPrompt,
+        firstAt: state.requests[0]?.[0] ?? 0,
+      });
+    }
+    return out;
+  }
+
   const methods = {
+    /** Token use per request in a window, for the dashboard (see tokenUsage). */
+    tokenUsage: ({ root, since, until }) => tokenUsage(root, { since, until }),
     /** What the conversation is about (see trackTopic). */
     topic({ root, cliSessionId }) {
       let file = findTranscript(root, cliSessionId);

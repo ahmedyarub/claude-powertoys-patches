@@ -473,11 +473,16 @@ async function powertoysRemoveWorktrees(names) {
 }
 
 // --- 9. Cost and context warnings --------------------------------------------------------------------------
-const powertoysWarned = new Map(); // sessionId -> { cost, context } thresholds already warned about
-/** { [sessionId]: { cost, contextPercent, over: ["cost" | "context"] } } for the open sessions. */
+const powertoysWarned = new Map(); // sessionId -> { cost, context, size } thresholds already warned about
+/**
+ * { [sessionId]: { cost, contextPercent, contextTokens, over: ["cost" | "context" | "size"] } } for the open sessions.
+ * "size": the context passed contextNudgeTokens. Every request re-reads the whole context, so a long session spends
+ * that much on each reply however small; the nudge offers to compact it or to start fresh from a handoff.
+ */
 async function powertoysSessionLimits(sessionIds) {
   let costLimit = Number(powertoysSetting("costWarnUsd")) || 0;
   let contextLimit = Number(powertoysSetting("contextWarnPercent")) || 0;
+  let sizeLimit = Number(powertoysSetting("contextNudgeTokens")) || 0;
   let usage = await powertoysUsage(sessionIds).catch(() => null);
   let result = {};
   for (let sessionId of sessionIds) {
@@ -485,28 +490,104 @@ async function powertoysSessionLimits(sessionIds) {
     let model = String(info?.model ?? "");
     let window = getContextWindowForModel(model, model) ?? (/\[1m\]/i.test(model) ? 1000000 : 200000);
     let cost = usage?.sessions?.[sessionId]?.total?.cost ?? 0;
-    let contextPercent = info?.contextTokens ? Math.round((info.contextTokens / window) * 100) : 0;
-    let over = [...(costLimit > 0 && cost >= costLimit ? ["cost"] : []), ...(contextLimit > 0 && contextPercent >= contextLimit ? ["context"] : [])];
-    result[sessionId] = { cost, contextPercent, over };
+    let contextTokens = info?.contextTokens ?? 0;
+    let contextPercent = contextTokens ? Math.round((contextTokens / window) * 100) : 0;
+    let over = [
+      ...(costLimit > 0 && cost >= costLimit ? ["cost"] : []),
+      ...(contextLimit > 0 && contextPercent >= contextLimit ? ["context"] : []),
+      ...(sizeLimit > 0 && contextTokens >= sizeLimit ? ["size"] : []),
+    ];
+    result[sessionId] = { cost, contextPercent, contextTokens, over };
     let warned = powertoysWarned.get(sessionId) ?? {};
     for (let kind of over) {
       if (!warned[kind]) {
         warned[kind] = true;
         let view = powertoysSessionViews.get(sessionId);
+        let title = powertoysSessionTitle(view);
+        let size = `${Math.round(contextTokens / 1000)}k`;
+        powertoysLog(`limits: ${sessionId} passed its ${kind} threshold (${kind === "cost" ? `$${cost.toFixed(2)}` : size})`);
         electronNotificationBackend.show(
           {
-            title: kind === "cost" ? `Over $${costLimit}: ${powertoysSessionTitle(view)}` : `Context ${contextPercent}% full: ${powertoysSessionTitle(view)}`,
-            body: kind === "cost" ? `About $${cost.toFixed(2)} so far. Its tab's menu has "Compact now".` : "Its tab's menu has \"Compact now\".",
+            title:
+              kind === "cost" ? `Over $${costLimit}: ${title}` : kind === "context" ? `Context ${contextPercent}% full: ${title}` : `Context at ${size} tokens: ${title}`,
+            body:
+              kind === "size"
+                ? `Every reply re-reads all ${size}. Compact it, or start a fresh session from a short handoff.`
+                : kind === "cost"
+                  ? `About $${cost.toFixed(2)} so far.`
+                  : `It has about ${size} tokens of context.`,
             tag: `powertoys-limit-${kind}-${sessionId}`,
             data: { type: "generic", sessionId },
+            actions: [
+              { type: "compact", text: "Compact now" },
+              { type: "fresh", text: "Start fresh" },
+            ],
           },
-          (interaction) => interaction?.action === "click" && powertoysOpenSession(sessionId),
+          (interaction) => {
+            if (interaction?.action === "click") {
+              powertoysOpenSession(sessionId);
+            } else if (interaction?.action === "action" && interaction.actionType === "compact") {
+              powertoysQueuePrompt(sessionId, "/compact", "compact now");
+            } else if (interaction?.action === "action" && interaction.actionType === "fresh") {
+              powertoysStartFresh(sessionId).catch((caught) => powertoysWarn(`start fresh: ${caught.message}`));
+            }
+          },
         );
       }
     }
     powertoysWarned.set(sessionId, warned);
   }
   return result;
+}
+/**
+ * Start fresh: the session writes a short handoff (goal, state, decisions, files, next steps), and a new session in
+ * its folder starts from that instead of the whole conversation. The old one stays as it is.
+ */
+const powertoysFreshStarts = new Set(); // sessions asked for a handoff, not yet answered
+async function powertoysStartFresh(sessionId) {
+  let manager = powertoysSessionManager();
+  let record = manager?.sessions.get(sessionId);
+  let view = powertoysSessionViews.get(sessionId);
+  let folder = record?.cwd ?? view?.cwd;
+  if (!record?.cliSessionId || !folder) {
+    throw Error("That conversation has no transcript or folder to start fresh from");
+  }
+  if (powertoysFreshStarts.has(sessionId)) {
+    throw Error("A handoff for that conversation is already being written");
+  }
+  powertoysFreshStarts.add(sessionId);
+  try {
+    let tag = `handoff-${require("node:crypto").randomUUID().slice(0, 8)}`;
+    powertoysQueuePrompt(
+      sessionId,
+      `This conversation has grown long, so it will continue in a fresh session that starts from your handoff instead of the whole history. ` +
+        `Write that handoff now, between <${tag}> and </${tag}>, and nothing else: the goal; what is done and what is left; ` +
+        `decisions made and why; constraints and things that did not work; the files, branches, commands and ids that matter; the next steps. ` +
+        `Be complete but brief (aim for under 1,500 words): the new session knows nothing else. Do not start on the next steps.`,
+      "start fresh",
+    );
+    powertoysLog(`start fresh: asked ${sessionId} for a handoff (${tag})`);
+    // Read back from its transcript once its answer holds the tagged block (up to 15 minutes).
+    let pattern = new RegExp(`<${tag}>([\\s\\S]*?)</${tag}>`);
+    for (let deadline = Date.now() + 15 * 60000; Date.now() < deadline; ) {
+      await new Promise((resolve) => setTimeout(resolve, 3000));
+      let answer = await powertoysTranscripts("lastAnswer", { cliSessionId: record.cliSessionId }).catch(() => null);
+      let handoff = pattern.exec(String(answer ?? ""))?.[1]?.trim();
+      if (!handoff) {
+        continue;
+      }
+      let title = powertoysSessionTitle(view);
+      let started = await powertoysNewSession({
+        folder,
+        text: `This continues the conversation "${title}" in a fresh session (that one had grown too long). Its handoff:\n\n${handoff}\n\nRead what you need and carry on from the next steps.`,
+      });
+      powertoysLog(`start fresh: ${sessionId} -> ${started.sessionId} (${handoff.length} characters of handoff)`);
+      return started;
+    }
+    throw Error("No handoff came back within 15 minutes");
+  } finally {
+    powertoysFreshStarts.delete(sessionId);
+  }
 }
 
 // --- 10. Per-project standing instructions (added to every new session's system prompt) ----------------
@@ -562,6 +643,11 @@ try {
   powertoysHandle("removeWorktrees", (event, names) => powertoysRemoveWorktrees(names));
   powertoysHandle("sessionLimits", (event, sessionIds) => powertoysSessionLimits(Array.isArray(sessionIds) ? sessionIds.map(String) : []));
   powertoysHandle("compactNow", (event, sessionId) => powertoysQueuePrompt(String(sessionId), "/compact", "compact now"));
+  // Answers once the handoff is asked for; the new session opens by itself when it comes back.
+  powertoysHandle("startFresh", (event, sessionId) => {
+    powertoysStartFresh(String(sessionId)).catch((caught) => powertoysWarn(`start fresh: ${caught.message}`));
+    return true;
+  });
   powertoysHandle("projectInstructions", (event, key, folder, text, enabled) => powertoysSetProjectInstructions(String(key), String(folder), text, enabled));
 } catch (caught) {
   logger.error("[powertoys] registering the flow IPC failed: %o", caught);

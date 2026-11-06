@@ -848,7 +848,7 @@
    "path": "src/vite/build/main/_manifest.json",
    "kind": "edit",
    "baseSha256": "64ea20f369610ad0029a8d9ad4c77534e4e35f580e7f1ae1ccab5e1f6cb3ad9b",
-   "resultSha256": "a125af884c3c508758dd5e3f95af3eaafa4d64870eb28b64d03781b8c1c3f501",
+   "resultSha256": "a10ec2f3041a2207864a82216e5538a190bf6bf012eab08d6e8c1eed891ce165",
    "hunks": [
     {
      "at": 1402,
@@ -1006,6 +1006,18 @@
       ],
       [
        "      \"path\": \"powertoys/0354-powertoys-preview-render.js\",\n"
+      ],
+      [
+       "      \"statements\": 0\n"
+      ],
+      [
+       "    },\n"
+      ],
+      [
+       "    {\n"
+      ],
+      [
+       "      \"path\": \"powertoys/0355-powertoys-dashboard.js\",\n"
       ],
       [
        "      \"statements\": 0\n"
@@ -4655,12 +4667,12 @@
   {
    "path": "src/vite/build/main/powertoys/0340-powertoys-store.js",
    "kind": "add",
-   "sha256": "59568d41536998db0790fa6527c65c15e63abef852edeb6e7ee43e7cd3563537"
+   "sha256": "b248b51fb327a78ca64914e2e0428010cd8d7b383591d6bb2e6916289d6c7523"
   },
   {
    "path": "src/vite/build/main/powertoys/0341-powertoys-transcripts.js",
    "kind": "add",
-   "sha256": "daf98e9891ed79763a40e2dde80ce519727c1760b1fa0bcbd0932584b496bbcd"
+   "sha256": "f87f3333585f3c001ce4f12022a42f23f63daba26cb7e217fedc6a50675a0ed1"
   },
   {
    "path": "src/vite/build/main/powertoys/0342-powertoys-sessions.js",
@@ -4705,7 +4717,7 @@
   {
    "path": "src/vite/build/main/powertoys/0352-powertoys-flow.js",
    "kind": "add",
-   "sha256": "e0cfe58d655cc5f395059daf904ab369ebf2c8af417623a46b05cfc51f42028f"
+   "sha256": "1c8c8edfc5293896a0215f0132aa54a00578f73d0f50324cdce89d82b0005946"
   },
   {
    "path": "src/vite/build/main/powertoys/0353-powertoys-previews.js",
@@ -4716,6 +4728,11 @@
    "path": "src/vite/build/main/powertoys/0354-powertoys-preview-render.js",
    "kind": "add",
    "sha256": "7922804897cb2c3a35b5974e95a1d3f481d9631e65da7106b16e96f93b0f1561"
+  },
+  {
+   "path": "src/vite/build/main/powertoys/0355-powertoys-dashboard.js",
+   "kind": "add",
+   "sha256": "5e3d0512dab1de8c9c18e10fc8d720f5502bb778f659648a282bb92f2af3d51a"
   },
   {
    "path": "src/vite/build/main/settings/0244-supported-features.js",
@@ -4960,7 +4977,7 @@
   {
    "path": "src/vite/build/mainView/0003-powertoys-page.js",
    "kind": "add",
-   "sha256": "485da0a580c5f54c908377a08354fe8db9ede4d6c90ea039d8320dbaa69795d5"
+   "sha256": "fb39fbb97df2a17b20c844bfeea0275b2705d2b006df095d6a2aa84383eb2518"
   },
   {
    "path": "src/vite/build/mainView/0007-window-manager-vm-bridges.js",

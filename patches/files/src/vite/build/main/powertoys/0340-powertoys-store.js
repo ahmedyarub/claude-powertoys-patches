@@ -69,6 +69,10 @@ const POWERTOYS_DEFAULT_SETTINGS = {
   // A notification once a session passes these (0 = off); "Compact now" is offered only while one is set.
   costWarnUsd: 0,
   contextWarnPercent: 0,
+  // Every reply re-reads the whole context: past this many tokens a session is nudged to compact or start fresh.
+  contextNudgeTokens: 300000,
+  // Each tab shows its conversation's context size (warning colour past contextNudgeTokens).
+  tabContextSize: true,
   // { "<project key>": { folder, text, enabled } }: added to every new session's system prompt in that folder.
   projectInstructions: {},
   hidePromptSuggestions: false,
@@ -228,6 +232,8 @@ const POWERTOYS_SETTINGS_SECTIONS = [
       { key: "finishedDigestMinutes", label: "\"Finished\" notifications: the first shows at once; more within this many minutes come as one summary (0 = one per session)", type: "number", min: 0, max: 240 },
       { key: "costWarnUsd", label: "Notify once a session costs more than this many dollars (0 = off)", type: "number", min: 0, max: 10000 },
       { key: "contextWarnPercent", label: "Notify once a session's context is this full, in % (0 = off)", type: "number", min: 0, max: 100 },
+      { key: "contextNudgeTokens", label: "Nudge to compact or start fresh once a session's context passes this many tokens (every reply re-reads all of it; 0 = off)", type: "number", min: 0, max: 2000000 },
+      { key: "tabContextSize", label: "Show each conversation's context size on its tab", type: "switch" },
       { key: "autoTicketStatus", label: "Move a session's Notion ticket when its PR is marked ready or merged (the session does it, with its Notion tools)", type: "switch" },
       { key: "ticketStatusOnReady", label: "…status when the PR is ready for review", type: "text" },
       { key: "ticketStatusOnMerged", label: "…status when the PR is merged", type: "text" },
