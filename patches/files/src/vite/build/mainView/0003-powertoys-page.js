@@ -3273,6 +3273,7 @@ function powertoysPageMain() {
   let timedRow = null;
   let messageTimeNote = null;
   let messageTimeFrame = 0;
+  let gapLogged = false;
   function messageTimeText(at) {
     let date = new Date(at);
     let today = new Date();
@@ -3294,7 +3295,25 @@ function powertoysPageMain() {
     let under = settings?.messageTimes !== false && pointer.x >= 0 ? document.elementFromPoint(pointer.x, pointer.y) : null;
     let row = under?.closest?.("[data-epitaxy-entry]") ?? null;
     // Claude's whole turn is one row; the paragraph or tool call under the pointer is what gets timed.
-    let block = row && !row.querySelector('[data-testid="user-message"]') ? (under.closest("p, li, pre, table, blockquote, h1, h2, h3, h4, h5, h6") ?? under) : row;
+    const TEXT_BLOCKS = "p, li, pre, table, blockquote, h1, h2, h3, h4, h5, h6";
+    let fromClaude = row && !row.querySelector('[data-testid="user-message"]');
+    let textBlock = fromClaude ? under.closest(TEXT_BLOCKS) : null;
+    // In the gap between two paragraphs the pointer is on something that holds them (at any depth), whose top is the
+    // reply's start: the note stays over the paragraph it was on, or goes over the paragraph just above the pointer.
+    if (fromClaude && !textBlock && under !== row) {
+      let blocks = [...under.querySelectorAll(TEXT_BLOCKS)].filter((candidate) => !candidate.parentElement.closest(TEXT_BLOCKS));
+      if (blocks.length) {
+        if (timedRow && under.contains(timedRow)) {
+          return;
+        }
+        textBlock = blocks.filter((candidate) => candidate.getBoundingClientRect().top <= pointer.y).pop() ?? blocks[0];
+        if (!gapLogged) {
+          gapLogged = true;
+          log(`message times: pointer in a gap on <${under.tagName.toLowerCase()} class="${String(under.className).slice(0, 80)}"> holding ${blocks.length} paragraphs; the note goes over the nearest one above`);
+        }
+      }
+    }
+    let block = fromClaude ? (textBlock ?? under) : row;
     if (block && !row.contains(block)) {
       block = row;
     }
@@ -3306,7 +3325,7 @@ function powertoysPageMain() {
     let found = pane ? mainWorld("entryTime", pane.transcript, `${row.getAttribute("data-epitaxy-entry")}\n${index}`) : null;
     // Your message is its own entry; Claude's turn is one entry whose items (a paragraph, a tool call) each come from
     // a message of their own, timed from the transcript.
-    let hovered = found && !found.fromUser ? mainWorld("hoverItem", under) : null;
+    let hovered = found && !found.fromUser ? mainWorld("hoverItem", textBlock ?? under) : null;
     if (found && !found.fromUser && !hovered?.id) {
       // Between paragraphs (or on the turn's own controls) there is no item: the last note stays as it is, rather
       // than the turn's time over the turn's top.

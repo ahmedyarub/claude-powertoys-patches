@@ -4977,7 +4977,7 @@
   {
    "path": "src/vite/build/mainView/0003-powertoys-page.js",
    "kind": "add",
-   "sha256": "dffeb55b04c9e9df8df1513f5ad3e2b4647007b13c8140d4ff36e7a5eba50f4e"
+   "sha256": "12b4d51c573664e40a24492fc555fdfc42db7d48303749fb2af61e82826054b9"
   },
   {
    "path": "src/vite/build/mainView/0007-window-manager-vm-bridges.js",
