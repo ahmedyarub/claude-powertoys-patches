@@ -16,6 +16,139 @@ function powertoysQueuePrompt(sessionId, text, why) {
   powertoysQueueChange(sessionId, "add", text);
   powertoysSendQueued(sessionId, why).catch((caught) => powertoysWarn(`queue: sending to ${sessionId} failed: ${caught.message}`));
 }
+
+// --- One /compact at a time per conversation ------------------------------------------------------------
+// A second /compact sent while one is queued or running only compacts the summary again. Every /compact
+// the app accepts (typed, queued in the prompt, "Compact now" anywhere, the app's own context recovery) goes
+// through the session manager's send, which reports it here with its message uuid (powertoysCompactAccepted).
+// It is queued until the CLI starts it (command lifecycle "started"), then running until its turn ends or the CLI
+// reports "completed" (or "cancelled", "refused", "discarded"), or until the app withdraws or drops it from its queue
+// (Remove, Clear all). The CLI's own "compacting" status (automatic compaction too) also counts as running.
+// While any of that holds, a new /compact for that conversation is refused: by the send (an error the page
+// shows, or "not delivered" for the app's own sends), and by Powertoys' prompt queue when one is added there.
+const powertoysCompacts = new Map(); // sessionId -> Map(uuid -> { state: "queued" | "running", since })
+const powertoysCompactingNow = new Map(); // sessionId -> since, while the CLI's status is "compacting"
+const powertoysIsCompactText = (text) => /^\/compact(\s|$)/i.test(String(text ?? "").trim());
+const powertoysAgo = (since) => `${Math.round((Date.now() - since) / 1000)}s`;
+/**
+ * Why a new /compact for the session would be a second one, or null. Powertoys' prompt queue counts too,
+ * except while Powertoys is sending its first item (that is the /compact being sent).
+ */
+function powertoysCompactBusy(sessionId) {
+  for (let [uuid, entry] of powertoysCompacts.get(sessionId) ?? []) {
+    return `${entry.state} (${uuid}, for ${powertoysAgo(entry.since)})`;
+  }
+  if (powertoysCompactingNow.has(sessionId)) {
+    return `running (Claude Code is compacting, for ${powertoysAgo(powertoysCompactingNow.get(sessionId))})`;
+  }
+  if (!powertoysQueueSending.has(sessionId)) {
+    let queued = (powertoysPromptQueue()[sessionId] ?? []).find((item) => powertoysIsCompactText(item.text));
+    if (queued) {
+      return `queued in Powertoys' prompt queue (item ${queued.id}, for ${powertoysAgo(queued.at)})`;
+    }
+  }
+  return null;
+}
+const POWERTOYS_SECOND_COMPACT = "This conversation already has a /compact queued or running. Wait until it has finished, or remove it from the queue first.";
+/** Called by the session manager's send before it takes a message: the refusal of a second /compact, or null. */
+function powertoysCompactRefusal(sessionId, text, how) {
+  if (!powertoysIsCompactText(text)) {
+    return null;
+  }
+  let busy = powertoysCompactBusy(sessionId);
+  if (!busy) {
+    return null;
+  }
+  powertoysLog(`compact: refused a second /compact for ${sessionId} (${how}): one is ${busy}`);
+  return POWERTOYS_SECOND_COMPACT;
+}
+function powertoysCompactAccepted(sessionId, uuid, how) {
+  if (!uuid) {
+    powertoysWarn(`compact: a /compact for ${sessionId} was accepted without a message id; it cannot be followed`);
+    return;
+  }
+  let entries = powertoysCompacts.get(sessionId) ?? new Map();
+  entries.set(uuid, { state: "queued", since: Date.now() });
+  powertoysCompacts.set(sessionId, entries);
+  powertoysLog(`compact: ${sessionId} /compact ${uuid} accepted (${how}); queued until Claude Code starts it`);
+}
+function powertoysCompactEnded(sessionId, uuid, why) {
+  let entries = powertoysCompacts.get(sessionId);
+  let entry = entries?.get(uuid);
+  if (!entry) {
+    return;
+  }
+  entries.delete(uuid);
+  if (!entries.size) {
+    powertoysCompacts.delete(sessionId);
+  }
+  powertoysLog(`compact: ${sessionId} /compact ${uuid} ${why} (was ${entry.state} for ${powertoysAgo(entry.since)}); a new /compact is allowed again`);
+}
+/** The CLI's command lifecycle for a message (queued, started, completed, cancelled, refused, discarded). */
+function powertoysCompactLifecycle(sessionId, uuid, state) {
+  let entry = powertoysCompacts.get(sessionId)?.get(uuid);
+  if (!entry) {
+    return;
+  }
+  if (state === "started") {
+    powertoysLog(`compact: ${sessionId} /compact ${uuid} started (was queued for ${powertoysAgo(entry.since)})`);
+    entry.state = "running";
+    entry.since = Date.now();
+  } else if (state === "completed" || state === "cancelled" || state === "refused" || state === "discarded") {
+    powertoysCompactEnded(sessionId, uuid, state);
+  } else {
+    powertoysLog(`compact: ${sessionId} /compact ${uuid} lifecycle ${state}`);
+  }
+}
+/** The CLI's status frames: "compacting" while it compacts (a /compact or an automatic one), then null. */
+function powertoysCompactStatus(sessionId, status, result) {
+  if (status === "compacting" && !powertoysCompactingNow.has(sessionId)) {
+    powertoysCompactingNow.set(sessionId, Date.now());
+    powertoysLog(`compact: ${sessionId} Claude Code is compacting`);
+  } else if (status !== "compacting" && powertoysCompactingNow.has(sessionId)) {
+    powertoysLog(`compact: ${sessionId} Claude Code finished compacting after ${powertoysAgo(powertoysCompactingNow.get(sessionId))} (${result ?? "no result reported"})`);
+    powertoysCompactingNow.delete(sessionId);
+  }
+}
+/** A /compact the app took back from its queue (Remove, Clear all, a stop) or dropped unsent. */
+function powertoysCompactWithdrawn(sessionId, uuids, why) {
+  for (let uuid of uuids ?? []) {
+    powertoysCompactEnded(sessionId, uuid, why);
+  }
+}
+onClaudeCodeSessionManagerLoaded((manager) => {
+  manager.on("event", (event) => {
+    if (event?.type === "held_input_withdrawn" && powertoysCompacts.has(event.sessionId)) {
+      powertoysCompactWithdrawn(event.sessionId, event.withdrawnUuids, "withdrawn from the queue");
+    } else if (event?.type === "deleted" && event.sessionId) {
+      powertoysCompacts.delete(event.sessionId);
+      powertoysCompactingNow.delete(event.sessionId);
+    }
+  });
+  // A compaction does not outlive its turn: what still shows as running when the turn ends is over. This is how a
+  // /compact usually ends: Claude Code 2.1.317 reports "started" for it but no "completed" (seen 2026-11-09).
+  manager.on("queryCompleted", (sessionId) => {
+    if (powertoysCompactingNow.has(sessionId)) {
+      powertoysLog(`compact: ${sessionId} turn ended while Claude Code was still marked compacting; no longer counted`);
+      powertoysCompactingNow.delete(sessionId);
+    }
+    for (let [uuid, entry] of powertoysCompacts.get(sessionId) ?? []) {
+      if (entry.state === "running") {
+        powertoysCompactEnded(sessionId, uuid, "ended with its turn");
+      }
+    }
+  });
+  manager.on("sendsDroppedUnsent", (sessionId, uuids, reason) => {
+    if (powertoysCompacts.has(sessionId)) {
+      powertoysCompactWithdrawn(sessionId, uuids, `dropped unsent (${reason})`);
+    }
+  });
+});
+Object.defineProperty(exports, "powertoysCompactRefusal", { enumerable: true, get: () => powertoysCompactRefusal });
+Object.defineProperty(exports, "powertoysCompactAccepted", { enumerable: true, get: () => powertoysCompactAccepted });
+Object.defineProperty(exports, "powertoysCompactEnded", { enumerable: true, get: () => powertoysCompactEnded });
+Object.defineProperty(exports, "powertoysCompactLifecycle", { enumerable: true, get: () => powertoysCompactLifecycle });
+Object.defineProperty(exports, "powertoysCompactStatus", { enumerable: true, get: () => powertoysCompactStatus });
 /** Runs a command and resolves its stdout (rejects with stderr). */
 function powertoysExec(command, args, options = {}) {
   return new Promise((resolve, reject) => {
@@ -540,7 +673,11 @@ async function powertoysSessionLimits(sessionIds) {
             if (interaction?.action === "click") {
               powertoysOpenSession(sessionId);
             } else if (interaction?.action === "action" && interaction.actionType === "compact") {
-              powertoysQueuePrompt(sessionId, "/compact", "compact now");
+              try {
+                powertoysQueuePrompt(sessionId, "/compact", "compact now");
+              } catch (caught) {
+                powertoysWarn(`limits: compact now for ${sessionId}: ${caught.message}`);
+              }
             } else if (interaction?.action === "action" && interaction.actionType === "fresh") {
               powertoysStartFresh(sessionId).catch((caught) => powertoysWarn(`start fresh: ${caught.message}`));
             }

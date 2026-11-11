@@ -41,8 +41,9 @@ async function powertoysPlanUsage() {
  * <temp>\claude\<project>\<session>\tasks\<id>.output while it runs (deleted when it ends). Each tool call is paired
  * with the newest unclaimed file created after the call was written to the transcript, newest call first, so a
  * background command started earlier keeps its own file. Only the last 64 KB is read (from its first whole line),
- * with terminal colour codes dropped and a carriage-return-redrawn line kept as its last state.
- * { toolId: { text, size, truncated } } for the calls found.
+ * with terminal colour codes dropped and a carriage-return-redrawn line kept as its last state (the full-screen view
+ * asks for a longer tail). { toolId: { text, size, truncated, startedAt } } for the running calls found, and
+ * { toolId: { done, text, error, interrupted, startedAt, endedAt } } for those that have ended (their transcript result).
  */
 const POWERTOYS_OUTPUT_TAIL = 64 * 1024;
 const powertoysTasksDirs = new Map(); // cliSessionId -> tasks folder
@@ -69,15 +70,71 @@ function powertoysTasksDir(cliSessionId) {
   }
   return null;
 }
-async function powertoysCommandOutput(cliSessionId, toolIds) {
-  let dir = powertoysTasksDir(cliSessionId);
-  if (!dir || !toolIds.length) {
+/** The last tailBytes of an output file, from its first whole line, without colour codes; null if unreadable. */
+async function powertoysOutputTail(file, size, tailBytes) {
+  let start = Math.max(0, size - tailBytes);
+  let handle;
+  try {
+    handle = await powertoysFs.promises.open(file, "r");
+    let buffer = Buffer.alloc(size - start);
+    let { bytesRead } = await handle.read(buffer, 0, buffer.length, start);
+    let text = buffer.subarray(0, bytesRead).toString("utf8");
+    if (start > 0) {
+      text = text.slice(text.indexOf("\n") + 1);
+    }
+    text = text
+      .replace(/\x1b\[[0-9;?]*[ -\/]*[@-~]|\x1b\][^\x07]*\x07/g, "")
+      .replace(/\r\n/g, "\n")
+      .split("\n")
+      .map((line) => line.slice(line.lastIndexOf("\r") + 1))
+      .join("\n");
+    return { text, size, truncated: start > 0 };
+  } catch (caught) {
+    powertoysWarn(`command output ${powertoysPath.basename(file)}: ${caught.message}`);
+    return null;
+  } finally {
+    await handle?.close();
+  }
+}
+async function powertoysCommandOutput(cliSessionId, toolIds, tailBytes = POWERTOYS_OUTPUT_TAIL) {
+  if (!/^[\w-]+$/.test(cliSessionId) || !toolIds.length) {
     return {};
   }
   let times = await powertoysTranscripts("itemTimes", { cliSessionId, ids: toolIds });
+  // A call that has ended reports its result from the transcript instead (its file is gone by then). One moved to
+  // the background keeps its task's file, read by name, and has ended once its task notification has come.
+  let ended = await powertoysTranscripts("shellResults", { cliSessionId, ids: toolIds });
+  let dir = powertoysTasksDir(cliSessionId);
+  let result = {};
+  let taken = new Set();
+  for (let [id, done] of Object.entries(ended)) {
+    let startedAt = times[id] ?? 0;
+    if (!done.background) {
+      let exit = done.error ? /^Exit code (\d+)/m.exec(done.text)?.[1] : undefined;
+      result[id] = { done: true, text: done.text, error: done.error, interrupted: done.interrupted, exit, startedAt, endedAt: done.at };
+      continue;
+    }
+    let name = `${done.background}.output`;
+    taken.add(name);
+    let file = dir && /^[\w-]+$/.test(done.background) ? powertoysPath.join(dir, name) : null;
+    let size = file ? await powertoysFs.promises.stat(file).then((stat) => stat.size, () => -1) : -1;
+    let tail = size >= 0 ? await powertoysOutputTail(file, size, tailBytes) : null;
+    result[id] = {
+      ...(tail ?? { text: "", size: 0, truncated: false }),
+      background: true,
+      startedAt,
+      ...(done.status
+        ? { done: true, error: done.status === "failed", interrupted: !["completed", "failed"].includes(done.status), status: done.status, exit: /exit code (\d+)/i.exec(done.summary)?.[1], endedAt: done.endedAt }
+        : {}),
+    };
+  }
+  toolIds = toolIds.filter((id) => !ended[id]);
+  if (!dir || !toolIds.length) {
+    return result;
+  }
   let files = [];
   for (let name of await powertoysFs.promises.readdir(dir).catch(() => [])) {
-    if (name.endsWith(".output")) {
+    if (name.endsWith(".output") && !taken.has(name)) {
       try {
         let stat = await powertoysFs.promises.stat(powertoysPath.join(dir, name));
         files.push({ name, born: stat.birthtimeMs, size: stat.size });
@@ -85,34 +142,15 @@ async function powertoysCommandOutput(cliSessionId, toolIds) {
     }
   }
   files.sort((left, right) => right.born - left.born);
-  let result = {};
   for (let id of toolIds.filter((each) => times[each] > 0).sort((left, right) => times[right] - times[left])) {
     let index = files.findIndex((file) => file.born >= times[id] - 2000);
     if (index < 0) {
       continue;
     }
     let [file] = files.splice(index, 1);
-    let start = Math.max(0, file.size - POWERTOYS_OUTPUT_TAIL);
-    let handle;
-    try {
-      handle = await powertoysFs.promises.open(powertoysPath.join(dir, file.name), "r");
-      let buffer = Buffer.alloc(file.size - start);
-      let { bytesRead } = await handle.read(buffer, 0, buffer.length, start);
-      let text = buffer.subarray(0, bytesRead).toString("utf8");
-      if (start > 0) {
-        text = text.slice(text.indexOf("\n") + 1);
-      }
-      text = text
-        .replace(/\x1b\[[0-9;?]*[ -\/]*[@-~]|\x1b\][^\x07]*\x07/g, "")
-        .replace(/\r\n/g, "\n")
-        .split("\n")
-        .map((line) => line.slice(line.lastIndexOf("\r") + 1))
-        .join("\n");
-      result[id] = { text, size: file.size, truncated: start > 0 };
-    } catch (caught) {
-      powertoysWarn(`command output ${file.name}: ${caught.message}`);
-    } finally {
-      await handle?.close();
+    let tail = await powertoysOutputTail(powertoysPath.join(dir, file.name), file.size, tailBytes);
+    if (tail) {
+      result[id] = { ...tail, startedAt: times[id] };
     }
     if (!powertoysOutputPaired.has(id)) {
       powertoysOutputPaired.add(id);

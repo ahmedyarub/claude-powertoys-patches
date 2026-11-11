@@ -486,8 +486,10 @@ function powertoysTranscriptWorkerMain() {
    */
   const statsCache = new Map();
   const EDIT_TOOLS = new Set(["Edit", "Write", "MultiEdit", "NotebookEdit"]);
+  const SHELL_TOOLS = new Set(["Bash", "PowerShell"]);
+  const SHELL_RESULTS = 20;
   function statsOf(file) {
-    let state = statsCache.get(file) ?? { offset: 0, seen: new Set(), byDay: {}, files: new Map(), activity: [], lastAnswer: null, times: new Map() };
+    let state = statsCache.get(file) ?? { offset: 0, seen: new Set(), byDay: {}, files: new Map(), activity: [], lastAnswer: null, times: new Map(), shellCalls: new Set(), shellResults: new Map() };
     statsCache.set(file, state);
     let fd;
     try {
@@ -503,7 +505,8 @@ function powertoysTranscriptWorkerMain() {
         return state;
       }
       for (let line of newLines(fd, size, state)) {
-        if (!line.includes('"type":"assistant"') && !line.includes('"type":"user"') && !line.includes('"queued_command"')) {
+        let notice = line.includes('"type":"queue-operation"') && line.includes("<task-notification>");
+        if (!notice && !line.includes('"type":"assistant"') && !line.includes('"type":"user"') && !line.includes('"queued_command"')) {
           continue;
         }
         let entry;
@@ -513,6 +516,17 @@ function powertoysTranscriptWorkerMain() {
           continue;
         }
         let at = timestampOf(entry);
+        if (notice) {
+          // A command moved to the background ends with a task notification, queued as soon as it ends.
+          let text = typeof entry.content === "string" ? entry.content : "";
+          let tool = /<tool-use-id>([^<]+)<\/tool-use-id>/.exec(text)?.[1];
+          let status = /<status>([^<]+)<\/status>/.exec(text)?.[1];
+          let running = tool && state.shellResults.get(tool);
+          if (running?.background && !running.status && status) {
+            Object.assign(running, { status, summary: /<summary>([\s\S]*?)<\/summary>/.exec(text)?.[1] ?? "", endedAt: at });
+          }
+          continue;
+        }
         if (at) {
           // When each message, API message and tool call was written (the page's items are keyed by these).
           for (let key of [entry.uuid, entry.message?.id]) {
@@ -523,6 +537,21 @@ function powertoysTranscriptWorkerMain() {
           for (let block of Array.isArray(entry.message?.content) ? entry.message.content : []) {
             if (block?.type === "tool_use" && typeof block.id === "string" && !state.times.has(block.id)) {
               state.times.set(block.id, at);
+            }
+            // A Bash / PowerShell call's result, for the full-screen output once the command has ended; only the
+            // last SHELL_RESULTS are kept. A call moved to the background (backgroundTaskId) goes on running, writing
+            // to its task's file, until its task notification (above).
+            if (block?.type === "tool_use" && SHELL_TOOLS.has(block.name)) {
+              state.shellCalls.add(block.id);
+            } else if (block?.type === "tool_result" && state.shellCalls.delete(block.tool_use_id)) {
+              let text = typeof block.content === "string" ? block.content : (Array.isArray(block.content) ? block.content : []).map((part) => part?.text ?? "").join("");
+              let background = typeof entry.toolUseResult?.backgroundTaskId === "string" ? entry.toolUseResult.backgroundTaskId : "";
+              state.shellResults.set(block.tool_use_id, background
+                ? { at, background }
+                : { at, text, error: block.is_error === true, interrupted: entry.toolUseResult?.interrupted === true });
+              if (state.shellResults.size > SHELL_RESULTS) {
+                state.shellResults.delete(state.shellResults.keys().next().value);
+              }
             }
           }
         }
@@ -1218,6 +1247,18 @@ function powertoysTranscriptWorkerMain() {
         }
       }
       return result;
+    },
+    /**
+     * Of the given Bash / PowerShell calls, those with a result: { id: { at, text, error, interrupted } }, or for one
+     * moved to the background { id: { at, background, status?, summary?, endedAt? } } (status once it has ended).
+     */
+    shellResults({ root, cliSessionId, ids }) {
+      let file = findTranscript(root, cliSessionId);
+      if (!file) {
+        return {};
+      }
+      let { shellResults } = statsOf(file);
+      return Object.fromEntries(ids.filter((id) => shellResults.has(id)).map((id) => [id, shellResults.get(id)]));
     },
     /** Where the session's context went, and how it grew (see contextMap). */
     contextMap: ({ root, cliSessionId }) => contextMap(root, cliSessionId),

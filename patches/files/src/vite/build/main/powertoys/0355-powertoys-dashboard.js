@@ -92,8 +92,12 @@ async function powertoysOpenDashboard() {
         mainWindow?.show?.();
         mainWindow?.focus?.();
       } else if (request.op === "compact") {
-        powertoysQueuePrompt(request.sessionId, "/compact", "compact now (dashboard)");
-        send({ kind: "toast", message: "Compacting (now, or when its turn ends)" });
+        try {
+          powertoysQueuePrompt(request.sessionId, "/compact", "compact now (dashboard)");
+          send({ kind: "toast", message: "Compacting (now, or when its turn ends)" });
+        } catch (caught) {
+          send({ kind: "toast", message: caught.message });
+        }
       } else if (request.op === "fresh") {
         powertoysStartFresh(request.sessionId).catch((caught) => powertoysWarn(`start fresh: ${caught.message}`));
         send({ kind: "toast", message: "Asked it for a handoff; a fresh session starts from it when it comes back" });

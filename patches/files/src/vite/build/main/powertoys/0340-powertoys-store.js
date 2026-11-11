@@ -529,6 +529,12 @@ function powertoysQueueChange(sessionId, change, argument, model) {
     if (!text) {
       throw Error("Nothing to queue");
     }
+    // One /compact at a time per conversation (powertoysCompactBusy, powertoys-flow).
+    let busy = powertoysIsCompactText(text) ? powertoysCompactBusy(sessionId) : null;
+    if (busy) {
+      powertoysLog(`compact: refused to queue a second /compact for ${sessionId}: one is ${busy}`);
+      throw Error(POWERTOYS_SECOND_COMPACT);
+    }
     list.push({ id: `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`, text, at: Date.now(), ...(model ? { model } : {}) });
   } else if (change === "remove") {
     list = list.filter((item) => item.id !== argument);

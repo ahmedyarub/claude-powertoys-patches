@@ -1,6 +1,83 @@
 {
- "app": "Claude Desktop 4.23118.0 for Windows",
+ "app": "Claude Desktop 5.1231.2 for Windows",
  "files": [
+  {
+   "path": "package-lock.json",
+   "kind": "edit",
+   "baseSha256": "595b3ae7b9481c4159fdb6ee3a45eb4b464f2b8d39e4af734eeb8cb646285db8",
+   "resultSha256": "4c0514b1c58857044cc75874a54501794ea2c9ae651c3981c37bf9fd022669c7",
+   "hunks": [
+    {
+     "at": 19,
+     "remove": 1,
+     "removeSha256": "522f0005c006afb7af53df6fdda8aa1aa65e8f7ccdb7f388569faa199cffc42a",
+     "add": [
+      [
+       [
+        19,
+        0,
+        21
+       ],
+       "^45.2.1\",\n"
+      ]
+     ]
+    },
+    {
+     "at": 881,
+     "remove": 3,
+     "removeSha256": "37ba250306638d5628a9efd9cac47370c5212a86cf2bd3cd331e67a28abe9e2b",
+     "add": [
+      [
+       [
+        881,
+        0,
+        19
+       ],
+       "5.2.1\",\n"
+      ],
+      [
+       [
+        882,
+        0,
+        67
+       ],
+       "5.2.1.tgz\",\n"
+      ],
+      [
+       [
+        883,
+        0,
+        27
+       ],
+       "t433yuo8Kh8WG/mTStnPRT/NtpWw8A+caNLJgeU0tS/FlfOkeNEntFsac4ViLgDxZOmDe7BeSkOANVqrqNHhDA==\",\n"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "path": "package.json",
+   "kind": "edit",
+   "baseSha256": "df12d093646242387cd992bb826a45d16cc0b3fc0c0cca630e0707010ff072e0",
+   "resultSha256": "bf96ef85db3d2cac77ef3fa5e5e96c48c2dcf69197428f866d0dcda37503ae7b",
+   "hunks": [
+    {
+     "at": 27,
+     "remove": 1,
+     "removeSha256": "e93f9029bcda5678b2decb10522f9ac27a1d4f2796cc65055f65102cc01af162",
+     "add": [
+      [
+       [
+        27,
+        0,
+        18
+       ],
+       "5.2.1\",\n"
+      ]
+     ]
+    }
+   ]
+  },
   {
    "path": "scripts/assemble.mjs",
    "kind": "edit",
@@ -92,13 +169,33 @@
    "sha256": "035eb3ee32ce83d03b3f6d71b317be60788058262e890eb0ff218e6c5d67a525"
   },
   {
-   "path": "src/vite/build/ccd-local-session-manager/0015-ccd.js",
+   "path": "src/vite/build/ccd-local-session-manager/0012-local-session-manager.js",
    "kind": "edit",
-   "baseSha256": "4e74b48cdeeefdbd970bcad8a5bcfa3c39d3871ece34fe7c788fa3e85ad99727",
-   "resultSha256": "917ea9514906cb68d6f8016b2a96616777d25c0f4f744c598ecb15c5b54ea2db",
+   "baseSha256": "9da03abdb45f3a69d4d5a26f3f7e833e4355dda8f17305a7160954644c464272",
+   "resultSha256": "be6d1bcf0451a1ee28c61a7b05a6f79f63ab4b3772f21e0167ae88f18283e015",
    "hunks": [
     {
-     "at": 1435,
+     "at": 355,
+     "remove": 0,
+     "add": [
+      [
+       "              // Local change (Powertoys): while Claude Code compacts, a new /compact is refused.\n"
+      ],
+      [
+       "              mainChunk.powertoysCompactStatus?.(sessionId, cliMessage.status, cliMessage.compact_result);\n"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "path": "src/vite/build/ccd-local-session-manager/0014-ccd.js",
+   "kind": "edit",
+   "baseSha256": "d64e0fc16f75dda5ae6fbe199d0adc60e8bfa7bff0cd8c26f333812b04d88052",
+   "resultSha256": "a4dc86def977ae1ee2a640e0d8b02ddd65bd6b6686d38d41ed502d2b9aab91bf",
+   "hunks": [
+    {
+     "at": 788,
      "remove": 0,
      "add": [
       [
@@ -112,13 +209,13 @@
    ]
   },
   {
-   "path": "src/vite/build/ccd-local-session-manager/0024-ccd.js",
+   "path": "src/vite/build/ccd-local-session-manager/0023-ccd.js",
    "kind": "edit",
-   "baseSha256": "f089022592ae1b9fce0b810d7df1817a29c14cd109b2d5808ab546425c2e35d0",
-   "resultSha256": "ae521d79a098d527f8d6ef5e131203796d740b522b758fe8d3c3c45693030c46",
+   "baseSha256": "3ed2874235bd0fe82b8cb200aad9305d247d34b0d8a1d68b694b577b868a2b9c",
+   "resultSha256": "5d3edc7a59a915bd74051c400195d61ca110213aa46e9d5902cd991be0ec2290",
    "hunks": [
     {
-     "at": 826,
+     "at": 21,
      "remove": 1,
      "removeSha256": "5a6c2c92c6b34ab745cf92c14cd3541182e151c9a274de17037dc86dab55c887",
      "add": [
@@ -133,7 +230,7 @@
       ],
       [
        [
-        826,
+        21,
         0,
         36
        ],
@@ -144,13 +241,106 @@
    ]
   },
   {
-   "path": "src/vite/build/ccd-local-session-manager/0027-ccd.js",
+   "path": "src/vite/build/ccd-local-session-manager/0025-ccd.js",
    "kind": "edit",
-   "baseSha256": "2d40e3c419f700aa3443cd7bf5152cc5e892d8ef7e08dbee59fb5ce5a2a5e270",
-   "resultSha256": "c4d8c27dd548474c602112cf0d8f0c5a774f06c9d7695f8d71245ef1a0217d78",
+   "baseSha256": "6b3e5b1bc0219fb0770de7a229e09715fdc490f3b5c11bd395ea26dbe3243626",
+   "resultSha256": "d71704469aabb1d70be5de62535d17b9f5f6fd155b34e7aa52778e7129f54735",
    "hunks": [
     {
-     "at": 778,
+     "at": 650,
+     "remove": 0,
+     "add": [
+      [
+       "        // Local change (Powertoys): a /compact taken and then not delivered is not queued after all.\n"
+      ],
+      [
+       "        if (a.compactUuid) {\n"
+      ],
+      [
+       "          mainChunk.powertoysCompactEnded?.(sessionId, a.compactUuid, `not delivered (${outcome.reason ?? \"no reason\"})`);\n"
+      ],
+      [
+       "        }\n"
+      ]
+     ]
+    },
+    {
+     "at": 654,
+     "remove": 0,
+     "add": [
+      [
+       "      if (a.compactUuid) {\n"
+      ],
+      [
+       "        mainChunk.powertoysCompactEnded?.(sessionId, a.compactUuid, `not delivered (${err?.message ?? err})`);\n"
+      ],
+      [
+       "      }\n"
+      ]
+     ]
+    },
+    {
+     "at": 896,
+     "remove": 0,
+     "add": [
+      [
+       "    // Local change (Powertoys): one /compact at a time per conversation. A second one while one is queued or\n"
+      ],
+      [
+       "    // running (powertoysCompactBusy) is refused: an error for a person's send (the page shows it), not\n"
+      ],
+      [
+       "    // delivered for the app's own sends.\n"
+      ],
+      [
+       "    let compactHow = `${isHuman ? \"a person\" : (options?.origin?.kind ?? options?.initiator ?? \"the app\")}${options?.priority ? `, priority ${options.priority}` : \"\"}`;\n"
+      ],
+      [
+       "    let compactRefusal = mainChunk.powertoysCompactRefusal?.(session.sessionId, trimmed, compactHow);\n"
+      ],
+      [
+       "    if (compactRefusal) {\n"
+      ],
+      [
+       "      ",
+       [
+        814,
+        4,
+        18
+       ],
+       "\n"
+      ],
+      [
+       "        throw Error(compactRefusal);\n"
+      ],
+      [
+       "      }\n"
+      ],
+      [
+       "      return {\n"
+      ],
+      [
+       "        ",
+       [
+        599,
+        8,
+        25
+       ],
+       "\n"
+      ],
+      [
+       "        reason: compactRefusal,\n"
+      ],
+      [
+       "      };\n"
+      ],
+      [
+       "    }\n"
+      ]
+     ]
+    },
+    {
+     "at": 900,
      "remove": 1,
      "removeSha256": "3a1729fa45868f334624f1bcb9bf3815b325864b3b3be8f719922b69affbfbf2",
      "add": [
@@ -171,7 +361,7 @@
       ],
       [
        [
-        778,
+        900,
         0,
         10
        ],
@@ -179,7 +369,7 @@
       ],
       [
        [
-        778,
+        900,
         0,
         16
        ],
@@ -191,7 +381,7 @@
       [
        "       ",
        [
-        778,
+        900,
         9,
         97
        ]
@@ -202,7 +392,7 @@
       [
        "  ",
        [
-        778,
+        900,
         0,
         10
        ],
@@ -214,13 +404,13 @@
       [
        "         ",
        [
-        778,
+        900,
         24,
         35
        ],
        "emitSyntheticUserMessage",
        [
-        778,
+        900,
         86,
         94
        ],
@@ -244,7 +434,7 @@
       [
        "         ",
        [
-        778,
+        900,
         24,
         35
        ],
@@ -253,7 +443,7 @@
       [
        "          ",
        [
-        778,
+        900,
         86,
         94
        ],
@@ -265,9 +455,9 @@
       [
        "        ",
        [
-        653,
-        4,
-        26
+        656,
+        8,
+        30
        ],
        "\n"
       ],
@@ -284,17 +474,38 @@
        "      }\n"
       ]
      ]
+    },
+    {
+     "at": 2000,
+     "remove": 0,
+     "add": [
+      [
+       "      if (/^\\/compact(\\s|$)/i.test(trimmed)) {\n"
+      ],
+      [
+       "        // Local change (Powertoys): followed until Claude Code has run it (powertoysCompactAccepted).\n"
+      ],
+      [
+       "        sendContext.compactUuid = messageUuid;\n"
+      ],
+      [
+       "        mainChunk.powertoysCompactAccepted?.(session.sessionId, messageUuid, `${compactHow}, ${wasRunning ? \"during a turn\" : \"no turn running\"}`);\n"
+      ],
+      [
+       "      }\n"
+      ]
+     ]
     }
    ]
   },
   {
-   "path": "src/vite/build/ccd-local-session-manager/0028-local-session-manager.js",
+   "path": "src/vite/build/ccd-local-session-manager/0026-local-session-manager.js",
    "kind": "edit",
-   "baseSha256": "63ca9a4005cbf87148ccd0d6424e1d27a99d387247e60270166d36bf948ad3d2",
-   "resultSha256": "5403fe1b128b664696a411608bf1751d426eb6de789bea1a7ab01925582ad933",
+   "baseSha256": "426c27b6392b1f3410d6755829e402e8c84b9820f92cdfeed42dd6c7c931f213",
+   "resultSha256": "7fd175102d3bf510ce3511ede37172d190b1f93a8736aa3cf45d5b6820d391c3",
    "hunks": [
     {
-     "at": 586,
+     "at": 590,
      "remove": 0,
      "add": [
       [
@@ -307,18 +518,18 @@
        "    // withdrawn from the page's queue instead.\n"
       ],
       [
-       "    if (i?.selfHandledCommandUuids?.has(messageUuid)) {\n"
+       "    if (a?.selfHandledCommandUuids?.has(messageUuid)) {\n"
       ],
       [
        "      mainChunk.logger.info(`[LocalSessionManager] cancelQueuedMessage ${messageUuid} → a command the app already ran; withdrawn from the page's queue`);\n"
       ],
       [
-       "      this.deps.emit(\"event\", { type: \"held_input_withdrawn\", sessionId: i.sessionId, withdrawnUuids: [messageUuid] });\n"
+       "      this.deps.emit(\"event\", { type: \"held_input_withdrawn\", sessionId: a.sessionId, withdrawnUuids: [messageUuid] });\n"
       ],
       [
        "      ",
        [
-        601,
+        605,
         6,
         18
        ],
@@ -332,108 +543,13 @@
    ]
   },
   {
-   "path": "src/vite/build/ccd-local-session-manager/0039-session-file-access.js",
+   "path": "src/vite/build/ccd-local-session-manager/session-core/0051-dialog-broker-archive-index.js",
    "kind": "edit",
-   "baseSha256": "1a28f2433142416afef9c5d85fee36ce5e84a540fb96f5ae65f637d60424d5d1",
-   "resultSha256": "36bfe281b19b4ccd6776983ee05489fbd03f9ab8b3b86edc6eb41b0b31f75aaa",
+   "baseSha256": "f0542a0c76107bb27852be85127ce1c8a7ce3b907c83975e577c188566313d7e",
+   "resultSha256": "8a1a5482a0b65ba5a38fd805795534aded415557a55e2e7935931819adaca5c7",
    "hunks": [
     {
-     "at": 733,
-     "remove": 0,
-     "add": [
-      [
-       "      if (containingRoot === undefined) {\n"
-      ],
-      [
-       "        // Local change: Powertoys' pastes folder, and any file the person views in the file pane (a text\n"
-      ],
-      [
-       "        // read or a data URL preview), open outside the session's folders, read only (like the CLI's temp\n"
-      ],
-      [
-       "        // folders). Paths Claude's own tools resolve (open in editor, reveal, send a file) do not.\n"
-      ],
-      [
-       "        let viewing =\n"
-      ],
-      [
-       "          options?.powertoysView === true || [\"image_dataurl\", \"media_dataurl\", \"document_dataurl\"].includes(options?.lane);\n"
-      ],
-      [
-       "        let outsideRoot = mainChunk.powertoysOutsideReadRoot?.(realAbs, viewing);\n"
-      ],
-      [
-       "        if (outsideRoot) {\n"
-      ],
-      [
-       "          return {\n"
-      ],
-      [
-       "            ",
-       [
-        741,
-        10,
-        27
-       ],
-       "\n"
-      ],
-      [
-       "            realRoot: outsideRoot,\n"
-      ],
-      [
-       "            ",
-       [
-        1141,
-        10,
-        26
-       ],
-       "\n"
-      ],
-      [
-       "          };\n"
-      ],
-      [
-       "        }\n"
-      ],
-      [
-       "      }\n"
-      ]
-     ]
-    },
-    {
-     "at": 1067,
-     "remove": 0,
-     "add": [
-      [
-       "      powertoysView: i?.powertoysView === true,\n"
-      ]
-     ]
-    },
-    {
-     "at": 1279,
-     "remove": 1,
-     "removeSha256": "3623f31126ec85759c24dad1e515aefe96c7761ea058c95e39a21f84de2090b4",
-     "add": [
-      [
-       [
-        1279,
-        0,
-        78
-       ],
-       ", { powertoysView: true });\n"
-      ]
-     ]
-    }
-   ]
-  },
-  {
-   "path": "src/vite/build/ccd-local-session-manager/0055-local-session-manager.js",
-   "kind": "edit",
-   "baseSha256": "2fd43eda66870b8bbb87bfdd982d4cf989d6a8fbeaa0caa98e1ec452c738ba65",
-   "resultSha256": "d6a0f865b23bc6e986e5658842e11f6469734b8f76013d57ce7b39b668d3a633",
-   "hunks": [
-    {
-     "at": 2607,
+     "at": 4278,
      "remove": 0,
      "add": [
       [
@@ -445,7 +561,7 @@
      ]
     },
     {
-     "at": 5772,
+     "at": 7471,
      "remove": 0,
      "add": [
       [
@@ -457,7 +573,7 @@
      ]
     },
     {
-     "at": 14288,
+     "at": 15522,
      "remove": 0,
      "add": [
       [
@@ -472,7 +588,7 @@
       [
        "    ",
        [
-        7592,
+        8899,
         8,
         42
        ],
@@ -481,14 +597,14 @@
      ]
     },
     {
-     "at": 14486,
+     "at": 15724,
      "remove": 2,
      "removeSha256": "b561d7045a40bd45359909c87896ebc06acc621590672fc4543662ab362da53e",
      "add": [
       [
        "    );",
        [
-        14487,
+        15725,
         0,
         51
        ]
@@ -496,7 +612,7 @@
      ]
     },
     {
-     "at": 19031,
+     "at": 20385,
      "remove": 0,
      "add": [
       [
@@ -514,30 +630,42 @@
      ]
     },
     {
-     "at": 19033,
+     "at": 20387,
      "remove": 1,
      "removeSha256": "582b2de25f9c8c9bdc88e4a222a1a00f3f23edb516be22d1fd88c2a18abf23e5",
      "add": [
       [
        "      uuid: echoUuid ??",
        [
-        19033,
+        20387,
         11,
         44
        ]
+      ]
+     ]
+    },
+    {
+     "at": 26473,
+     "remove": 0,
+     "add": [
+      [
+       "    // Local change (Powertoys): a /compact is queued until \"started\", then running until it ends.\n"
+      ],
+      [
+       "    mainChunk.powertoysCompactLifecycle?.(sessionId, lifecycle.command_uuid, lifecycle.state);\n"
       ]
      ]
     }
    ]
   },
   {
-   "path": "src/vite/build/ccd-local-sessions-api/0002-local-sessions-api-core.js",
+   "path": "src/vite/build/ccd-local-sessions-api/0003-local-sessions-api-core.js",
    "kind": "edit",
-   "baseSha256": "95d27cc8ec754d0f7bc8c72b557f34d9952a02a18723ba162fd4a9a724eaad1a",
-   "resultSha256": "33543e27c0f2886af97ce93222964f68e6d56e89c00f76b203114eac3c8b2379",
+   "baseSha256": "505af1f4f457cf61f6bd9750052284d9e465cd0a5b99d2ba41b2ffde3c0354a2",
+   "resultSha256": "c2301b75ee70ee3995b9cd22413022053834b6c251ff6a2babd8fc973a68b84d",
    "hunks": [
     {
-     "at": 1920,
+     "at": 1360,
      "remove": 0,
      "add": [
       [
@@ -549,7 +677,7 @@
      ]
     },
     {
-     "at": 1957,
+     "at": 1398,
      "remove": 0,
      "add": [
       [
@@ -573,7 +701,7 @@
      ]
     },
     {
-     "at": 2489,
+     "at": 1964,
      "remove": 0,
      "add": [
       [
@@ -587,13 +715,99 @@
    ]
   },
   {
-   "path": "src/vite/build/ccd-start-errors-turn-plan.js",
+   "path": "src/vite/build/ccd-session-runtime-core/0001-ccd.js",
    "kind": "edit",
-   "baseSha256": "f410f44961835836c33b2010034339da0a57750754dfbbca3ec52ef96c68e584",
-   "resultSha256": "47f69217639031c2d56f645135741e372c5b1ebe2426ca466996c5314d9839d2",
+   "baseSha256": "0c237c5194780b952a2db10f1912a80bca4c9a5061d38e437cc326ac2c789fc2",
+   "resultSha256": "dc7eb9106a7c3ee64179e5bc1c5d9e4b20dcf6041c8cd037e81067aba86b8d05",
    "hunks": [
     {
-     "at": 548,
+     "at": 1851,
+     "remove": 0,
+     "add": [
+      [
+       "      if (g === undefined) {\n"
+      ],
+      [
+       "        // Local change: Powertoys' pastes folder, and any file the person views in the file pane (a text\n"
+      ],
+      [
+       "        // read or a data URL preview), open outside the session's folders, read only (like the CLI's temp\n"
+      ],
+      [
+       "        // folders). Paths Claude's own tools resolve (open in editor, reveal, send a file) do not.\n"
+      ],
+      [
+       "        let viewing = a?.powertoysView === true || [\"image_dataurl\", \"media_dataurl\", \"document_dataurl\"].includes(a?.lane);\n"
+      ],
+      [
+       "        let outsideRoot = mainChunk.powertoysOutsideReadRoot?.(h, viewing);\n"
+      ],
+      [
+       "        if (outsideRoot) {\n"
+      ],
+      [
+       "          return {\n"
+      ],
+      [
+       "            realAbs: h,\n"
+      ],
+      [
+       "            realRoot: outsideRoot,\n"
+      ],
+      [
+       "            ",
+       [
+        2191,
+        10,
+        26
+       ],
+       "\n"
+      ],
+      [
+       "          };\n"
+      ],
+      [
+       "        }\n"
+      ],
+      [
+       "      }\n"
+      ]
+     ]
+    },
+    {
+     "at": 2132,
+     "remove": 0,
+     "add": [
+      [
+       "      powertoysView: i?.powertoysView === true,\n"
+      ]
+     ]
+    },
+    {
+     "at": 2311,
+     "remove": 1,
+     "removeSha256": "1a6b0396fb937c2a97e6608518a134924ef574dcd832f812cb6f9c14462f2166",
+     "add": [
+      [
+       [
+        2311,
+        0,
+        51
+       ],
+       ", { powertoysView: true });\n"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "path": "src/vite/build/ccd-start-errors-turn-plan.js",
+   "kind": "edit",
+   "baseSha256": "4b4a99c13dc2e111cacc9d54d4f0003add0d7a4ce9be87947f211108ad087c6d",
+   "resultSha256": "bc0bdc6cca2ccc3a74de963d8a5dcc83ee1fdfbbf71167c99308bfe7f893f9d5",
+   "hunks": [
+    {
+     "at": 450,
      "remove": 0,
      "add": [
       [
@@ -614,7 +828,7 @@
      ]
     },
     {
-     "at": 805,
+     "at": 707,
      "remove": 0,
      "add": [
       [
@@ -626,13 +840,13 @@
      ]
     },
     {
-     "at": 806,
+     "at": 708,
      "remove": 1,
      "removeSha256": "f0db18be5a9c04526e4b67edfb8683a7caf23b874b662fa14f17c2e9acacd87c",
      "add": [
       [
        [
-        806,
+        708,
         0,
         312
        ],
@@ -641,7 +855,7 @@
      ]
     },
     {
-     "at": 818,
+     "at": 720,
      "remove": 0,
      "add": [
       [
@@ -653,13 +867,13 @@
      ]
     },
     {
-     "at": 821,
+     "at": 723,
      "remove": 1,
      "removeSha256": "55b3ac0c9d81f818a73873b49d4f184fee358fc71c8fa0f352bb00a072fcd8f4",
      "add": [
       [
        [
-        821,
+        723,
         0,
         105
        ],
@@ -668,13 +882,13 @@
      ]
     },
     {
-     "at": 994,
+     "at": 896,
      "remove": 1,
      "removeSha256": "5912d515a433c8289172ad92ecb8f84449aa94ec176e9a0b6403e4279381bad9",
      "add": [
       [
        [
-        994,
+        896,
         0,
         8
        ],
@@ -682,13 +896,13 @@
       ],
       [
        [
-        994,
+        896,
         0,
         68
        ],
        " + (mainChunk.powertoys",
        [
-        994,
+        896,
         26,
         34
        ],
@@ -701,8 +915,8 @@
   {
    "path": "src/vite/build/claude-json-workspace-trust-config.js",
    "kind": "edit",
-   "baseSha256": "a48f571e778836bd15fb74eadda5026ef84f0041d2cdf02ff5f607a0f716cf57",
-   "resultSha256": "4f0048191d435176d2eddeed540527e8c8aa105709877072650c22d56635be2e",
+   "baseSha256": "060ef05f089d8851e8b5467e9b70a1aa00391f2a809d4a9887c7a43a40bdf4cc",
+   "resultSha256": "a0fe5606311c19d007692d07f88ba97245fea67fe6f9c5ccce0e0c725fcd2f63",
    "hunks": [
     {
      "at": 997,
@@ -757,8 +971,8 @@
   {
    "path": "src/vite/build/git-worktree-manager/0003-worktree-trash-tombstones.js",
    "kind": "edit",
-   "baseSha256": "c7ac889c4dd4ad9f93c5f712f0014e467bc0b8d228e5f01e1b3a5d4221f403fe",
-   "resultSha256": "381298a314da073bbb6aa92a898062c06ffd2b2fef02523884773376aca7f67a",
+   "baseSha256": "e613803af54bf8a65790a80c21deb94c1426604d089b350db33a9dd7ed3e8554",
+   "resultSha256": "9b6b781faf01fa7620c9da05e5729ee073f4a85653bd2045d8bc2e3cc8cd2e5f",
    "hunks": [
     {
      "at": 1288,
@@ -828,17 +1042,17 @@
   {
    "path": "src/vite/build/git-worktree-manager/0005-create-worktree.js",
    "kind": "edit",
-   "baseSha256": "40afd4c5fdce8ab65e1ce09c22026b02bf5e67027cbc80667607a85a3bb7202d",
-   "resultSha256": "6ca66e33254447b57d3e69f120071d69612e0b5bb0611f7ea4964a120c355253",
+   "baseSha256": "d9aa81f6dbdc0f0d2a2949e2cc341444a75efbb198e730bf75d5804ba34dfd13",
+   "resultSha256": "c7a2d71ef54046f1fbce4eb5cab6c4c0cda8c63202816c01b5f9e0136da380a4",
    "hunks": [
     {
-     "at": 12356,
+     "at": 12551,
      "remove": 1,
      "removeSha256": "2350a0e2e44e0c3cfac0fabc86756f0b8af153beae3f62af80def6dc48bc4bea",
      "add": [
       [
        [
-        12356,
+        12551,
         0,
         25
        ],
@@ -851,11 +1065,11 @@
   {
    "path": "src/vite/build/index.pre/0038-unc-relocated.js",
    "kind": "edit",
-   "baseSha256": "abec239ada415814b538f0238ef5bfdbb907c67b84103fe9e3372627366e1a43",
-   "resultSha256": "1d6782cffb08dbe8b4aeea85228df751e063f930b647d57c6e045740fa91202d",
+   "baseSha256": "540168b064f70bd5843c040307194b0f50615378c1844e235240ff8442bcbc03",
+   "resultSha256": "c5f627375d9ff326735b2d9d95293011dd39c4f10ec5ccc62573ceb193d2a117",
    "hunks": [
     {
-     "at": 180,
+     "at": 273,
      "remove": 0,
      "add": [
       [
@@ -893,13 +1107,13 @@
    ]
   },
   {
-   "path": "src/vite/build/main/0293-support-bundle.js",
+   "path": "src/vite/build/main/0296-support-bundle.js",
    "kind": "edit",
-   "baseSha256": "dc1267b8090caaae7c7d0daf2013413ece5f8b469b9a9e984e3c0bf05d609e55",
-   "resultSha256": "e837040d6a7d195899091c3bc397731438b3a36f2b29fdc663bfae9491b5cae3",
+   "baseSha256": "aded3dd4811db7aabf42e0cf4644b26659abb004ac5a762005c3b98e1ee01950",
+   "resultSha256": "e26c971f4d5c1b56305c129bbb5929d20a3f5ad11e6625425c9b89c7d5d952be",
    "hunks": [
     {
-     "at": 459,
+     "at": 1667,
      "remove": 0,
      "add": [
       [
@@ -913,13 +1127,102 @@
    ]
   },
   {
-   "path": "src/vite/build/main/_manifest.json",
+   "path": "src/vite/build/main/0355-main-view.js",
    "kind": "edit",
-   "baseSha256": "64ea20f369610ad0029a8d9ad4c77534e4e35f580e7f1ae1ccab5e1f6cb3ad9b",
-   "resultSha256": "a10ec2f3041a2207864a82216e5538a190bf6bf012eab08d6e8c1eed891ce165",
+   "baseSha256": "80fac8c66959bf61667eec7ac2c494bcca09af738a30143113e49c4e84a013d5",
+   "resultSha256": "bf19d57e7387429d41c4fa784ea2e1892d5cad4b351f1c585e827d0879d2abcd",
    "hunks": [
     {
-     "at": 1402,
+     "at": 359,
+     "remove": 0,
+     "add": [
+      [
+       "            questions: toolInput?.questions,\n"
+      ]
+     ]
+    },
+    {
+     "at": 397,
+     "remove": 0,
+     "add": [
+      [
+       "                  alwaysAction: buildPermissionAlwaysAction(\"cowork\", request, session),\n"
+      ]
+     ]
+    },
+    {
+     "at": 416,
+     "remove": 0,
+     "add": [
+      [
+       "        if (sessionEvent.request.toolName === \"AskUserQuestion\") {\n"
+      ],
+      [
+       "          notificationService.closeAskUserQuestionNotification(sessionEvent.request.requestId);\n"
+      ],
+      [
+       "        }\n"
+      ]
+     ]
+    },
+    {
+     "at": 1042,
+     "remove": 0,
+     "add": [
+      [
+       "              questions: toolInput?.questions,\n"
+      ]
+     ]
+    },
+    {
+     "at": 1066,
+     "remove": 0,
+     "add": [
+      [
+       "            alwaysAction: buildPermissionAlwaysAction(\"ccd\", notifyPermissionRequest, session),\n"
+      ]
+     ]
+    },
+    {
+     "at": 1100,
+     "remove": 0,
+     "add": [
+      [
+       "      // Local change: Powertoys' extra windows show local sessions too.\n"
+      ],
+      [
+       "      for (let extraWebContents of powertoysExtraWebContents()) {\n"
+      ],
+      [
+       "        ",
+       [
+        310,
+        8,
+        62
+       ],
+       "\n"
+      ],
+      [
+       "          LocalSessions.getDispatcher(extraWebContents)?.dispatchOnEvent(event),\n"
+      ],
+      [
+       "        );\n"
+      ],
+      [
+       "      }\n"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "path": "src/vite/build/main/_manifest.json",
+   "kind": "edit",
+   "baseSha256": "27b91c7db3aa68ee236fa47cafd4e500a12e9a1975c6b31b603d18a6c5e185fc",
+   "resultSha256": "71eae1859673f3b1ca63b8cff3f7cb4de8fce076277743c7cfa81275b5753195",
+   "hunks": [
+    {
+     "at": 1418,
      "remove": 0,
      "add": [
       [
@@ -1095,2989 +1398,15 @@
    ]
   },
   {
-   "path": "src/vite/build/main/app/0246-session-notifications.js",
+   "path": "src/vite/build/main/app/0248-session-notifications.js",
    "kind": "edit",
-   "baseSha256": "4d7c9cb5233e6da52ba2d7f85796f4723a76cf7fcdbc4f072cffd73f47bc8893",
-   "resultSha256": "6c72d45ad4dc9a5b56aa2449b4ab766a808efb4dddecc4fb98c43ceafc9fcbd9",
+   "baseSha256": "0659120f20d0892539e80ea8f0299196483ddd4e9e7eff0e5a6fe5d1d925883e",
+   "resultSha256": "07997568b0e3269a006c1537061b7d866ab2785e35d10f3bae4642687caeee17",
    "hunks": [
-    {
-     "at": 341,
-     "remove": 0,
-     "add": [
-      [
-       "/** Permission-notification buttons and the session decision each one sends (allow_always: see buildPermissionAlwaysAction). */\n"
-      ],
-      [
-       "const PERMISSION_NOTIFICATION_DECISIONS = {\n"
-      ],
-      [
-       "  allow_once: \"once\",\n"
-      ],
-      [
-       "  allow_always: \"always\",\n"
-      ],
-      [
-       "  deny: \"deny\",\n"
-      ],
-      [
-       "};\n"
-      ],
-      [
-       "/** Built-in tools whose in-app card is the generic one (no tool-specific buttons or labels). */\n"
-      ],
-      [
-       "const GENERIC_CARD_BUILTIN_TOOLS = new Set([\n"
-      ],
-      [
-       "  \"Bash\",\n"
-      ],
-      [
-       "  \"Read\",\n"
-      ],
-      [
-       "  \"Write\",\n"
-      ],
-      [
-       "  \"Edit\",\n"
-      ],
-      [
-       "  \"MultiEdit\",\n"
-      ],
-      [
-       "  \"NotebookEdit\",\n"
-      ],
-      [
-       "  \"Glob\",\n"
-      ],
-      [
-       "  \"Grep\",\n"
-      ],
-      [
-       "  \"WebFetch\",\n"
-      ],
-      [
-       "  \"WebSearch\",\n"
-      ],
-      [
-       "]);\n"
-      ],
-      [
-       "/** MCP tools with their own in-app card in Claude Code sessions. */\n"
-      ],
-      [
-       "function hasSpecialCcdCard(toolName) {\n"
-      ],
-      [
-       "  return (\n"
-      ],
-      [
-       "    toolName.startsWith(\"mcp__ccd_\") ||\n"
-      ],
-      [
-       "    toolName.startsWith(\"mcp__remote-devices__\") ||\n"
-      ],
-      [
-       "    /__(request_credential|device_request_folder_access|device_request_delete_permission)$/.test(toolName)\n"
-      ],
-      [
-       "  );\n"
-      ],
-      [
-       "}\n"
-      ],
-      [
-       "/** Where the card's \"always\" answer saves its rule, from the first non-mode suggestion. */\n"
-      ],
-      [
-       "function getPermissionSuggestionScope(suggestions) {\n"
-      ],
-      [
-       "  let suggestion = suggestions.find((update) => update.type !== \"setMode\") ?? suggestions[0];\n"
-      ],
-      [
-       "  switch (suggestion?.destination) {\n"
-      ],
-      [
-       "    case \"userSettings\":\n"
-      ],
-      [
-       "      return \"user\";\n"
-      ],
-      [
-       "    case \"projectSettings\":\n"
-      ],
-      [
-       "      return \"project\";\n"
-      ],
-      [
-       "    case \"localSettings\":\n"
-      ],
-      [
-       "      return \"projectLocal\";\n"
-      ],
-      [
-       "    default:\n"
-      ],
-      [
-       "      return \"session\";\n"
-      ],
-      [
-       "  }\n"
-      ],
-      [
-       "}\n"
-      ],
-      [
-       "function formatApprovalDays(days) {\n"
-      ],
-      [
-       "  return `Allow for ${days} ${days === 1 ? \"day\" : \"days\"}`;\n"
-      ],
-      [
-       "}\n"
-      ],
-      [
-       "/**\n"
-      ],
-      [
-       " * The in-app card's persistent allow button for this request ({label, decision}), or undefined when the\n"
-      ],
-      [
-       " * card shows none or its effect needs the card itself (SSH-host grants, connector-wide Cowork grants).\n"
-      ],
-      [
-       " */\n"
-      ],
-      [
-       "function buildPermissionAlwaysAction(product, request, session) {\n"
-      ],
-      [
-       "  let { toolName: toolName, suggestions: suggestions } = request;\n"
-      ],
-      [
-       "  if (!suggestions?.length || request.suppressAlwaysAllowRule === true || request.defaultToNo === true) {\n"
-      ],
-      [
-       "    return undefined;\n"
-      ],
-      [
-       "  }\n"
-      ],
-      [
-       "  // The card answers \"once\" for asks Claude Code cannot keep a rule for.\n"
-      ],
-      [
-       "  let decision = request.viaHostCliLauncher === true ? \"once\" : \"always\";\n"
-      ],
-      [
-       "  ",
-       [
-        841,
-        4,
-        31
-       ],
-       "\n"
-      ],
-      [
-       "    if (!GENERIC_CARD_BUILTIN_TOOLS.has(toolName) || isPrivilegedBridgeTool(toolName)) {\n"
-      ],
-      [
-       "      return undefined;\n"
-      ],
-      [
-       "    }\n"
-      ],
-      [
-       "    if (isScheduledTaskSession(session) && request.viaHostCliLauncher !== true) {\n"
-      ],
-      [
-       "      let addsAllowRule = suggestions.some(\n"
-      ],
-      [
-       "        (update) => (update.type === \"addRules\" || update.type === \"replaceRules\") && update.behavior === \"allow\",\n"
-      ],
-      [
-       "      );\n"
-      ],
-      [
-       "      if (!addsAllowRule) {\n"
-      ],
-      [
-       "        return undefined;\n"
-      ],
-      [
-       "      }\n"
-      ],
-      [
-       "      return {\n"
-      ],
-      [
-       "        label: request.scheduledRunApprovalDays\n"
-      ],
-      [
-       "          ? formatApprovalDays(request.scheduledRunApprovalDays)\n"
-      ],
-      [
-       "          : \"Allow for all scheduled runs\",\n"
-      ],
-      [
-       "        decision: \"always\",\n"
-      ],
-      [
-       "      };\n"
-      ],
-      [
-       "    }\n"
-      ],
-      [
-       "    return {\n"
-      ],
-      [
-       "      label: \"Always allow\",\n"
-      ],
-      [
-       "      decision: decision,\n"
-      ],
-      [
-       "    };\n"
-      ],
-      [
-       "  }\n"
-      ],
-      [
-       "  let isMcpTool = toolName.startsWith(\"mcp__\");\n"
-      ],
-      [
-       "  if (!(GENERIC_CARD_BUILTIN_TOOLS.has(toolName) || (isMcpTool && !hasSpecialCcdCard(toolName)))) {\n"
-      ],
-      [
-       "    return undefined;\n"
-      ],
-      [
-       "  }\n"
-      ],
-      [
-       "  // Answers from outside the card keep no local MCP allow rule on SSH sessions.\n"
-      ],
-      [
-       "  if (isMcpTool && session?.backend?.remoteTarget?.kind === \"ssh\") {\n"
-      ],
-      [
-       "    return undefined;\n"
-      ],
-      [
-       "  }\n"
-      ],
-      [
-       "  let scope = getPermissionSuggestionScope(suggestions);\n"
-      ],
-      [
-       "  if (scope === \"session\" && request.alwaysAllowKeptForHost) {\n"
-      ],
-      [
-       "    return undefined;\n"
-      ],
-      [
-       "  }\n"
-      ],
-      [
-       "  let label = request.scheduledRunApprovalDays\n"
-      ],
-      [
-       "    ? formatApprovalDays(request.scheduledRunApprovalDays)\n"
-      ],
-      [
-       "    : request.alwaysAllowEndsWithSession && scope === \"session\"\n"
-      ],
-      [
-       "      ? \"Allow for this session\"\n"
-      ],
-      [
-       "      : \"Always allow\";\n"
-      ],
-      [
-       "  return {\n"
-      ],
-      [
-       "    label: label,\n"
-      ],
-      [
-       "    decision: decision,\n"
-      ],
-      [
-       "  };\n"
-      ],
-      [
-       "}\n"
-      ],
-      [
-       "/** Windows shows at most five buttons on a toast; the text box brings its own (Reply). */\n"
-      ],
-      [
-       "const MAX_TOAST_BUTTONS = 5;\n"
-      ],
-      [
-       "const MAX_QUESTION_NOTIFICATION_OPTIONS = 4;\n"
-      ],
-      [
-       "/** What the in-app card answers for a skipped question. */\n"
-      ],
-      [
-       "const SKIPPED_QUESTION_ANSWER = \"[No preference]\";\n"
-      ],
-      [
-       "/**\n"
-      ],
-      [
-       " * How a notification can offer an AskUserQuestion question, like the in-app card: the options in a\n"
-      ],
-      [
-       " * full-width drop-down with an Answer button (buttons are narrow and cut long options short), a text\n"
-      ],
-      [
-       " * box for another answer, and Skip. Undefined when the notification cannot offer the question, so it\n"
-      ],
-      [
-       " * only opens the conversation: multiSelect questions, since Windows notifications have no check boxes\n"
-      ],
-      [
-       " * (their inputs are a text box or a single-choice drop-down).\n"
-      ],
-      [
-       " */\n"
-      ],
-      [
-       "function buildQuestionNotificationLayout(question) {\n"
-      ],
-      [
-       "  if (!question || typeof question.question !== \"string\" || !question.question.trim()) {\n"
-      ],
-      [
-       "    return undefined;\n"
-      ],
-      [
-       "  }\n"
-      ],
-      [
-       "  let options = Array.isArray(question.options) ? question.options : [];\n"
-      ],
-      [
-       "  if (\n"
-      ],
-      [
-       "    (question.multiSelect === true && options.length > 0) ||\n"
-      ],
-      [
-       "    options.length > MAX_QUESTION_NOTIFICATION_OPTIONS ||\n"
-      ],
-      [
-       "    options.some((option) => typeof option?.label !== \"string\" || !option.label.trim())\n"
-      ],
-      [
-       "  ) {\n"
-      ],
-      [
-       "    return undefined;\n"
-      ],
-      [
-       "  }\n"
-      ],
-      [
-       "  // Answer, Reply, Skip and Close: within MAX_TOAST_BUTTONS.\n"
-      ],
-      [
-       "  return {\n"
-      ],
-      [
-       "    options: options,\n"
-      ],
-      [
-       "    textBox: true,\n"
-      ],
-      [
-       "    skip: true,\n"
-      ],
-      [
-       "  };\n"
-      ],
-      [
-       "}\n"
-      ],
-      [
-       "/** One question's answer in the format each surface's card sends. */\n"
-      ],
-      [
-       "function formatQuestionAnswer(product, response) {\n"
-      ],
-      [
-       "  if (!Array.isArray(response)) {\n"
-      ],
-      [
-       "    return response;\n"
-      ],
-      [
-       "  }\n"
-      ],
-      [
-       "  // Cowork sends a single value as a string; Claude Code sends multiSelect answers as a list.\n"
-      ],
-      [
-       "  return product === \"cowork\" && response.length === 1 ? response[0] : response;\n"
-      ],
-      [
-       "}\n"
-      ],
-      [
-       "/** The updated input the in-app card sends for answered questions: answers keyed by question text. */\n"
-      ],
-      [
-       "function buildQuestionAnswerInput(product, questions, responses) {\n"
-      ],
-      [
-       "  let answers = Object.fromEntries(\n"
-      ],
-      [
-       "    questions.map((question, index) => [question.question, formatQuestionAnswer(product, responses[index].value)]),\n"
-      ],
-      [
-       "  );\n"
-      ],
-      [
-       "  // Claude Code's card notes the preview of a chosen single-select option that has one.\n"
-      ],
-      [
-       "  let annotations =\n"
-      ],
-      [
-       "    ",
-       [
-        821,
-        6,
-        26
-       ],
-       "\n"
-      ],
-      [
-       "      ? []\n"
-      ],
-      [
-       "      : questions.flatMap((question, index) =>\n"
-      ],
-      [
-       "          typeof responses[index].preview === \"string\"\n"
-      ],
-      [
-       "            ? [\n"
-      ],
-      [
-       "                [\n"
-      ],
-      [
-       "                  question.question,\n"
-      ],
-      [
-       "                  {\n"
-      ],
-      [
-       "                    preview: responses[index].preview,\n"
-      ],
-      [
-       "                  },\n"
-      ],
-      [
-       "                ],\n"
-      ],
-      [
-       "              ]\n"
-      ],
-      [
-       "            : [],\n"
-      ],
-      [
-       "        );\n"
-      ],
-      [
-       "  return {\n"
-      ],
-      [
-       "    questions: questions,\n"
-      ],
-      [
-       "    answers: answers,\n"
-      ],
-      [
-       "    ...(annotations.length > 0 && {\n"
-      ],
-      [
-       "      annotations: Object.fromEntries(annotations),\n"
-      ],
-      [
-       "    }),\n"
-      ],
-      [
-       "  };\n"
-      ],
-      [
-       "}\n"
-      ]
-     ]
-    },
     {
      "at": 429,
-     "remove": 0,
-     "add": [
-      [
-       "    // requestId -> { index, responses }: answers given so far from question notifications, sent together after the last one.\n"
-      ],
-      [
-       "    this.questionNotificationAnswers = new Map();\n"
-      ]
-     ]
-    },
-    {
-     "at": 769,
-     "remove": 0,
-     "add": [
-      [
-       "  handlePermissionResponse(product, requestId, decision, updatedInput) {\n"
-      ],
-      [
-       "    ",
-       [
-        841,
-        4,
-        31
-       ],
-       "\n"
-      ],
-      [
-       "      getLocalAgentModeSessionManager()\n"
-      ],
-      [
-       "        .then((sessionManager) => sessionManager.respondToToolPermission(requestId, decision, updatedInput))\n"
-      ],
-      [
-       "        .catch((error7) => {\n"
-      ],
-      [
-       "          ",
-       [
-        825,
-        14,
-        71
-       ],
-       "\n"
-      ],
-      [
-       "            ",
-       [
-        21,
-        6,
-        20
-       ],
-       "\n"
-      ],
-      [
-       "          });\n"
-      ],
-      [
-       "        });\n"
-      ],
-      [
-       "    } else {\n"
-      ],
-      [
-       "      getClaudeCodeSessionManager()\n"
-      ],
-      [
-       "        .then((sessionManager) => sessionManager.respondToToolPermission(requestId, decision, updatedInput))\n"
-      ],
-      [
-       "        .catch((error7) => {\n"
-      ],
-      [
-       "          ",
-       [
-        825,
-        14,
-        71
-       ],
-       "\n"
-      ],
-      [
-       "            ",
-       [
-        21,
-        6,
-        20
-       ],
-       "\n"
-      ],
-      [
-       "          });\n"
-      ],
-      [
-       "        });\n"
-      ],
-      [
-       "    }\n"
-      ],
-      [
-       "  }\n"
-      ]
-     ]
-    },
-    {
-     "at": 879,
-     "remove": 0,
-     "add": [
-      [
-       "    // Local change: Powertoys per-session mute (the request still counts as waiting).\n"
-      ],
-      [
-       "    if (powertoysSessionMuted(sessionId)) {\n"
-      ],
-      [
-       "      return;\n"
-      ],
-      [
-       "    }\n"
-      ]
-     ]
-    },
-    {
-     "at": 1020,
      "remove": 1,
-     "removeSha256": "e4b975cd38e80e15dd98154fc2dd2c8594ac21ec8dcdc7eedde6a83ead70043e",
-     "add": [
-      [
-       "    // Asks that only the card may approve still get Deny, like the card.\n"
-      ],
-      [
-       "    let electronN",
-       [
-        1020,
-        9,
-        44
-       ]
-      ]
-     ]
-    },
-    {
-     "at": 1022,
-     "remove": 1,
-     "removeSha256": "40faab87d499f40adbb490a9b0462a481bafb059853c970a20e544acbfdd9458",
-     "add": [
-      [
-       "    electronN",
-       [
-        1022,
-        5,
-        30
-       ]
-      ]
-     ]
-    },
-    {
-     "at": 1031,
-     "remove": 8,
-     "removeSha256": "cf396f597a81c61f8929ac797cc90991d065854eabdfae888c2ce9499280ef49",
-     "add": [
-      [
-       "        actions: this.permissionNotificationActions(request,",
-       [
-        1031,
-        16,
-        37
-       ],
-       "),\n"
-      ]
-     ]
-    },
-    {
-     "at": 1047,
-     "remove": 2,
-     "removeSha256": "b57b1a98f699e704e10a95e9135184227cebd016e2ed7e1afb4b3a858080a221",
-     "add": [
-      [
-       [
-        1047,
-        0,
-        12
-       ],
-       "decis",
-       [
-        1047,
-        81,
-        90
-       ],
-       "\n"
-      ],
-      [
-       "         ",
-       [
-        1047,
-        30,
-        66
-       ],
-       "PERMISSION_NOTIFICATION_DECISIONS[",
-       [
-        1047,
-        66,
-        88
-       ],
-       "]\n"
-      ],
-      [
-       "            ?",
-       [
-        1047,
-        65,
-        88
-       ],
-       "\n"
-      ],
-      [
-       [
-        1047,
-        0,
-        8
-       ],
-       "    : null;\n"
-      ],
-      [
-       "        // While computer use is controlling the screen nothing is allowed from a n",
-       [
-        1048,
-        65,
-        76
-       ],
-       " (the\n"
-      ],
-      [
-       [
-        1047,
-        0,
-        8
-       ],
-       "// release's own rule for Allow once): the press opens the session instead. Deny still works.\n"
-      ],
-      [
-       [
-        1047,
-        0,
-        12
-       ],
-       "blocked = decisionType !== null && decisionType !== \"deny\"",
-       [
-        1048,
-        42,
-        51
-       ],
-       "computerUseHoldsScreen();\n"
-      ],
-      [
-       [
-        1048,
-        0,
-        13
-       ],
-       "ction =\n"
-      ],
-      [
-       "          decisionType && !blocked ? decisionType :",
-       [
-        1047,
-        30,
-        63
-       ],
-       "? \"click\" :",
-       [
-        1047,
-        30,
-        49
-       ],
-       ";\n"
-      ]
-     ]
-    },
-    {
-     "at": 1051,
-     "remove": 2,
-     "removeSha256": "a15a2dbe69edf34a421f8847aba2be06def9f10f792d58c04faf2749c0a95f8e",
-     "add": [
-      [
-       "          backend: electronN",
-       [
-        1051,
-        20,
-        54
-       ]
-      ],
-      [
-       [
-        1052,
-        0,
-        19
-       ],
-       "ction,\n"
-      ]
-     ]
-    },
-    {
-     "at": 1060,
-     "remove": 2,
-     "removeSha256": "c4fe42d34ceb6d6336ac32bdf5f1c35c95ddf1c21ec29e47bf173914a38b1dfe",
-     "add": [
-      [
-       [
-        1060,
-        0,
-        12
-       ],
-       "decisionType && !blocked) {\n"
-      ],
-      [
-       "          // The",
-       [
-        1061,
-        49,
-        62
-       ],
-       " closes when the session reports the request resolved (tool_p",
-       [
-        1061,
-        24,
-        33
-       ],
-       "_resolved).\n"
-      ],
-      [
-       [
-        1061,
-        0,
-        11
-       ],
-       "et decision =\n"
-      ],
-      [
-       [
-        1061,
-        0,
-        10
-       ],
-       "  decisionType === \"allow_always\" ? request.alwaysAction?.decision : PERMISSION_NOTIFICATION_DECISIONS[decisionType];\n"
-      ],
-      [
-       "  ",
-       [
-        1060,
-        0,
-        12
-       ],
-       "!decision) {\n"
-      ],
-      [
-       [
-        1061,
-        0,
-        10
-       ],
-       "  return;\n"
-      ],
-      [
-       [
-        1061,
-        0,
-        10
-       ],
-       "}\n"
-      ],
-      [
-       [
-        1061,
-        0,
-        22
-       ],
-       "`Permission ${decision}",
-       [
-        1061,
-        44,
-        62
-       ],
-       "`, {\n"
-      ]
-     ]
-    },
-    {
-     "at": 1064,
-     "remove": 1,
-     "removeSha256": "32970578e38ad54f8bb80ecffff909b707d3ff7f6262132bef2ce7a8c879a5f7",
-     "add": [
-      [
-       "            backend: electronN",
-       [
-        1064,
-        22,
-        56
-       ]
-      ]
-     ]
-    },
-    {
-     "at": 1066,
-     "remove": 1,
-     "removeSha256": "c46b8d2891d2ba38abc6b5ef1758877765c9f7fd38e643a0fc630a0e19bc2c3b",
-     "add": [
-      [
-       [
-        1066,
-        0,
-        8
-       ],
-       "  this.handlePermissionResponse(product, requestId, decision);\n"
-      ],
-      [
-       [
-        1066,
-        0,
-        53
-       ],
-       "blocked) {\n"
-      ],
-      [
-       [
-        1066,
-        0,
-        8
-       ],
-       "  if (blocked) {\n"
-      ],
-      [
-       [
-        1066,
-        0,
-        8
-       ],
-       "    logger.info(\"notification: an allow press was ignored because computer use is controlling the screen\", {\n"
-      ],
-      [
-       "              ",
-       [
-        814,
-        12,
-        33
-       ],
-       "\n"
-      ],
-      [
-       "    ",
-       [
-        1066,
-        0,
-        9
-       ],
-       ");\n"
-      ],
-      [
-       "  ",
-       [
-        1066,
-        0,
-        9
-       ],
-       "\n"
-      ]
-     ]
-    },
-    {
-     "at": 1075,
-     "remove": 1,
-     "removeSha256": "4b58ab8fa7288736b79fa515bd0defff1502d1c1bbbb66e6832f6cae03cd8a02",
-     "add": [
-      [
-       [
-        1075,
-        0,
-        69
-       ],
-       "electronN",
-       [
-        1075,
-        70,
-        105
-       ]
-      ]
-     ]
-    },
-    {
-     "at": 1079,
-     "remove": 1,
-     "removeSha256": "fd195a9b869801351e9937694b467032bc0577abee3cad9669c759b111a2a03a",
-     "add": [
-      [
-       "      backend: electronN",
-       [
-        1079,
-        16,
-        50
-       ]
-      ]
-     ]
-    },
-    {
-     "at": 1081,
-     "remove": 1,
-     "removeSha256": "8fe0ad70ca0d24ac53aa86128aa6fb4b282ae4ab8c995de8dfbde551ea59a3cd",
-     "add": [
-      [
-       "      has_action_buttons: electronN",
-       [
-        1081,
-        51,
-        86
-       ]
-      ]
-     ]
-    },
-    {
-     "at": 1087,
-     "remove": 1,
-     "removeSha256": "fd195a9b869801351e9937694b467032bc0577abee3cad9669c759b111a2a03a",
-     "add": [
-      [
-       "      backend: electronN",
-       [
-        1087,
-        16,
-        50
-       ]
-      ]
-     ]
-    },
-    {
-     "at": 1090,
-     "remove": 0,
-     "add": [
-      [
-       "  /** Buttons of a permission notification, as on the in-app card: Allow once, its persistent allow button, Deny. */\n"
-      ],
-      [
-       "  permissionNotificationActions(request, allowFromNotification) {\n"
-      ],
-      [
-       "    if (!allowFromNotification) {\n"
-      ],
-      [
-       "      return [\n"
-      ],
-      [
-       "        {\n"
-      ],
-      [
-       "          type: \"deny\",\n"
-      ],
-      [
-       "          text: \"Deny\",\n"
-      ],
-      [
-       "        },\n"
-      ],
-      [
-       "      ];\n"
-      ],
-      [
-       "    }\n"
-      ],
-      [
-       "    return [\n"
-      ],
-      [
-       "      {\n"
-      ],
-      [
-       "        ",
-       [
-        1034,
-        16,
-        35
-       ],
-       "\n"
-      ],
-      [
-       "        ",
-       [
-        1035,
-        16,
-        35
-       ],
-       "\n"
-      ],
-      [
-       "      },\n"
-      ],
-      [
-       "      ...(request.alwaysAction\n"
-      ],
-      [
-       "        ? [\n"
-      ],
-      [
-       "            {\n"
-      ],
-      [
-       "              type: \"allow_always\",\n"
-      ],
-      [
-       "              text: request.alwaysAction.label,\n"
-      ],
-      [
-       "            },\n"
-      ],
-      [
-       "          ]\n"
-      ],
-      [
-       "        : []),\n"
-      ],
-      [
-       "      {\n"
-      ],
-      [
-       "        type: \"deny\",\n"
-      ],
-      [
-       "        text: \"Deny\",\n"
-      ],
-      [
-       "      },\n"
-      ],
-      [
-       "    ];\n"
-      ],
-      [
-       "  }\n"
-      ]
-     ]
-    },
-    {
-     "at": 1141,
-     "remove": 0,
-     "add": [
-      [
-       "    // Local change: Powertoys per-session mute (the request still counts as waiting).\n"
-      ],
-      [
-       "    if (powertoysSessionMuted(request.sessionId)) {\n"
-      ],
-      [
-       "      return;\n"
-      ],
-      [
-       "    }\n"
-      ]
-     ]
-    },
-    {
-     "at": 1378,
-     "remove": 0,
-     "add": [
-      [
-       "    // Local change: Powertoys per-session mute (the request still counts as waiting).\n"
-      ],
-      [
-       "    if (powertoysSessionMuted(sessionId)) {\n"
-      ],
-      [
-       "      return;\n"
-      ],
-      [
-       "    }\n"
-      ]
-     ]
-    },
-    {
-     "at": 1473,
-     "remove": 13,
-     "removeSha256": "226d517f0003f2a4ba37b5134acf6434beb1c060d1851485c2ec09286b357c37",
-     "add": [
-      [
-       "      this.showElectronQuest",
-       [
-        1480,
-        26,
-        41
-       ],
-       "(request, title2, body,",
-       [
-        1478,
-        17,
-        27
-       ],
-       " eventProps, clearClickCallback);\n"
-      ],
-      [
-       "    }\n"
-      ],
-      [
-       "  }\n"
-      ],
-      [
-       "  /**\n"
-      ],
-      [
-       "   * Shows the current ",
-       [
-        1483,
-        28,
-        36
-       ],
-       " of an AskUserQuestion",
-       [
-        1485,
-        11,
-        19
-       ],
-       " with the in-app card's choices (see\n"
-      ],
-      [
-       "   * buildQuest",
-       [
-        1480,
-        26,
-        41
-       ],
-       "Layout). Questions are asked one",
-       [
-        1479,
-        14,
-        27
-       ],
-       " at a time; the answers go to\n"
-      ],
-      [
-       "   * the session together after the last one, and the",
-       [
-        1479,
-        14,
-        27
-       ],
-       " closes when the",
-       [
-        1484,
-        11,
-        19
-       ],
-       " reports the\n"
-      ],
-      [
-       "   *",
-       [
-        1485,
-        11,
-        19
-       ],
-       " resolved.\n"
-      ],
-      [
-       "   */\n"
-      ],
-      [
-       "  showElectronQuest",
-       [
-        1480,
-        26,
-        41
-       ],
-       "(request, title, fallbackBody, silent, eventProps, clearClickCallback) {\n"
-      ],
-      [
-       "    let { product: product,",
-       [
-        1484,
-        11,
-        33
-       ],
-       [
-        1485,
-        11,
-        32
-       ],
-       " } =",
-       [
-        1485,
-        11,
-        19
-       ],
-       ";\n"
-      ],
-      [
-       "    ",
-       [
-        1408,
-        4,
-        54
-       ],
-       "\n"
-      ],
-      [
-       [
-        1473,
-        2,
-        10
-       ],
-       [
-        1483,
-        28,
-        36
-       ],
-       "s = Array.isArray(request.",
-       [
-        1483,
-        28,
-        36
-       ],
-       "s) ? request.",
-       [
-        1483,
-        28,
-        36
-       ],
-       "s : [];\n"
-      ],
-      [
-       "    let progress = this.quest",
-       [
-        1480,
-        26,
-        41
-       ],
-       "Answers.get(",
-       [
-        1485,
-        12,
-        21
-       ],
-       ") ?? {\n"
-      ],
-      [
-       "      index: 0,\n"
-      ],
-      [
-       [
-        1485,
-        6,
-        14
-       ],
-       "sponses: [],\n"
-      ],
-      [
-       "    };\n"
-      ],
-      [
-       [
-        1473,
-        2,
-        10
-       ],
-       [
-        1483,
-        28,
-        36
-       ],
-       " = ",
-       [
-        1483,
-        28,
-        36
-       ],
-       "s[progress.index];\n"
-      ],
-      [
-       [
-        1473,
-        2,
-        10
-       ],
-       "layout =\n"
-      ],
-      [
-       "      questions.length > 0 && questions.every((item) => buildQuest",
-       [
-        1480,
-        26,
-        41
-       ],
-       "Layout(item))\n"
-      ],
-      [
-       "        ? buildQuest",
-       [
-        1480,
-        26,
-        41
-       ],
-       "Layout(",
-       [
-        1483,
-        28,
-        36
-       ],
-       ")\n"
-      ],
-      [
-       "        ",
-       [
-        695,
-        12,
-        24
-       ],
-       "\n"
-      ],
-      [
-       [
-        1473,
-        2,
-        10
-       ],
-       "actions = [];\n"
-      ],
-      [
-       "    if (layout) {\n"
-      ],
-      [
-       "      if (layout.options.length > 0) {\n"
-      ],
-      [
-       [
-        1475,
-        0,
-        8
-       ],
-       "actions.push({\n"
-      ],
-      [
-       [
-        1483,
-        2,
-        19
-       ],
-       "choose\",\n"
-      ],
-      [
-       [
-        1476,
-        0,
-        11
-       ],
-       "ext: \"Answer\",\n"
-      ],
-      [
-       [
-        1484,
-        2,
-        14
-       ],
-       "lection: layout.options.map((option) => option.label),\n"
-      ],
-      [
-       [
-        1475,
-        0,
-        8
-       ],
-       "});\n"
-      ],
-      [
-       "      }\n"
-      ],
-      [
-       "      if (layout.skip) {\n"
-      ],
-      [
-       [
-        1475,
-        0,
-        8
-       ],
-       "actions.push({\n"
-      ],
-      [
-       [
-        1483,
-        2,
-        19
-       ],
-       "skip\",\n"
-      ],
-      [
-       [
-        1476,
-        0,
-        11
-       ],
-       "ext: \"Skip\",\n"
-      ],
-      [
-       [
-        1475,
-        0,
-        8
-       ],
-       "});\n"
-      ],
-      [
-       "      }\n"
-      ],
-      [
-       "    }\n"
-      ],
-      [
-       [
-        1473,
-        2,
-        11
-       ],
-       "ody = layout\n"
-      ],
-      [
-       "      ? sanitize",
-       [
-        1480,
-        29,
-        42
-       ],
-       "ext(\n"
-      ],
-      [
-       [
-        1476,
-        0,
-        10
-       ],
-       [
-        1483,
-        28,
-        36
-       ],
-       "s.length > 1 ? `(${progress.index + 1}/${",
-       [
-        1483,
-        28,
-        36
-       ],
-       "s.length}) ${",
-       [
-        1483,
-        28,
-        36
-       ],
-       ".",
-       [
-        1483,
-        28,
-        36
-       ],
-       "}` : ",
-       [
-        1483,
-        28,
-        36
-       ],
-       ".",
-       [
-        1483,
-        28,
-        36
-       ],
-       ",\n"
-      ],
-      [
-       [
-        1475,
-        0,
-        8
-       ],
-       ")\n"
-      ],
-      [
-       "      : fallbackBody;\n"
-      ],
-      [
-       [
-        1473,
-        2,
-        10
-       ],
-       "saveProgress = (nextProgress) => {\n"
-      ],
-      [
-       "      this.quest",
-       [
-        1480,
-        26,
-        41
-       ],
-       "Answers.set(",
-       [
-        1485,
-        23,
-        33
-       ],
-       " nextProgress);\n"
-      ],
-      [
-       "      this.showElectronQuest",
-       [
-        1480,
-        26,
-        41
-       ],
-       "(request, title, fallbackBody, silent, eventProps, clearClickCallback);\n"
-      ],
-      [
-       "    };\n"
-      ],
-      [
-       [
-        1473,
-        2,
-        10
-       ],
-       "answerQuestion = (response) => {\n"
-      ],
-      [
-       [
-        1473,
-        0,
-        10
-       ],
-       "responses = [...progress.responses, response];\n"
-      ],
-      [
-       "      if (responses.length < ",
-       [
-        1483,
-        28,
-        36
-       ],
-       "s.length) {\n"
-      ],
-      [
-       "        logger.info(\"AskUserQuestion answer from",
-       [
-        1479,
-        14,
-        27
-       ],
-       ", asking the next ",
-       [
-        1483,
-        28,
-        38
-       ],
-       " {\n"
-      ],
-      [
-       "          ",
-       [
-        814,
-        12,
-        33
-       ],
-       "\n"
-      ],
-      [
-       "          ",
-       [
-        645,
-        12,
-        33
-       ],
-       "\n"
-      ],
-      [
-       [
-        1476,
-        0,
-        10
-       ],
-       "answered: responses.length,\n"
-      ],
-      [
-       [
-        1476,
-        0,
-        10
-       ],
-       "of: ",
-       [
-        1483,
-        28,
-        36
-       ],
-       "s.length,\n"
-      ],
-      [
-       [
-        1475,
-        0,
-        8
-       ],
-       "});\n"
-      ],
-      [
-       [
-        1478,
-        2,
-        11
-       ],
-       "aveProgress({\n"
-      ],
-      [
-       [
-        1476,
-        0,
-        10
-       ],
-       "index: progress.index + 1,\n"
-      ],
-      [
-       [
-        1485,
-        2,
-        14
-       ],
-       "sponses: responses,\n"
-      ],
-      [
-       [
-        1475,
-        0,
-        8
-       ],
-       "});\n"
-      ],
-      [
-       [
-        1485,
-        4,
-        14
-       ],
-       "turn;\n"
-      ],
-      [
-       "      }\n"
-      ],
-      [
-       "      logger.info(\"AskUserQuestion answered from",
-       [
-        1479,
-        14,
-        27
-       ],
-       "\", {\n"
-      ],
-      [
-       "        ",
-       [
-        814,
-        12,
-        33
-       ],
-       "\n"
-      ],
-      [
-       "        ",
-       [
-        645,
-        12,
-        33
-       ],
-       "\n"
-      ],
-      [
-       "      });\n"
-      ],
-      [
-       "      this.handlePermissionResponse(product,",
-       [
-        1485,
-        22,
-        33
-       ],
-       " \"once\", buildQuestionAnswerInput(product, ",
-       [
-        1483,
-        28,
-        36
-       ],
-       "s, responses));\n"
-      ],
-      [
-       "    };\n"
-      ],
-      [
-       "    ",
-       [
-        1252,
-        6,
-        33
-       ],
-       "\n"
-      ],
-      [
-       "    ",
-       [
-        1253,
-        6,
-        19
-       ],
-       "\n"
-      ],
-      [
-       [
-        1475,
-        2,
-        10
-       ]
-      ],
-      [
-       "        ",
-       [
-        1828,
-        10,
-        23
-       ],
-       "\n"
-      ],
-      [
-       [
-        1477,
-        2,
-        22
-       ]
-      ],
-      [
-       "        ",
-       [
-        1027,
-        8,
-        23
-       ],
-       "\n"
-      ],
-      [
-       "        ",
-       [
-        1258,
-        10,
-        31
-       ],
-       "\n"
-      ],
-      [
-       "        ",
-       [
-        1029,
-        8,
-        54
-       ],
-       "\n"
-      ],
-      [
-       "        ",
-       [
-        1030,
-        8,
-        26
-       ],
-       "\n"
-      ],
-      [
-       [
-        1475,
-        0,
-        8
-       ],
-       "...(actions.length > 0 && {\n"
-      ],
-      [
-       [
-        1476,
-        0,
-        10
-       ],
-       "actions: actions,\n"
-      ],
-      [
-       [
-        1475,
-        0,
-        8
-       ],
-       "}),\n"
-      ],
-      [
-       [
-        1475,
-        0,
-        8
-       ],
-       "...(layout?.textBox && {\n"
-      ],
-      [
-       [
-        1485,
-        2,
-        14
-       ],
-       "ply: {\n"
-      ],
-      [
-       [
-        1483,
-        0,
-        12
-       ],
-       "placeholder: layout.options.length > 0 ? \"Type another answer\" : \"Type your answer\",\n"
-      ]
-     ]
-    },
-    {
-     "at": 1487,
-     "remove": 0,
-     "add": [
-      [
-       "        }),\n"
-      ],
-      [
-       "        data: {\n"
-      ],
-      [
-       "          ",
-       [
-        1443,
-        12,
-        38
-       ],
-       "\n"
-      ],
-      [
-       "          ",
-       [
-        645,
-        12,
-        33
-       ],
-       "\n"
-      ],
-      [
-       "          ",
-       [
-        814,
-        12,
-        33
-       ],
-       "\n"
-      ]
-     ]
-    },
-    {
-     "at": 1488,
-     "remove": 5,
-     "removeSha256": "0a8cdfdaf2b811c9a78605abbcaefea1a928a56cc61be9cd6080c6d1bceedd02",
-     "add": [
-      [
-       "      },\n"
-      ],
-      [
-       "      ",
-       [
-        1046,
-        6,
-        24
-       ],
-       "\n"
-      ],
-      [
-       "        ",
-       [
-        636,
-        10,
-        56
-       ],
-       "\n"
-      ],
-      [
-       "          ",
-       [
-        510,
-        10,
-        24
-       ],
-       "\n"
-      ],
-      [
-       "          ",
-       [
-        1269,
-        12,
-        43
-       ],
-       "\n"
-      ],
-      [
-       [
-        1492,
-        2,
-        52
-       ],
-       "||",
-       [
-        1492,
-        19,
-        44
-       ],
-       "reply\" ? \"answer",
-       [
-        1492,
-        60,
-        84
-       ]
-      ],
-      [
-       [
-        1488,
-        0,
-        8
-       ],
-       "});\n"
-      ],
-      [
-       "        ",
-       [
-        1272,
-        10,
-        47
-       ],
-       "\n"
-      ],
-      [
-       "          ",
-       [
-        1273,
-        12,
-        110
-       ],
-       "\n"
-      ],
-      [
-       "          ",
-       [
-        1420,
-        8,
-        66
-       ],
-       "\n"
-      ],
-      [
-       "          ",
-       [
-        760,
-        12,
-        78
-       ],
-       "\n"
-      ],
-      [
-       "            ",
-       [
-        1498,
-        14,
-        50
-       ],
-       "\n"
-      ],
-      [
-       [
-        1489,
-        0,
-        10
-       ],
-       "}\n"
-      ],
-      [
-       [
-        1489,
-        0,
-        10
-       ],
-       "return;\n"
-      ],
-      [
-       [
-        1488,
-        0,
-        8
-       ],
-       "}\n"
-      ],
-      [
-       [
-        1488,
-        0,
-        8
-       ],
-       "if (!layout) {\n"
-      ],
-      [
-       [
-        1489,
-        0,
-        10
-       ],
-       "return;\n"
-      ],
-      [
-       [
-        1488,
-        0,
-        8
-       ],
-       "}\n"
-      ],
-      [
-       "        if (",
-       [
-        1492,
-        20,
-        44
-       ],
-       "reply\") {\n"
-      ],
-      [
-       "          let text =",
-       [
-        1492,
-        19,
-        32
-       ],
-       "reply.trim();\n"
-      ],
-      [
-       [
-        1489,
-        0,
-        10
-       ],
-       "if (!text) {\n"
-      ],
-      [
-       [
-        1490,
-        0,
-        12
-       ],
-       "return;\n"
-      ],
-      [
-       [
-        1489,
-        0,
-        10
-       ],
-       "}\n"
-      ],
-      [
-       [
-        1492,
-        2,
-        13
-       ],
-       "nswerQuestion({\n"
-      ],
-      [
-       [
-        1490,
-        0,
-        12
-       ],
-       "value: text,\n"
-      ]
-     ]
-    },
-    {
-     "at": 1494,
-     "remove": 6,
-     "removeSha256": "570ebfdfe13d9822db506d5037a3d3d5bbc59ad5980edf1ffc04e416edde2fdf",
-     "add": [
-      [
-       "        } else",
-       [
-        1494,
-        9,
-        38
-       ],
-       "action\" && ",
-       [
-        1494,
-        14,
-        32
-       ],
-       "Type === \"skip\") {\n"
-      ],
-      [
-       [
-        1494,
-        0,
-        10
-       ],
-       "answ",
-       [
-        1496,
-        28,
-        38
-       ],
-       "({\n"
-      ],
-      [
-       [
-        1495,
-        0,
-        12
-       ],
-       "value: SKIPPED_QUESTION_ANSWER,\n"
-      ],
-      [
-       [
-        1499,
-        2,
-        13
-       ],
-       ");\n"
-      ],
-      [
-       "        } else",
-       [
-        1494,
-        9,
-        38
-       ],
-       "action\" && ",
-       [
-        1494,
-        14,
-        32
-       ],
-       "Type === \"choose\") {\n"
-      ],
-      [
-       "          let option = layout.options[",
-       [
-        1494,
-        14,
-        26
-       ],
-       "selectionIndex];\n"
-      ],
-      [
-       [
-        1494,
-        0,
-        14
-       ],
-       "!option) {\n"
-      ],
-      [
-       [
-        1495,
-        0,
-        12
-       ],
-       "// No option picked in the drop-down: ask again.\n"
-      ],
-      [
-       [
-        1498,
-        2,
-        15
-       ],
-       "aveProgress(progress);\n"
-      ],
-      [
-       [
-        1495,
-        0,
-        12
-       ],
-       "return;\n"
-      ]
-     ]
-    },
-    {
-     "at": 1501,
-     "remove": 14,
-     "removeSha256": "c5702b9ff0acaf636536da1077c2b4186745eaafe0731729d5dd0ed6ade12a7d",
-     "add": [
-      [
-       "          answ",
-       [
-        1510,
-        32,
-        42
-       ],
-       "({\n"
-      ],
-      [
-       [
-        1501,
-        0,
-        8
-       ],
-       "    value: option.label,\n"
-      ],
-      [
-       "    ",
-       [
-        1505,
-        0,
-        11
-       ],
-       "(typeof option.preview === \"string\" && {\n"
-      ],
-      [
-       [
-        1501,
-        0,
-        8
-       ],
-       "      preview: option.preview,\n"
-      ],
-      [
-       "    ",
-       [
-        1501,
-        0,
-        9
-       ],
-       "),\n"
-      ],
-      [
-       "    ",
-       [
-        1509,
-        0,
-        10
-       ]
-      ],
-      [
-       [
-        1501,
-        0,
-        9
-       ],
-       "\n"
-      ],
-      [
-       [
-        1501,
-        2,
-        11
-       ]
-      ],
-      [
-       "      ",
-       [
-        1276,
-        8,
-        103
-       ],
-       "\n"
-      ],
-      [
-       "    );\n"
-      ],
-      [
-       "    ",
-       [
-        977,
-        6,
-        46
-       ],
-       "\n"
-      ],
-      [
-       "      ",
-       [
-        510,
-        10,
-        24
-       ],
-       "\n"
-      ],
-      [
-       "      ",
-       [
-        1269,
-        12,
-        43
-       ],
-       "\n"
-      ],
-      [
-       [
-        1507,
-        2,
-        28
-       ],
-       "layout !==",
-       [
-        1502,
-        68,
-        79
-       ],
-       "\n"
-      ],
-      [
-       "      ",
-       [
-        982,
-        8,
-        36
-       ],
-       "\n"
-      ],
-      [
-       [
-        1509,
-        2,
-        10
-       ]
-      ],
-      [
-       "    logger.debug(\"Showed Electron",
-       [
-        1510,
-        26,
-        60
-       ]
-      ],
-      [
-       "      ",
-       [
-        645,
-        12,
-        33
-       ],
-       "\n"
-      ],
-      [
-       "      ",
-       [
-        814,
-        12,
-        33
-       ],
-       "\n"
-      ],
-      [
-       "      question: progress.index,\n"
-      ],
-      [
-       [
-        1509,
-        2,
-        10
-       ]
-      ]
-     ]
-    },
-    {
-     "at": 1517,
-     "remove": 0,
-     "add": [
-      [
-       "    this.questionNotificationAnswers.delete(requestId);\n"
-      ]
-     ]
-    },
-    {
-     "at": 1549,
-     "remove": 0,
-     "add": [
-      [
-       "      this.questionNotificationAnswers.delete(requestId);\n"
-      ]
-     ]
-    },
-    {
-     "at": 1588,
-     "remove": 1,
-     "removeSha256": "953b40d3a31548c34ca9cffc33e089e51dbf8e3f0270521261a74624e26b40f4",
-     "add": [
-      [
-       "      // Local change: restore() keeps a maximized window maximized; show() on a minimized window\n"
-      ],
-      [
-       "      // (which reports ",
-       [
-        1588,
-        23,
-        35
-       ],
-       "false on Windows) brings it back at its normal size.\n"
-      ],
-      [
-       "      (this.mainWindow.isMinimized() ? this.mainWindow.restore() : ",
-       [
-        1588,
-        7,
-        62
-       ]
-      ]
-     ]
-    },
-    {
-     "at": 1719,
-     "remove": 0,
-     "add": [
-      [
-       "    // Local change: Powertoys per-session mute (the request still counts as waiting).\n"
-      ],
-      [
-       "    if (powertoysSessionMuted(attribution?.sessionId)) {\n"
-      ],
-      [
-       "      ",
-       [
-        1721,
-        6,
-        23
-       ],
-       "\n"
-      ],
-      [
-       "      return;\n"
-      ],
-      [
-       "    }\n"
-      ]
-     ]
-    },
-    {
-     "at": 2089,
-     "remove": 1,
-     "removeSha256": "9f49d5ddded342f8184c0ae9ad7394e52a1f8f41ac7ced56607bafeae43fb26e",
-     "add": [
-      [
-       "})();\n"
-      ]
-     ]
-    }
-   ]
-  },
-  {
-   "path": "src/vite/build/main/app/0342-device-storage-api.js",
-   "kind": "edit",
-   "baseSha256": "f42a7f764170500fe4ff0004eb626c66cb804184dec5e51cdfb6dc754fb76347",
-   "resultSha256": "3f381b9e041c40ea6b62a0b923dfee996b93124af3603846154e2c816e3917f6",
-   "hunks": [
-    {
-     "at": 1211,
-     "remove": 1,
-     "removeSha256": "4ecf0acf9fbbe50e3bd6e536741df003d9dafda203019da58a28a46690cd4ffb",
-     "add": [
-      [
-       "    let localSessionsApi =",
-       [
-        1211,
-        10,
-        35
-       ]
-      ]
-     ]
-    },
-    {
-     "at": 1218,
-     "remove": 0,
-     "add": [
-      [
-       "    // Local change: Powertoys starts sessions for other programs through this API's start call.\n"
-      ],
-      [
-       "    powertoysNoteLocalSessionsApi((request) => localSessionsApi.start(request));\n"
-      ],
-      [
-       "    return localSessionsApi;\n"
-      ]
-     ]
-    },
-    {
-     "at": 2177,
-     "remove": 1,
-     "removeSha256": "26fa719a8bcdf390914d6dd04fce42a1380b20dcc886af2861a5ae59e3883bd7",
-     "add": [
-      [
-       [
-        2177,
-        0,
-        10
-       ],
-       "// Local change: restore() keeps a maximized window maximized (show() would not).\n"
-      ],
-      [
-       "          if (",
-       [
-        2177,
-        15,
-        31
-       ],
-       "Minimized()) {\n"
-      ],
-      [
-       "            ",
-       [
-        2177,
-        15,
-        29
-       ],
-       "restore();\n"
-      ],
-      [
-       "          } else",
-       [
-        2177,
-        9,
-        44
-       ]
-      ]
-     ]
-    }
-   ]
-  },
-  {
-   "path": "src/vite/build/main/app/0356-app-ipc-preferences.js",
-   "kind": "edit",
-   "baseSha256": "f44b2787d89c42020d730893569872236862dc5e215e8c12099cbc739b95fc36",
-   "resultSha256": "ee226dd80b2ce40092de1a8badf6a6b7426f99afdf74b5327cbd5f6e10219144",
-   "hunks": [
-    {
-     "at": 144,
-     "remove": 0,
-     "add": [
-      [
-       "  let squirrelStubPath = path.default.resolve(path.default.dirname(execPath), \"..\", path.default.basename(execPath));\n"
-      ],
-      [
-       "  // Local change: this build has no Squirrel layout (no stub one folder up), so it starts itself.\n"
-      ]
-     ]
-    },
-    {
-     "at": 145,
-     "remove": 1,
-     "removeSha256": "25cb5515ada9902dc04e70e1b2c21bc37f102f67c218fd5f62bc9c635d473900",
-     "add": [
-      [
-       [
-        145,
-        0,
-        10
-       ],
-       "fsModule.existsSync(squirrelStubPath) ? squirrelStubPath : ",
-       [
-        145,
-        52,
-        60
-       ],
-       ",\n"
-      ]
-     ]
-    }
-   ]
-  },
-  {
-   "path": "src/vite/build/main/app/0357-main-window-squirrel.js",
-   "kind": "edit",
-   "baseSha256": "9bb991c98fd768f6cf2bd9ac6f1300e95cdc965e69738dd0a0cd4267f6e0ee7d",
-   "resultSha256": "5c8445090837dea9b55f64e78aeca22602ae05bed4c876e25ebffeb41180d266",
-   "hunks": [
-    {
-     "at": 537,
-     "remove": 1,
-     "removeSha256": "f4e8dc499cf6518682553b9980d844ae62cc1f0e71d773a7f378581b15d94bb0",
-     "add": [
-      [
-       "  // Local change: Powertoys' extra windows reuse the code window's setup.\n"
-      ],
-      [
-       "  let configure = (powertoysCodeWindowC",
-       [
-        537,
-        7,
-        36
-       ]
-      ]
-     ]
-    },
-    {
-     "at": 576,
-     "remove": 1,
-     "removeSha256": "42a2cb25a122b44221a6234ec660a7b5fb7f9bde7b3b9e2b3c559a0d96fac739",
-     "add": [
-      [
-       "  });\n"
-      ]
-     ]
-    },
-    {
-     "at": 837,
-     "remove": 4,
-     "removeSha256": "ac6b4faf4deecfc301f6cf100e062cae56298e8841bde0b64f0629d0e5f5e602",
-     "add": [
-      [
-       [
-        837,
-        0,
-        8
-       ],
-       "// Local change: Powertoys opens the most recent code conversation instead of the Code home.\n"
-      ],
-      [
-       [
-        837,
-        0,
-        23
-       ],
-       "powertoys",
-       [
-        837,
-        30,
-        40
-       ],
-       "Url(\n"
-      ],
-      [
-       "         ",
-       [
-        837,
-        22,
-        67
-       ]
-      ],
-      [
-       "            ",
-       [
-        838,
-        10,
-        58
-       ],
-       "\n"
-      ],
-      [
-       "            ",
-       [
-        839,
-        10,
-        45
-       ],
-       "\n"
-      ],
-      [
-       [
-        838,
-        0,
-        10
-       ],
-       "}),\n"
-      ],
-      [
-       [
-        837,
-        0,
-        8
-       ],
-       ");\n"
-      ]
-     ]
-    },
-    {
-     "at": 2392,
-     "remove": 0,
-     "add": [
-      [
-       "      initPowertoys();\n"
-      ]
-     ]
-    }
-   ]
-  },
-  {
-   "path": "src/vite/build/main/app/0358-app-main-tray.js",
-   "kind": "edit",
-   "baseSha256": "107945960f669cc96b19d3567fee93f384649ee5cd2e05a2477752daea9935e1",
-   "resultSha256": "4093b4f067b321daafaf85314f0e646816a815929c03de330a15cc0ec0693903",
-   "hunks": [
-    {
-     "at": 244,
-     "remove": 3,
-     "removeSha256": "018126f3ca74ff15aafb5bbb3e17597cab43be667793d8a2769d6afeb52871a3",
-     "add": [
-      [
-       "  // Local change: submenus count too (the Powertoys snippets and bookmarks change inside them).\n"
-      ],
-      [
-       "  let signatureOf = (items) =>\n"
-      ],
-      [
-       "    ",
-       [
-        245,
-        9,
-        117
-       ],
-       [
-        245,
-        47,
-        58
-       ],
-       "submenu ? signatureOf(menuItem.sub",
-       [
-        245,
-        4,
-        14
-       ],
-       ") : null]);\n"
-      ],
-      [
-       [
-        244,
-        0,
-        24
-       ],
-       "signatureOf(",
-       [
-        245,
-        4,
-        14
-       ],
-       "));\n"
-      ]
-     ]
-    },
-    {
-     "at": 373,
-     "remove": 1,
-     "removeSha256": "55d505fc174cbf0f10091d9122384d518cea626ecac4d8a304e9d703c7a57943",
-     "add": [
-      [
-       "      // Local change: one click shows the app (Powertoys' trayClickShowsApp), not the quick-entry box.\n"
-      ],
-      [
-       "      if (powertoysSetting(\"trayClickShowsApp\") !== false) {\n"
-      ],
-      [
-       "        showAndFocusWindow2();\n"
-      ],
-      [
-       "      } else {\n"
-      ],
-      [
-       "        ",
-       [
-        373,
-        6,
-        43
-       ],
-       "\n"
-      ],
-      [
-       "      }\n"
-      ]
-     ]
-    }
-   ]
-  },
-  {
-   "path": "src/vite/build/main/chrome/0295-browser-launch-extension-install.js",
-   "kind": "edit",
-   "baseSha256": "b729505886157be166a1f1fd633b0514ee72dc9d35d6568e4a6503a4e244002d",
-   "resultSha256": "fa76d10cb66f6a0be8f20c69881c7c16debc1f50f07ecb98b0b7972892e57ae7",
-   "hunks": [
-    {
-     "at": 77,
-     "remove": 0,
-     "add": [
-      [
-       "    buildPowertoysApplicationMenu(),\n"
-      ]
-     ]
-    },
-    {
-     "at": 101,
-     "remove": 0,
-     "add": [
-      [
-       "    // Local change: waiting sessions, snippets, bookmarks and the Powertoys switches.\n"
-      ],
-      [
-       "    ...buildPowertoysTrayMenuItems(),\n"
-      ]
-     ]
-    }
-   ]
-  },
-  {
-   "path": "src/vite/build/main/platform/0028-electron-store-sync-timing.js",
-   "kind": "edit",
-   "baseSha256": "3579cc464461d24da83ea96dff87249c4d429d1d6cbb5991ed75fc659d23d8d9",
-   "resultSha256": "864122e6306a4966a057604bc6c395d704d1f6bda6ebc3f944416aaac1d07419",
-   "hunks": [
-    {
-     "at": 3,
-     "remove": 0,
-     "add": [
-      [
-       "  // Local change: the bundled electron-store (replaced by the npm package in this build)\n"
-      ],
-      [
-       "  // journals writes and commits them asynchronously, and quit and cache reset wait for them with\n"
-      ],
-      [
-       "  // these two. The npm electron-store writes synchronously, so there is never a write in flight.\n"
-      ],
-      [
-       "  // Without them every quit threw \"CachedElectronStore.quiesce is not a function\" after its clean-up\n"
-      ],
-      [
-       "  // and stopped half-way: page views gone, process alive (a black window, 2026-10-19).\n"
-      ],
-      [
-       "  static quiesce() {\n"
-      ],
-      [
-       "    return Promise.resolve();\n"
-      ],
-      [
-       "  }\n"
-      ],
-      [
-       "  static resume() {}\n"
-      ]
-     ]
-    }
-   ]
-  },
-  {
-   "path": "src/vite/build/main/platform/0245-swift-native-bridge.js",
-   "kind": "edit",
-   "baseSha256": "4f3302149e1e48a237c69e74ddf1c13b265bb71f9d1868db5ea51f9d2e49cdd6",
-   "resultSha256": "ad38a9dd24df6eca70f30d53ee726c7236e5b1515e7ca444563968906a237c6b",
-   "hunks": [
-    {
-     "at": 1450,
-     "remove": 0,
+     "removeSha256": "0c881546e2a82b15ea15f951631abdd8abafe0052e6d2ffe6f3c3bfb4f05b721",
      "add": [
       [
        "// Local change: Windows notification layout built here instead of by Electron, so notifications stay on\n"
@@ -4273,11 +1602,19 @@
       ],
       [
        "}\n"
+      ],
+      [
+       "const electronNotificationBackend",
+       [
+        429,
+        8,
+        24
+       ]
       ]
      ]
     },
     {
-     "at": 1491,
+     "at": 470,
      "remove": 0,
      "add": [
       [
@@ -4316,7 +1653,7 @@
       [
        "    ",
        [
-        19,
+        498,
         4,
         22
        ],
@@ -4331,7 +1668,7 @@
      ]
     },
     {
-     "at": 1496,
+     "at": 475,
      "remove": 0,
      "add": [
       [
@@ -4343,7 +1680,7 @@
      ]
     },
     {
-     "at": 1511,
+     "at": 490,
      "remove": 4,
      "removeSha256": "5f4eda7de00a486f9a2895af8577881df6a584c87ebdff0df6f0852c6a3ce855",
      "add": [
@@ -4352,7 +1689,7 @@
       ],
       [
        [
-        1511,
+        490,
         0,
         49
        ],
@@ -4360,7 +1697,7 @@
       ],
       [
        [
-        1512,
+        491,
         0,
         8
        ],
@@ -4368,7 +1705,7 @@
       ],
       [
        [
-        1512,
+        491,
         0,
         8
        ],
@@ -4377,7 +1714,7 @@
       [
        "      ",
        [
-        1512,
+        491,
         0,
         15
        ],
@@ -4386,7 +1723,7 @@
       [
        "              ",
        [
-        1513,
+        492,
         8,
         26
        ],
@@ -4395,7 +1732,7 @@
       [
        "              items",
        [
-        1513,
+        492,
         12,
         21
        ],
@@ -4403,7 +1740,7 @@
       ],
       [
        [
-        1512,
+        491,
         0,
         8
        ],
@@ -4411,7 +1748,7 @@
       ],
       [
        [
-        1512,
+        491,
         0,
         8
        ],
@@ -4420,7 +1757,7 @@
       [
        "              ",
        [
-        1512,
+        491,
         8,
         23
        ],
@@ -4429,7 +1766,7 @@
       [
        "              ",
        [
-        1513,
+        492,
         8,
         26
        ],
@@ -4437,7 +1774,7 @@
       ],
       [
        [
-        1512,
+        491,
         0,
         8
        ],
@@ -4457,7 +1794,7 @@
       ],
       [
        [
-        1511,
+        490,
         0,
         8
        ],
@@ -4469,7 +1806,7 @@
       [
        "  ",
        [
-        1511,
+        490,
         0,
         8
        ],
@@ -4489,7 +1826,7 @@
       ],
       [
        [
-        1511,
+        490,
         0,
         8
        ],
@@ -4498,27 +1835,27 @@
      ]
     },
     {
-     "at": 1535,
+     "at": 514,
      "remove": 1,
-     "removeSha256": "5a3aeb5a037b5aee22f9cec822f913bde7c9157aaba90242439b831f3b007660",
+     "removeSha256": "2b501d8d849307217c6c2d2762e0c0fde11e995579cca416f23021ba6eeeb7a4",
      "add": [
       [
        [
-        1535,
+        514,
         0,
         33
        ],
        "notification2",
        [
-        1535,
-        38,
-        52
+        514,
+        34,
+        48
        ]
       ]
      ]
     },
     {
-     "at": 1556,
+     "at": 535,
      "remove": 0,
      "add": [
       [
@@ -4539,15 +1876,15 @@
      ]
     },
     {
-     "at": 1559,
+     "at": 543,
      "remove": 1,
      "removeSha256": "afe47a48cc9a9ab75e52b7d22eb388c82306d8ed736022738e472f3a5179d34c",
      "add": []
     },
     {
-     "at": 1566,
+     "at": 552,
      "remove": 1,
-     "removeSha256": "037199ce82fcdecceebffd0b4d35941e3b4e2a2cf9c719f4b99247d8af6bf527",
+     "removeSha256": "3d851ca96565b83d8fb5492cd255eeb19ed8c97595d7fedd1fc782c9bbaf20cf",
      "add": [
       [
        "    // Windows delivers each button press and reply twice; only the first one counts.\n"
@@ -4557,11 +1894,11 @@
       ],
       [
        [
-        1566,
+        552,
         0,
-        39
+        31
        ],
-       ", legacySelectionIndex) => {\n"
+       "event, i, legacySelectionIndex) => {\n"
       ],
       [
        "      if (answered) {\n"
@@ -4584,26 +1921,26 @@
      ]
     },
     {
-     "at": 1569,
+     "at": 555,
      "remove": 1,
      "removeSha256": "fbda159d4ce7dd5e145b6274a6df9050991dd7ae7d58ebac4afbcde361b1fa04",
      "add": [
       [
        [
-        1569,
+        555,
         0,
         38
        ],
        "actionIndex",
        [
-        1569,
+        555,
         39,
         48
        ]
       ],
       [
        [
-        1569,
+        555,
         0,
         8
        ],
@@ -4611,7 +1948,7 @@
       ],
       [
        [
-        1569,
+        555,
         0,
         8
        ],
@@ -4619,7 +1956,7 @@
       ],
       [
        [
-        1569,
+        555,
         0,
         8
        ],
@@ -4627,7 +1964,7 @@
       ],
       [
        [
-        1569,
+        555,
         0,
         8
        ],
@@ -4636,7 +1973,7 @@
      ]
     },
     {
-     "at": 1575,
+     "at": 561,
      "remove": 0,
      "add": [
       [
@@ -4669,7 +2006,7 @@
       [
        "        ",
        [
-        1550,
+        529,
         8,
         39
        ],
@@ -4681,7 +2018,7 @@
       [
        "      ",
        [
-        1544,
+        523,
         8,
         51
        ],
@@ -4691,17 +2028,3279 @@
        "    });\n"
       ]
      ]
+    },
+    {
+     "at": 622,
+     "remove": 0,
+     "add": [
+      [
+       "const UG = electronNotificationBackend;\n"
+      ]
+     ]
+    },
+    {
+     "at": 964,
+     "remove": 0,
+     "add": [
+      [
+       "/** Permission-notification buttons and the session decision each one sends (allow_always: see buildPermissionAlwaysAction). */\n"
+      ],
+      [
+       "const PERMISSION_NOTIFICATION_DECISIONS = {\n"
+      ],
+      [
+       "  allow_once: \"once\",\n"
+      ],
+      [
+       "  allow_always: \"always\",\n"
+      ],
+      [
+       "  deny: \"deny\",\n"
+      ],
+      [
+       "};\n"
+      ],
+      [
+       "/** Built-in tools whose in-app card is the generic one (no tool-specific buttons or labels). */\n"
+      ],
+      [
+       "const GENERIC_CARD_BUILTIN_TOOLS = new Set([\n"
+      ],
+      [
+       "  \"Bash\",\n"
+      ],
+      [
+       "  \"Read\",\n"
+      ],
+      [
+       "  \"Write\",\n"
+      ],
+      [
+       "  \"Edit\",\n"
+      ],
+      [
+       "  \"MultiEdit\",\n"
+      ],
+      [
+       "  \"NotebookEdit\",\n"
+      ],
+      [
+       "  \"Glob\",\n"
+      ],
+      [
+       "  \"Grep\",\n"
+      ],
+      [
+       "  \"WebFetch\",\n"
+      ],
+      [
+       "  \"WebSearch\",\n"
+      ],
+      [
+       "]);\n"
+      ],
+      [
+       "/** MCP tools with their own in-app card in Claude Code sessions. */\n"
+      ],
+      [
+       "function hasSpecialCcdCard(toolName) {\n"
+      ],
+      [
+       "  return (\n"
+      ],
+      [
+       "    toolName.startsWith(\"mcp__ccd_\") ||\n"
+      ],
+      [
+       "    toolName.startsWith(\"mcp__remote-devices__\") ||\n"
+      ],
+      [
+       "    /__(request_credential|device_request_folder_access|device_request_delete_permission)$/.test(toolName)\n"
+      ],
+      [
+       "  );\n"
+      ],
+      [
+       "}\n"
+      ],
+      [
+       "/** Where the card's \"always\" answer saves its rule, from the first non-mode suggestion. */\n"
+      ],
+      [
+       "function getPermissionSuggestionScope(suggestions) {\n"
+      ],
+      [
+       "  let suggestion = suggestions.find((update) => update.type !== \"setMode\") ?? suggestions[0];\n"
+      ],
+      [
+       "  switch (suggestion?.destination) {\n"
+      ],
+      [
+       "    case \"userSettings\":\n"
+      ],
+      [
+       "      return \"user\";\n"
+      ],
+      [
+       "    case \"projectSettings\":\n"
+      ],
+      [
+       "      return \"project\";\n"
+      ],
+      [
+       "    case \"localSettings\":\n"
+      ],
+      [
+       "      return \"projectLocal\";\n"
+      ],
+      [
+       "    default:\n"
+      ],
+      [
+       "      return \"session\";\n"
+      ],
+      [
+       "  }\n"
+      ],
+      [
+       "}\n"
+      ],
+      [
+       "function formatApprovalDays(days) {\n"
+      ],
+      [
+       "  return `Allow for ${days} ${days === 1 ? \"day\" : \"days\"}`;\n"
+      ],
+      [
+       "}\n"
+      ],
+      [
+       "/**\n"
+      ],
+      [
+       " * The in-app card's persistent allow button for this request ({label, decision}), or undefined when the\n"
+      ],
+      [
+       " * card shows none or its effect needs the card itself (SSH-host grants, connector-wide Cowork grants).\n"
+      ],
+      [
+       " */\n"
+      ],
+      [
+       "function buildPermissionAlwaysAction(product, request, session) {\n"
+      ],
+      [
+       "  let { toolName: toolName, suggestions: suggestions } = request;\n"
+      ],
+      [
+       "  if (!suggestions?.length || request.suppressAlwaysAllowRule === true || request.defaultToNo === true) {\n"
+      ],
+      [
+       "    ",
+       [
+        49,
+        6,
+        23
+       ],
+       "\n"
+      ],
+      [
+       "  }\n"
+      ],
+      [
+       "  // The card answers \"once\" for asks Claude Code cannot keep a rule for.\n"
+      ],
+      [
+       "  let decision = request.viaHostCliLauncher === true ? \"once\" : \"always\";\n"
+      ],
+      [
+       "  ",
+       [
+        1473,
+        4,
+        31
+       ],
+       "\n"
+      ],
+      [
+       "    if (!GENERIC_CARD_BUILTIN_TOOLS.has(toolName) || isPrivilegedBridgeTool(toolName)) {\n"
+      ],
+      [
+       "      ",
+       [
+        49,
+        6,
+        23
+       ],
+       "\n"
+      ],
+      [
+       "    }\n"
+      ],
+      [
+       "    if (isScheduledTaskSession(session) && request.viaHostCliLauncher !== true) {\n"
+      ],
+      [
+       "      let addsAllowRule = suggestions.some(\n"
+      ],
+      [
+       "        (update) => (update.type === \"addRules\" || update.type === \"replaceRules\") && update.behavior === \"allow\",\n"
+      ],
+      [
+       "      );\n"
+      ],
+      [
+       "      if (!addsAllowRule) {\n"
+      ],
+      [
+       "        ",
+       [
+        49,
+        6,
+        23
+       ],
+       "\n"
+      ],
+      [
+       "      }\n"
+      ],
+      [
+       "      return {\n"
+      ],
+      [
+       "        label: request.scheduledRunApprovalDays\n"
+      ],
+      [
+       "          ? formatApprovalDays(request.scheduledRunApprovalDays)\n"
+      ],
+      [
+       "          : \"Allow for all scheduled runs\",\n"
+      ],
+      [
+       "        decision: \"always\",\n"
+      ],
+      [
+       "      };\n"
+      ],
+      [
+       "    }\n"
+      ],
+      [
+       "    return {\n"
+      ],
+      [
+       "      label: \"Always allow\",\n"
+      ],
+      [
+       "      decision: decision,\n"
+      ],
+      [
+       "    };\n"
+      ],
+      [
+       "  }\n"
+      ],
+      [
+       "  let isMcpTool = toolName.startsWith(\"mcp__\");\n"
+      ],
+      [
+       "  if (!(GENERIC_CARD_BUILTIN_TOOLS.has(toolName) || (isMcpTool && !hasSpecialCcdCard(toolName)))) {\n"
+      ],
+      [
+       "    ",
+       [
+        49,
+        6,
+        23
+       ],
+       "\n"
+      ],
+      [
+       "  }\n"
+      ],
+      [
+       "  // Answers from outside the card keep no local MCP allow rule on SSH sessions.\n"
+      ],
+      [
+       "  if (isMcpTool && session?.backend?.remoteTarget?.kind === \"ssh\") {\n"
+      ],
+      [
+       "    ",
+       [
+        49,
+        6,
+        23
+       ],
+       "\n"
+      ],
+      [
+       "  }\n"
+      ],
+      [
+       "  let scope = getPermissionSuggestionScope(suggestions);\n"
+      ],
+      [
+       "  if (scope === \"session\" && request.alwaysAllowKeptForHost) {\n"
+      ],
+      [
+       "    ",
+       [
+        49,
+        6,
+        23
+       ],
+       "\n"
+      ],
+      [
+       "  }\n"
+      ],
+      [
+       "  let label = request.scheduledRunApprovalDays\n"
+      ],
+      [
+       "    ? formatApprovalDays(request.scheduledRunApprovalDays)\n"
+      ],
+      [
+       "    : request.alwaysAllowEndsWithSession && scope === \"session\"\n"
+      ],
+      [
+       "      ? \"Allow for this session\"\n"
+      ],
+      [
+       "      : \"Always allow\";\n"
+      ],
+      [
+       "  return {\n"
+      ],
+      [
+       "    label: label,\n"
+      ],
+      [
+       "    decision: decision,\n"
+      ],
+      [
+       "  };\n"
+      ],
+      [
+       "}\n"
+      ],
+      [
+       "/** Windows shows at most five buttons on a toast; the text box brings its own (Reply). */\n"
+      ],
+      [
+       "const MAX_TOAST_BUTTONS = 5;\n"
+      ],
+      [
+       "const MAX_QUESTION_NOTIFICATION_OPTIONS = 4;\n"
+      ],
+      [
+       "/** What the in-app card answers for a skipped question. */\n"
+      ],
+      [
+       "const SKIPPED_QUESTION_ANSWER = \"[No preference]\";\n"
+      ],
+      [
+       "/**\n"
+      ],
+      [
+       " * How a notification can offer an AskUserQuestion question, like the in-app card: the options in a\n"
+      ],
+      [
+       " * full-width drop-down with an Answer button (buttons are narrow and cut long options short), a text\n"
+      ],
+      [
+       " * box for another answer, and Skip. Undefined when the notification cannot offer the question, so it\n"
+      ],
+      [
+       " * only opens the conversation: multiSelect questions, since Windows notifications have no check boxes\n"
+      ],
+      [
+       " * (their inputs are a text box or a single-choice drop-down).\n"
+      ],
+      [
+       " */\n"
+      ],
+      [
+       "function buildQuestionNotificationLayout(question) {\n"
+      ],
+      [
+       "  if (!question || typeof question.question !== \"string\" || !question.question.trim()) {\n"
+      ],
+      [
+       "    ",
+       [
+        49,
+        6,
+        23
+       ],
+       "\n"
+      ],
+      [
+       "  }\n"
+      ],
+      [
+       "  let options = Array.isArray(question.options) ? question.options : [];\n"
+      ],
+      [
+       "  if (\n"
+      ],
+      [
+       "    (question.multiSelect === true && options.length > 0) ||\n"
+      ],
+      [
+       "    options.length > MAX_QUESTION_NOTIFICATION_OPTIONS ||\n"
+      ],
+      [
+       "    options.some((option) => typeof option?.label !== \"string\" || !option.label.trim())\n"
+      ],
+      [
+       "  ) {\n"
+      ],
+      [
+       "    ",
+       [
+        49,
+        6,
+        23
+       ],
+       "\n"
+      ],
+      [
+       "  }\n"
+      ],
+      [
+       "  // Answer, Reply, Skip and Close: within MAX_TOAST_BUTTONS.\n"
+      ],
+      [
+       "  return {\n"
+      ],
+      [
+       "    options: options,\n"
+      ],
+      [
+       "    textBox: true,\n"
+      ],
+      [
+       "    skip: true,\n"
+      ],
+      [
+       "  };\n"
+      ],
+      [
+       "}\n"
+      ],
+      [
+       "/** One question's answer in the format each surface's card sends. */\n"
+      ],
+      [
+       "function formatQuestionAnswer(product, response) {\n"
+      ],
+      [
+       "  if (!Array.isArray(response)) {\n"
+      ],
+      [
+       "    return response;\n"
+      ],
+      [
+       "  }\n"
+      ],
+      [
+       "  // Cowork sends a single value as a string; Claude Code sends multiSelect answers as a list.\n"
+      ],
+      [
+       "  return product === \"cowork\" && response.length === 1 ? response[0] : response;\n"
+      ],
+      [
+       "}\n"
+      ],
+      [
+       "/** The updated input the in-app card sends for answered questions: answers keyed by question text. */\n"
+      ],
+      [
+       "function buildQuestionAnswerInput(product, questions, responses) {\n"
+      ],
+      [
+       "  let answers = Object.fromEntries(\n"
+      ],
+      [
+       "    questions.map((question, index) => [question.question, formatQuestionAnswer(product, responses[index].value)]),\n"
+      ],
+      [
+       "  );\n"
+      ],
+      [
+       "  // Claude Code's card notes the preview of a chosen single-select option that has one.\n"
+      ],
+      [
+       "  let annotations =\n"
+      ],
+      [
+       "    ",
+       [
+        1453,
+        6,
+        26
+       ],
+       "\n"
+      ],
+      [
+       "      ? []\n"
+      ],
+      [
+       "      : questions.flatMap((question, index) =>\n"
+      ],
+      [
+       "          typeof responses[index].preview === \"string\"\n"
+      ],
+      [
+       "            ? [\n"
+      ],
+      [
+       "                [\n"
+      ],
+      [
+       "                  question.question,\n"
+      ],
+      [
+       "                  {\n"
+      ],
+      [
+       "                    preview: responses[index].preview,\n"
+      ],
+      [
+       "                  },\n"
+      ],
+      [
+       "                ],\n"
+      ],
+      [
+       "              ]\n"
+      ],
+      [
+       "            : [],\n"
+      ],
+      [
+       "        );\n"
+      ],
+      [
+       "  return {\n"
+      ],
+      [
+       "    questions: questions,\n"
+      ],
+      [
+       "    answers: answers,\n"
+      ],
+      [
+       "    ...(annotations.length > 0 && {\n"
+      ],
+      [
+       "      annotations: Object.fromEntries(annotations),\n"
+      ],
+      [
+       "    }),\n"
+      ],
+      [
+       "  };\n"
+      ],
+      [
+       "}\n"
+      ]
+     ]
+    },
+    {
+     "at": 1053,
+     "remove": 0,
+     "add": [
+      [
+       "    // requestId -> { index, responses }: answers given so far from question notifications, sent together after the last one.\n"
+      ],
+      [
+       "    this.questionNotificationAnswers = new Map();\n"
+      ]
+     ]
+    },
+    {
+     "at": 1390,
+     "remove": 0,
+     "add": [
+      [
+       "  handlePermissionResponse(product, requestId, decision, updatedInput) {\n"
+      ],
+      [
+       "    ",
+       [
+        1473,
+        4,
+        31
+       ],
+       "\n"
+      ],
+      [
+       "      getLocalAgentModeSessionManager()\n"
+      ],
+      [
+       "        .then((sessionManager) => sessionManager.respondToToolPermission(requestId, decision, updatedInput))\n"
+      ],
+      [
+       "        .catch((error7) => {\n"
+      ],
+      [
+       "          ",
+       [
+        1457,
+        14,
+        71
+       ],
+       "\n"
+      ],
+      [
+       "            ",
+       [
+        643,
+        6,
+        20
+       ],
+       "\n"
+      ],
+      [
+       "          });\n"
+      ],
+      [
+       "        });\n"
+      ],
+      [
+       "    } else {\n"
+      ],
+      [
+       "      getClaudeCodeSessionManager()\n"
+      ],
+      [
+       "        .then((sessionManager) => sessionManager.respondToToolPermission(requestId, decision, updatedInput))\n"
+      ],
+      [
+       "        .catch((error7) => {\n"
+      ],
+      [
+       "          ",
+       [
+        1457,
+        14,
+        71
+       ],
+       "\n"
+      ],
+      [
+       "            ",
+       [
+        643,
+        6,
+        20
+       ],
+       "\n"
+      ],
+      [
+       "          });\n"
+      ],
+      [
+       "        });\n"
+      ],
+      [
+       "    }\n"
+      ],
+      [
+       "  }\n"
+      ]
+     ]
+    },
+    {
+     "at": 1511,
+     "remove": 0,
+     "add": [
+      [
+       "    // Local change: Powertoys per-session mute (the request still counts as waiting).\n"
+      ],
+      [
+       "    if (powertoysSessionMuted(sessionId)) {\n"
+      ],
+      [
+       "      return;\n"
+      ],
+      [
+       "    }\n"
+      ]
+     ]
+    },
+    {
+     "at": 1652,
+     "remove": 1,
+     "removeSha256": "e4b975cd38e80e15dd98154fc2dd2c8594ac21ec8dcdc7eedde6a83ead70043e",
+     "add": [
+      [
+       "    // Asks that only the card may approve still get Deny, like the card.\n"
+      ],
+      [
+       "    let electronN",
+       [
+        1652,
+        9,
+        44
+       ]
+      ]
+     ]
+    },
+    {
+     "at": 1654,
+     "remove": 1,
+     "removeSha256": "40faab87d499f40adbb490a9b0462a481bafb059853c970a20e544acbfdd9458",
+     "add": [
+      [
+       "    electronN",
+       [
+        1654,
+        5,
+        30
+       ]
+      ]
+     ]
+    },
+    {
+     "at": 1663,
+     "remove": 8,
+     "removeSha256": "cf396f597a81c61f8929ac797cc90991d065854eabdfae888c2ce9499280ef49",
+     "add": [
+      [
+       "        actions: this.permissionNotificationActions(request,",
+       [
+        1663,
+        16,
+        37
+       ],
+       "),\n"
+      ]
+     ]
+    },
+    {
+     "at": 1679,
+     "remove": 2,
+     "removeSha256": "b57b1a98f699e704e10a95e9135184227cebd016e2ed7e1afb4b3a858080a221",
+     "add": [
+      [
+       [
+        1679,
+        0,
+        12
+       ],
+       "decis",
+       [
+        1679,
+        81,
+        90
+       ],
+       "\n"
+      ],
+      [
+       "         ",
+       [
+        1679,
+        30,
+        66
+       ],
+       "PERMISSION_NOTIFICATION_DECISIONS[",
+       [
+        1679,
+        66,
+        88
+       ],
+       "]\n"
+      ],
+      [
+       "            ?",
+       [
+        1679,
+        65,
+        88
+       ],
+       "\n"
+      ],
+      [
+       [
+        1679,
+        0,
+        8
+       ],
+       "    : null;\n"
+      ],
+      [
+       "        // While computer use is controlling the screen nothing is allowed from a n",
+       [
+        1680,
+        65,
+        76
+       ],
+       " (the\n"
+      ],
+      [
+       [
+        1679,
+        0,
+        8
+       ],
+       "// release's own rule for Allow once): the press opens the session instead. Deny still works.\n"
+      ],
+      [
+       [
+        1679,
+        0,
+        12
+       ],
+       "blocked = decisionType !== null && decisionType !== \"deny\"",
+       [
+        1680,
+        42,
+        51
+       ],
+       "computerUseHoldsScreen();\n"
+      ],
+      [
+       [
+        1680,
+        0,
+        13
+       ],
+       "ction =\n"
+      ],
+      [
+       "          decisionType && !blocked ? decisionType :",
+       [
+        1679,
+        30,
+        63
+       ],
+       "? \"click\" :",
+       [
+        1679,
+        30,
+        49
+       ],
+       ";\n"
+      ]
+     ]
+    },
+    {
+     "at": 1683,
+     "remove": 2,
+     "removeSha256": "a15a2dbe69edf34a421f8847aba2be06def9f10f792d58c04faf2749c0a95f8e",
+     "add": [
+      [
+       "          backend: electronN",
+       [
+        1683,
+        20,
+        54
+       ]
+      ],
+      [
+       [
+        1684,
+        0,
+        19
+       ],
+       "ction,\n"
+      ]
+     ]
+    },
+    {
+     "at": 1692,
+     "remove": 2,
+     "removeSha256": "c4fe42d34ceb6d6336ac32bdf5f1c35c95ddf1c21ec29e47bf173914a38b1dfe",
+     "add": [
+      [
+       [
+        1692,
+        0,
+        12
+       ],
+       "decisionType && !blocked) {\n"
+      ],
+      [
+       "          // The",
+       [
+        1693,
+        49,
+        62
+       ],
+       " closes when the session reports the request resolved (tool_p",
+       [
+        1693,
+        24,
+        33
+       ],
+       "_resolved).\n"
+      ],
+      [
+       [
+        1693,
+        0,
+        11
+       ],
+       "et decision =\n"
+      ],
+      [
+       [
+        1693,
+        0,
+        10
+       ],
+       "  decisionType === \"allow_always\" ? request.alwaysAction?.decision : PERMISSION_NOTIFICATION_DECISIONS[decisionType];\n"
+      ],
+      [
+       "  ",
+       [
+        1692,
+        0,
+        12
+       ],
+       "!decision) {\n"
+      ],
+      [
+       [
+        1693,
+        0,
+        10
+       ],
+       "  return;\n"
+      ],
+      [
+       [
+        1693,
+        0,
+        10
+       ],
+       "}\n"
+      ],
+      [
+       [
+        1693,
+        0,
+        22
+       ],
+       "`Permission ${decision}",
+       [
+        1693,
+        44,
+        62
+       ],
+       "`, {\n"
+      ]
+     ]
+    },
+    {
+     "at": 1696,
+     "remove": 1,
+     "removeSha256": "32970578e38ad54f8bb80ecffff909b707d3ff7f6262132bef2ce7a8c879a5f7",
+     "add": [
+      [
+       "            backend: electronN",
+       [
+        1696,
+        22,
+        56
+       ]
+      ]
+     ]
+    },
+    {
+     "at": 1698,
+     "remove": 1,
+     "removeSha256": "c46b8d2891d2ba38abc6b5ef1758877765c9f7fd38e643a0fc630a0e19bc2c3b",
+     "add": [
+      [
+       [
+        1698,
+        0,
+        8
+       ],
+       "  this.handlePermissionResponse(product, requestId, decision);\n"
+      ],
+      [
+       [
+        1698,
+        0,
+        53
+       ],
+       "blocked) {\n"
+      ],
+      [
+       [
+        1698,
+        0,
+        8
+       ],
+       "  if (blocked) {\n"
+      ],
+      [
+       [
+        1698,
+        0,
+        8
+       ],
+       "    logger.info(\"notification: an allow press was ignored because computer use is controlling the screen\", {\n"
+      ],
+      [
+       "              ",
+       [
+        1435,
+        12,
+        33
+       ],
+       "\n"
+      ],
+      [
+       "    ",
+       [
+        1698,
+        0,
+        9
+       ],
+       ");\n"
+      ],
+      [
+       "  ",
+       [
+        1698,
+        0,
+        9
+       ],
+       "\n"
+      ]
+     ]
+    },
+    {
+     "at": 1707,
+     "remove": 1,
+     "removeSha256": "4b58ab8fa7288736b79fa515bd0defff1502d1c1bbbb66e6832f6cae03cd8a02",
+     "add": [
+      [
+       [
+        1707,
+        0,
+        69
+       ],
+       "electronN",
+       [
+        1707,
+        70,
+        105
+       ]
+      ]
+     ]
+    },
+    {
+     "at": 1711,
+     "remove": 1,
+     "removeSha256": "fd195a9b869801351e9937694b467032bc0577abee3cad9669c759b111a2a03a",
+     "add": [
+      [
+       "      backend: electronN",
+       [
+        1711,
+        16,
+        50
+       ]
+      ]
+     ]
+    },
+    {
+     "at": 1713,
+     "remove": 1,
+     "removeSha256": "8fe0ad70ca0d24ac53aa86128aa6fb4b282ae4ab8c995de8dfbde551ea59a3cd",
+     "add": [
+      [
+       "      has_action_buttons: electronN",
+       [
+        1713,
+        51,
+        86
+       ]
+      ]
+     ]
+    },
+    {
+     "at": 1719,
+     "remove": 1,
+     "removeSha256": "fd195a9b869801351e9937694b467032bc0577abee3cad9669c759b111a2a03a",
+     "add": [
+      [
+       "      backend: electronN",
+       [
+        1719,
+        16,
+        50
+       ]
+      ]
+     ]
+    },
+    {
+     "at": 1722,
+     "remove": 0,
+     "add": [
+      [
+       "  /** Buttons of a permission notification, as on the in-app card: Allow once, its persistent allow button, Deny. */\n"
+      ],
+      [
+       "  permissionNotificationActions(request, allowFromNotification) {\n"
+      ],
+      [
+       "    if (!allowFromNotification) {\n"
+      ],
+      [
+       "      return [\n"
+      ],
+      [
+       "        {\n"
+      ],
+      [
+       "          type: \"deny\",\n"
+      ],
+      [
+       "          text: \"Deny\",\n"
+      ],
+      [
+       "        },\n"
+      ],
+      [
+       "      ];\n"
+      ],
+      [
+       "    }\n"
+      ],
+      [
+       "    return [\n"
+      ],
+      [
+       "      {\n"
+      ],
+      [
+       "        ",
+       [
+        1666,
+        16,
+        35
+       ],
+       "\n"
+      ],
+      [
+       "        ",
+       [
+        1667,
+        16,
+        35
+       ],
+       "\n"
+      ],
+      [
+       "      },\n"
+      ],
+      [
+       "      ...(request.alwaysAction\n"
+      ],
+      [
+       "        ? [\n"
+      ],
+      [
+       "            {\n"
+      ],
+      [
+       "              type: \"allow_always\",\n"
+      ],
+      [
+       "              text: request.alwaysAction.label,\n"
+      ],
+      [
+       "            },\n"
+      ],
+      [
+       "          ]\n"
+      ],
+      [
+       "        : []),\n"
+      ],
+      [
+       "      {\n"
+      ],
+      [
+       "        type: \"deny\",\n"
+      ],
+      [
+       "        text: \"Deny\",\n"
+      ],
+      [
+       "      },\n"
+      ],
+      [
+       "    ];\n"
+      ],
+      [
+       "  }\n"
+      ]
+     ]
+    },
+    {
+     "at": 1773,
+     "remove": 0,
+     "add": [
+      [
+       "    // Local change: Powertoys per-session mute (the request still counts as waiting).\n"
+      ],
+      [
+       "    if (powertoysSessionMuted(request.sessionId)) {\n"
+      ],
+      [
+       "      return;\n"
+      ],
+      [
+       "    }\n"
+      ]
+     ]
+    },
+    {
+     "at": 2008,
+     "remove": 0,
+     "add": [
+      [
+       "    // Local change: Powertoys per-session mute (the request still counts as waiting).\n"
+      ],
+      [
+       "    if (powertoysSessionMuted(sessionId)) {\n"
+      ],
+      [
+       "      return;\n"
+      ],
+      [
+       "    }\n"
+      ]
+     ]
+    },
+    {
+     "at": 2103,
+     "remove": 13,
+     "removeSha256": "226d517f0003f2a4ba37b5134acf6434beb1c060d1851485c2ec09286b357c37",
+     "add": [
+      [
+       "      this.showElectronQuest",
+       [
+        2110,
+        26,
+        41
+       ],
+       "(request, title2, body,",
+       [
+        2108,
+        17,
+        27
+       ],
+       " eventProps, clearClickCallback);\n"
+      ],
+      [
+       "    }\n"
+      ],
+      [
+       "  }\n"
+      ],
+      [
+       "  /**\n"
+      ],
+      [
+       "   * Shows the current ",
+       [
+        2113,
+        28,
+        36
+       ],
+       " of an AskUserQuestion",
+       [
+        2115,
+        11,
+        19
+       ],
+       " with the in-app card's choices (see\n"
+      ],
+      [
+       "   * buildQuest",
+       [
+        2110,
+        26,
+        41
+       ],
+       "Layout). Questions are asked one",
+       [
+        2109,
+        14,
+        27
+       ],
+       " at a time; the answers go to\n"
+      ],
+      [
+       "   * the session together after the last one, and the",
+       [
+        2109,
+        14,
+        27
+       ],
+       " closes when the",
+       [
+        2114,
+        11,
+        19
+       ],
+       " reports the\n"
+      ],
+      [
+       "   *",
+       [
+        2115,
+        11,
+        19
+       ],
+       " resolved.\n"
+      ],
+      [
+       "   */\n"
+      ],
+      [
+       "  showElectronQuest",
+       [
+        2110,
+        26,
+        41
+       ],
+       "(request, title, fallbackBody, silent, eventProps, clearClickCallback) {\n"
+      ],
+      [
+       "    let { product: product,",
+       [
+        2114,
+        11,
+        33
+       ],
+       [
+        2115,
+        11,
+        32
+       ],
+       " } =",
+       [
+        2115,
+        11,
+        19
+       ],
+       ";\n"
+      ],
+      [
+       "    ",
+       [
+        2038,
+        4,
+        54
+       ],
+       "\n"
+      ],
+      [
+       [
+        2103,
+        2,
+        10
+       ],
+       [
+        2113,
+        28,
+        36
+       ],
+       "s = Array.isArray(request.",
+       [
+        2113,
+        28,
+        36
+       ],
+       "s) ? request.",
+       [
+        2113,
+        28,
+        36
+       ],
+       "s : [];\n"
+      ],
+      [
+       "    let progress = this.quest",
+       [
+        2110,
+        26,
+        41
+       ],
+       "Answers.get(",
+       [
+        2115,
+        12,
+        21
+       ],
+       ") ?? {\n"
+      ],
+      [
+       "      index: 0,\n"
+      ],
+      [
+       [
+        2115,
+        6,
+        14
+       ],
+       "sponses: [],\n"
+      ],
+      [
+       "    };\n"
+      ],
+      [
+       [
+        2103,
+        2,
+        10
+       ],
+       [
+        2113,
+        28,
+        36
+       ],
+       " = ",
+       [
+        2113,
+        28,
+        36
+       ],
+       "s[progress.index];\n"
+      ],
+      [
+       [
+        2103,
+        2,
+        10
+       ],
+       "layout =\n"
+      ],
+      [
+       "      questions.length > 0 && questions.every((item) => buildQuest",
+       [
+        2110,
+        26,
+        41
+       ],
+       "Layout(item))\n"
+      ],
+      [
+       "        ? buildQuest",
+       [
+        2110,
+        26,
+        41
+       ],
+       "Layout(",
+       [
+        2113,
+        28,
+        36
+       ],
+       ")\n"
+      ],
+      [
+       "        ",
+       [
+        175,
+        10,
+        22
+       ],
+       "\n"
+      ],
+      [
+       [
+        2103,
+        2,
+        10
+       ],
+       "actions = [];\n"
+      ],
+      [
+       "    if (layout) {\n"
+      ],
+      [
+       "      if (layout.options.length > 0) {\n"
+      ],
+      [
+       [
+        2105,
+        0,
+        8
+       ],
+       "actions.push({\n"
+      ],
+      [
+       [
+        2113,
+        2,
+        19
+       ],
+       "choose\",\n"
+      ],
+      [
+       [
+        2106,
+        0,
+        11
+       ],
+       "ext: \"Answer\",\n"
+      ],
+      [
+       [
+        2114,
+        2,
+        14
+       ],
+       "lection: layout.options.map((option) => option.label),\n"
+      ],
+      [
+       [
+        2105,
+        0,
+        8
+       ],
+       "});\n"
+      ],
+      [
+       "      }\n"
+      ],
+      [
+       "      if (layout.skip) {\n"
+      ],
+      [
+       [
+        2105,
+        0,
+        8
+       ],
+       "actions.push({\n"
+      ],
+      [
+       [
+        2113,
+        2,
+        19
+       ],
+       "skip\",\n"
+      ],
+      [
+       [
+        2106,
+        0,
+        11
+       ],
+       "ext: \"Skip\",\n"
+      ],
+      [
+       [
+        2105,
+        0,
+        8
+       ],
+       "});\n"
+      ],
+      [
+       "      }\n"
+      ],
+      [
+       "    }\n"
+      ],
+      [
+       [
+        2103,
+        2,
+        11
+       ],
+       "ody = layout\n"
+      ],
+      [
+       "      ? sanitize",
+       [
+        2110,
+        29,
+        42
+       ],
+       "ext(\n"
+      ],
+      [
+       [
+        2106,
+        0,
+        10
+       ],
+       [
+        2113,
+        28,
+        36
+       ],
+       "s.length > 1 ? `(${progress.index + 1}/${",
+       [
+        2113,
+        28,
+        36
+       ],
+       "s.length}) ${",
+       [
+        2113,
+        28,
+        36
+       ],
+       ".",
+       [
+        2113,
+        28,
+        36
+       ],
+       "}` : ",
+       [
+        2113,
+        28,
+        36
+       ],
+       ".",
+       [
+        2113,
+        28,
+        36
+       ],
+       ",\n"
+      ],
+      [
+       [
+        2105,
+        0,
+        8
+       ],
+       ")\n"
+      ],
+      [
+       "      : fallbackBody;\n"
+      ],
+      [
+       [
+        2103,
+        2,
+        10
+       ],
+       "saveProgress = (nextProgress) => {\n"
+      ],
+      [
+       "      this.quest",
+       [
+        2110,
+        26,
+        41
+       ],
+       "Answers.set(",
+       [
+        2115,
+        23,
+        33
+       ],
+       " nextProgress);\n"
+      ],
+      [
+       "      this.showElectronQuest",
+       [
+        2110,
+        26,
+        41
+       ],
+       "(request, title, fallbackBody, silent, eventProps, clearClickCallback);\n"
+      ],
+      [
+       "    };\n"
+      ],
+      [
+       [
+        2103,
+        2,
+        10
+       ],
+       "answerQuestion = (response) => {\n"
+      ],
+      [
+       [
+        2103,
+        0,
+        10
+       ],
+       "responses = [...progress.responses, response];\n"
+      ],
+      [
+       "      if (responses.length < ",
+       [
+        2113,
+        28,
+        36
+       ],
+       "s.length) {\n"
+      ],
+      [
+       "        logger.info(\"AskUserQuestion answer from",
+       [
+        2109,
+        14,
+        27
+       ],
+       ", asking the next ",
+       [
+        2113,
+        28,
+        38
+       ],
+       " {\n"
+      ],
+      [
+       "          ",
+       [
+        1435,
+        12,
+        33
+       ],
+       "\n"
+      ],
+      [
+       "          ",
+       [
+        1266,
+        12,
+        33
+       ],
+       "\n"
+      ],
+      [
+       [
+        2106,
+        0,
+        10
+       ],
+       "answered: responses.length,\n"
+      ],
+      [
+       [
+        2106,
+        0,
+        10
+       ],
+       "of: ",
+       [
+        2113,
+        28,
+        36
+       ],
+       "s.length,\n"
+      ],
+      [
+       [
+        2105,
+        0,
+        8
+       ],
+       "});\n"
+      ],
+      [
+       [
+        2108,
+        2,
+        11
+       ],
+       "aveProgress({\n"
+      ],
+      [
+       [
+        2106,
+        0,
+        10
+       ],
+       "index: progress.index + 1,\n"
+      ],
+      [
+       [
+        2115,
+        2,
+        14
+       ],
+       "sponses: responses,\n"
+      ],
+      [
+       [
+        2105,
+        0,
+        8
+       ],
+       "});\n"
+      ],
+      [
+       [
+        2115,
+        4,
+        14
+       ],
+       "turn;\n"
+      ],
+      [
+       "      }\n"
+      ],
+      [
+       "      logger.info(\"AskUserQuestion answered from",
+       [
+        2109,
+        14,
+        27
+       ],
+       "\", {\n"
+      ],
+      [
+       "        ",
+       [
+        1435,
+        12,
+        33
+       ],
+       "\n"
+      ],
+      [
+       "        ",
+       [
+        1266,
+        12,
+        33
+       ],
+       "\n"
+      ],
+      [
+       "      });\n"
+      ],
+      [
+       "      this.handlePermissionResponse(product,",
+       [
+        2115,
+        22,
+        33
+       ],
+       " \"once\", buildQuestionAnswerInput(product, ",
+       [
+        2113,
+        28,
+        36
+       ],
+       "s, responses));\n"
+      ],
+      [
+       "    };\n"
+      ],
+      [
+       "    ",
+       [
+        1884,
+        6,
+        33
+       ],
+       "\n"
+      ],
+      [
+       "    ",
+       [
+        1885,
+        6,
+        19
+       ],
+       "\n"
+      ],
+      [
+       [
+        2105,
+        2,
+        10
+       ]
+      ],
+      [
+       "        ",
+       [
+        2474,
+        10,
+        23
+       ],
+       "\n"
+      ],
+      [
+       [
+        2107,
+        2,
+        22
+       ]
+      ],
+      [
+       "        ",
+       [
+        1659,
+        8,
+        23
+       ],
+       "\n"
+      ],
+      [
+       "        ",
+       [
+        241,
+        8,
+        29
+       ],
+       "\n"
+      ],
+      [
+       "        ",
+       [
+        1661,
+        8,
+        54
+       ],
+       "\n"
+      ],
+      [
+       "        ",
+       [
+        1662,
+        8,
+        26
+       ],
+       "\n"
+      ],
+      [
+       [
+        2105,
+        0,
+        8
+       ],
+       "...(actions.length > 0 && {\n"
+      ],
+      [
+       [
+        2106,
+        0,
+        10
+       ],
+       "actions: actions,\n"
+      ],
+      [
+       [
+        2105,
+        0,
+        8
+       ],
+       "}),\n"
+      ],
+      [
+       [
+        2105,
+        0,
+        8
+       ],
+       "...(layout?.textBox && {\n"
+      ],
+      [
+       [
+        2115,
+        2,
+        14
+       ],
+       "ply: {\n"
+      ],
+      [
+       [
+        2113,
+        0,
+        12
+       ],
+       "placeholder: layout.options.length > 0 ? \"Type another answer\" : \"Type your answer\",\n"
+      ]
+     ]
+    },
+    {
+     "at": 2117,
+     "remove": 0,
+     "add": [
+      [
+       "        }),\n"
+      ],
+      [
+       "        data: {\n"
+      ],
+      [
+       "          ",
+       [
+        2073,
+        12,
+        38
+       ],
+       "\n"
+      ],
+      [
+       "          ",
+       [
+        1266,
+        12,
+        33
+       ],
+       "\n"
+      ],
+      [
+       "          ",
+       [
+        1435,
+        12,
+        33
+       ],
+       "\n"
+      ]
+     ]
+    },
+    {
+     "at": 2118,
+     "remove": 5,
+     "removeSha256": "0a8cdfdaf2b811c9a78605abbcaefea1a928a56cc61be9cd6080c6d1bceedd02",
+     "add": [
+      [
+       "      },\n"
+      ],
+      [
+       "      ",
+       [
+        1678,
+        6,
+        24
+       ],
+       "\n"
+      ],
+      [
+       "        ",
+       [
+        1257,
+        10,
+        56
+       ],
+       "\n"
+      ],
+      [
+       "          ",
+       [
+        1134,
+        10,
+        24
+       ],
+       "\n"
+      ],
+      [
+       "          ",
+       [
+        1901,
+        12,
+        43
+       ],
+       "\n"
+      ],
+      [
+       [
+        2122,
+        2,
+        52
+       ],
+       "||",
+       [
+        2122,
+        19,
+        44
+       ],
+       "reply\" ? \"answer",
+       [
+        2122,
+        60,
+        84
+       ]
+      ],
+      [
+       [
+        2118,
+        0,
+        8
+       ],
+       "});\n"
+      ],
+      [
+       "        ",
+       [
+        1904,
+        10,
+        47
+       ],
+       "\n"
+      ],
+      [
+       "          ",
+       [
+        1905,
+        12,
+        110
+       ],
+       "\n"
+      ],
+      [
+       "          ",
+       [
+        2050,
+        8,
+        66
+       ],
+       "\n"
+      ],
+      [
+       "          ",
+       [
+        1381,
+        12,
+        78
+       ],
+       "\n"
+      ],
+      [
+       "            ",
+       [
+        2128,
+        14,
+        50
+       ],
+       "\n"
+      ],
+      [
+       [
+        2119,
+        0,
+        10
+       ],
+       "}\n"
+      ],
+      [
+       [
+        2119,
+        0,
+        10
+       ],
+       "return;\n"
+      ],
+      [
+       [
+        2118,
+        0,
+        8
+       ],
+       "}\n"
+      ],
+      [
+       [
+        2118,
+        0,
+        8
+       ],
+       "if (!layout) {\n"
+      ],
+      [
+       [
+        2119,
+        0,
+        10
+       ],
+       "return;\n"
+      ],
+      [
+       [
+        2118,
+        0,
+        8
+       ],
+       "}\n"
+      ],
+      [
+       "        if (",
+       [
+        2122,
+        20,
+        44
+       ],
+       "reply\") {\n"
+      ],
+      [
+       "          let text =",
+       [
+        2122,
+        19,
+        32
+       ],
+       "reply.trim();\n"
+      ],
+      [
+       [
+        2119,
+        0,
+        10
+       ],
+       "if (!text) {\n"
+      ],
+      [
+       [
+        2120,
+        0,
+        12
+       ],
+       "return;\n"
+      ],
+      [
+       [
+        2119,
+        0,
+        10
+       ],
+       "}\n"
+      ],
+      [
+       [
+        2122,
+        2,
+        13
+       ],
+       "nswerQuestion({\n"
+      ],
+      [
+       [
+        2120,
+        0,
+        12
+       ],
+       "value: text,\n"
+      ]
+     ]
+    },
+    {
+     "at": 2124,
+     "remove": 6,
+     "removeSha256": "570ebfdfe13d9822db506d5037a3d3d5bbc59ad5980edf1ffc04e416edde2fdf",
+     "add": [
+      [
+       "        } else",
+       [
+        2124,
+        9,
+        38
+       ],
+       "action\" && ",
+       [
+        2124,
+        14,
+        32
+       ],
+       "Type === \"skip\") {\n"
+      ],
+      [
+       [
+        2124,
+        0,
+        10
+       ],
+       "answ",
+       [
+        2126,
+        28,
+        38
+       ],
+       "({\n"
+      ],
+      [
+       [
+        2125,
+        0,
+        12
+       ],
+       "value: SKIPPED_QUESTION_ANSWER,\n"
+      ],
+      [
+       [
+        2129,
+        2,
+        13
+       ],
+       ");\n"
+      ],
+      [
+       "        } else",
+       [
+        2124,
+        9,
+        38
+       ],
+       "action\" && ",
+       [
+        2124,
+        14,
+        32
+       ],
+       "Type === \"choose\") {\n"
+      ],
+      [
+       "          let option = layout.options[",
+       [
+        2124,
+        14,
+        26
+       ],
+       "selectionIndex];\n"
+      ],
+      [
+       [
+        2124,
+        0,
+        14
+       ],
+       "!option) {\n"
+      ],
+      [
+       [
+        2125,
+        0,
+        12
+       ],
+       "// No option picked in the drop-down: ask again.\n"
+      ],
+      [
+       [
+        2128,
+        2,
+        15
+       ],
+       "aveProgress(progress);\n"
+      ],
+      [
+       [
+        2125,
+        0,
+        12
+       ],
+       "return;\n"
+      ]
+     ]
+    },
+    {
+     "at": 2131,
+     "remove": 14,
+     "removeSha256": "c5702b9ff0acaf636536da1077c2b4186745eaafe0731729d5dd0ed6ade12a7d",
+     "add": [
+      [
+       "          answ",
+       [
+        2140,
+        32,
+        42
+       ],
+       "({\n"
+      ],
+      [
+       [
+        2131,
+        0,
+        8
+       ],
+       "    value: option.label,\n"
+      ],
+      [
+       "    ",
+       [
+        2135,
+        0,
+        11
+       ],
+       "(typeof option.preview === \"string\" && {\n"
+      ],
+      [
+       [
+        2131,
+        0,
+        8
+       ],
+       "      preview: option.preview,\n"
+      ],
+      [
+       "    ",
+       [
+        2131,
+        0,
+        9
+       ],
+       "),\n"
+      ],
+      [
+       "    ",
+       [
+        2139,
+        0,
+        10
+       ]
+      ],
+      [
+       [
+        2131,
+        0,
+        9
+       ],
+       "\n"
+      ],
+      [
+       [
+        2131,
+        2,
+        11
+       ]
+      ],
+      [
+       "      ",
+       [
+        1908,
+        8,
+        103
+       ],
+       "\n"
+      ],
+      [
+       "    );\n"
+      ],
+      [
+       "    ",
+       [
+        1609,
+        6,
+        46
+       ],
+       "\n"
+      ],
+      [
+       "      ",
+       [
+        1134,
+        10,
+        24
+       ],
+       "\n"
+      ],
+      [
+       "      ",
+       [
+        1901,
+        12,
+        43
+       ],
+       "\n"
+      ],
+      [
+       [
+        2137,
+        2,
+        28
+       ],
+       "layout !==",
+       [
+        2132,
+        68,
+        79
+       ],
+       "\n"
+      ],
+      [
+       "      ",
+       [
+        1614,
+        8,
+        36
+       ],
+       "\n"
+      ],
+      [
+       [
+        2139,
+        2,
+        10
+       ]
+      ],
+      [
+       "    logger.debug(\"Showed Electron",
+       [
+        2140,
+        26,
+        60
+       ]
+      ],
+      [
+       "      ",
+       [
+        1266,
+        12,
+        33
+       ],
+       "\n"
+      ],
+      [
+       "      ",
+       [
+        1435,
+        12,
+        33
+       ],
+       "\n"
+      ],
+      [
+       "      question: progress.index,\n"
+      ],
+      [
+       [
+        2139,
+        2,
+        10
+       ]
+      ]
+     ]
+    },
+    {
+     "at": 2147,
+     "remove": 0,
+     "add": [
+      [
+       "    this.questionNotificationAnswers.delete(requestId);\n"
+      ]
+     ]
+    },
+    {
+     "at": 2179,
+     "remove": 0,
+     "add": [
+      [
+       "      this.questionNotificationAnswers.delete(requestId);\n"
+      ]
+     ]
+    },
+    {
+     "at": 2218,
+     "remove": 1,
+     "removeSha256": "953b40d3a31548c34ca9cffc33e089e51dbf8e3f0270521261a74624e26b40f4",
+     "add": [
+      [
+       "      // Local change: restore() keeps a maximized window maximized; show() on a minimized window\n"
+      ],
+      [
+       "      // (which reports ",
+       [
+        2218,
+        23,
+        35
+       ],
+       "false on Windows) brings it back at its normal size.\n"
+      ],
+      [
+       "      (this.mainWindow.isMinimized() ? this.mainWindow.restore() : ",
+       [
+        2218,
+        7,
+        62
+       ]
+      ]
+     ]
+    },
+    {
+     "at": 2356,
+     "remove": 0,
+     "add": [
+      [
+       "    // Local change: Powertoys per-session mute (the request still counts as waiting).\n"
+      ],
+      [
+       "    if (powertoysSessionMuted(attribution?.sessionId)) {\n"
+      ],
+      [
+       "      ",
+       [
+        2358,
+        6,
+        23
+       ],
+       "\n"
+      ],
+      [
+       "      return;\n"
+      ],
+      [
+       "    }\n"
+      ]
+     ]
+    },
+    {
+     "at": 2735,
+     "remove": 1,
+     "removeSha256": "9f49d5ddded342f8184c0ae9ad7394e52a1f8f41ac7ced56607bafeae43fb26e",
+     "add": [
+      [
+       "})();\n"
+      ]
+     ]
     }
    ]
   },
   {
-   "path": "src/vite/build/main/platform/0249-gpu-state-telemetry.js",
+   "path": "src/vite/build/main/app/0298-help-menu-logs-handoff.js",
    "kind": "edit",
-   "baseSha256": "9d4b59fd091e3a109abe500159fa3a0b548d928ea70eae0311fae4672cbf6fa0",
-   "resultSha256": "00b1926354288fa5f82141a5a3f143365c34c23e88162b64fc02c872f25c92ff",
+   "baseSha256": "3305ff3ef6b50d0ad344063ef67693aa5abf8fe3b598772a050c44cdd1677c81",
+   "resultSha256": "5d02546b3a57bf870b7c77f98dda0af5c28f6e942fbed2ea6658c1e939875ff7",
    "hunks": [
     {
-     "at": 847,
+     "at": 1260,
+     "remove": 0,
+     "add": [
+      [
+       "    buildPowertoysApplicationMenu(),\n"
+      ]
+     ]
+    },
+    {
+     "at": 1284,
+     "remove": 0,
+     "add": [
+      [
+       "    // Local change: waiting sessions, snippets, bookmarks and the Powertoys switches.\n"
+      ],
+      [
+       "    ...buildPowertoysTrayMenuItems(),\n"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "path": "src/vite/build/main/app/0344-device-storage-api.js",
+   "kind": "edit",
+   "baseSha256": "0c7a0ec3f7208eeeec30a2fbfd4f402fedc2817e376df410f4c252491c221b44",
+   "resultSha256": "b9248126d0ea0ea6b0ab879908deb9c6fc8e364bd92606455a54c6ab316708a2",
+   "hunks": [
+    {
+     "at": 1302,
+     "remove": 1,
+     "removeSha256": "4ecf0acf9fbbe50e3bd6e536741df003d9dafda203019da58a28a46690cd4ffb",
+     "add": [
+      [
+       "    let localSessionsApi =",
+       [
+        1302,
+        10,
+        35
+       ]
+      ]
+     ]
+    },
+    {
+     "at": 1309,
+     "remove": 0,
+     "add": [
+      [
+       "    // Local change: Powertoys starts sessions for other programs through this API's start call.\n"
+      ],
+      [
+       "    powertoysNoteLocalSessionsApi((request) => localSessionsApi.start(request));\n"
+      ],
+      [
+       "    return localSessionsApi;\n"
+      ]
+     ]
+    },
+    {
+     "at": 2271,
+     "remove": 1,
+     "removeSha256": "26fa719a8bcdf390914d6dd04fce42a1380b20dcc886af2861a5ae59e3883bd7",
+     "add": [
+      [
+       [
+        2271,
+        0,
+        10
+       ],
+       "// Local change: restore() keeps a maximized window maximized (show() would not).\n"
+      ],
+      [
+       "          if (",
+       [
+        2271,
+        15,
+        31
+       ],
+       "Minimized()) {\n"
+      ],
+      [
+       "            ",
+       [
+        2271,
+        15,
+        29
+       ],
+       "restore();\n"
+      ],
+      [
+       "          } else",
+       [
+        2271,
+        9,
+        44
+       ]
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "path": "src/vite/build/main/app/0360-app-ipc-preferences.js",
+   "kind": "edit",
+   "baseSha256": "63220e6a6c963b6d9fef275db3fcafb02ee207d72e166b2ff78d23ecbb8d1a6b",
+   "resultSha256": "2dabecd73c888c7823f85007ba3dacb909c12e02f2357ffde521cc7ec65829bf",
+   "hunks": [
+    {
+     "at": 171,
+     "remove": 0,
+     "add": [
+      [
+       "  let squirrelStubPath = path.default.resolve(path.default.dirname(execPath), \"..\", path.default.basename(execPath));\n"
+      ],
+      [
+       "  // Local change: this build has no Squirrel layout (no stub one folder up), so it starts itself.\n"
+      ]
+     ]
+    },
+    {
+     "at": 172,
+     "remove": 1,
+     "removeSha256": "25cb5515ada9902dc04e70e1b2c21bc37f102f67c218fd5f62bc9c635d473900",
+     "add": [
+      [
+       [
+        172,
+        0,
+        10
+       ],
+       "fsModule.existsSync(squirrelStubPath) ? squirrelStubPath : ",
+       [
+        172,
+        52,
+        60
+       ],
+       ",\n"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "path": "src/vite/build/main/app/0361-main-window-squirrel.js",
+   "kind": "edit",
+   "baseSha256": "88697206f13737d5ccd8c024c382805aee6b0f0e40f92bfcaddb4b164ca534f7",
+   "resultSha256": "931f4361d367425a167903695bc69e7a62587d4adeb7cb3ff5209df8996448a0",
+   "hunks": [
+    {
+     "at": 446,
+     "remove": 1,
+     "removeSha256": "f4e8dc499cf6518682553b9980d844ae62cc1f0e71d773a7f378581b15d94bb0",
+     "add": [
+      [
+       "  // Local change: Powertoys' extra windows reuse the code window's setup.\n"
+      ],
+      [
+       "  let configure = (powertoysCodeWindowC",
+       [
+        446,
+        7,
+        36
+       ]
+      ]
+     ]
+    },
+    {
+     "at": 486,
+     "remove": 1,
+     "removeSha256": "42a2cb25a122b44221a6234ec660a7b5fb7f9bde7b3b9e2b3c559a0d96fac739",
+     "add": [
+      [
+       "  });\n"
+      ]
+     ]
+    },
+    {
+     "at": 749,
+     "remove": 4,
+     "removeSha256": "ac6b4faf4deecfc301f6cf100e062cae56298e8841bde0b64f0629d0e5f5e602",
+     "add": [
+      [
+       [
+        749,
+        0,
+        8
+       ],
+       "// Local change: Powertoys opens the most recent code conversation instead of the Code home.\n"
+      ],
+      [
+       [
+        749,
+        0,
+        23
+       ],
+       "powertoys",
+       [
+        749,
+        30,
+        40
+       ],
+       "Url(\n"
+      ],
+      [
+       "         ",
+       [
+        749,
+        22,
+        67
+       ]
+      ],
+      [
+       "            ",
+       [
+        750,
+        10,
+        58
+       ],
+       "\n"
+      ],
+      [
+       "            ",
+       [
+        751,
+        10,
+        45
+       ],
+       "\n"
+      ],
+      [
+       [
+        750,
+        0,
+        10
+       ],
+       "}),\n"
+      ],
+      [
+       [
+        749,
+        0,
+        8
+       ],
+       ");\n"
+      ]
+     ]
+    },
+    {
+     "at": 965,
+     "remove": 0,
+     "add": [
+      [
+       "// The Store copy of Claude (the MSIX under C:\\Program Files\\WindowsApps) shares this build's data\n"
+      ],
+      [
+       "// folder, so whichever copy starts first holds the single-instance lock and the other quits. On\n"
+      ],
+      [
+       "// 2026-11-10 the Store copy was opened from Start search at 06:18:09, ten seconds before the\n"
+      ],
+      [
+       "// sign-in Run entry started this build, and this build quit, leaving the Store copy up. So when\n"
+      ],
+      [
+       "// the lock is held by a Store copy, this build closes it and takes the lock.\n"
+      ],
+      [
+       "function takeLockFromStoreCopy() {\n"
+      ],
+      [
+       "  if (processModule.default.platform !== \"win32\" || isMsixInstall()) {\n"
+      ],
+      [
+       "    ",
+       [
+        394,
+        6,
+        19
+       ],
+       "\n"
+      ],
+      [
+       "  }\n"
+      ],
+      [
+       "  let pids;\n"
+      ],
+      [
+       "  try {\n"
+      ],
+      [
+       "    pids = (0, childProcess.execFileSync)(\n"
+      ],
+      [
+       "      \"powershell.exe\",\n"
+      ],
+      [
+       "      [\n"
+      ],
+      [
+       "        \"-NoProfile\",\n"
+      ],
+      [
+       "        \"-NonInteractive\",\n"
+      ],
+      [
+       "        \"-Command\",\n"
+      ],
+      [
+       "        \"Get-CimInstance Win32_Process -Filter \\\"Name='claude.exe'\\\" | Where-Object { $_.ExecutablePath -like '*\\\\WindowsApps\\\\Claude_*' } | ForEach-Object { $_.ProcessId }\",\n"
+      ],
+      [
+       "      ],\n"
+      ],
+      [
+       "      { encoding: \"utf8\", windowsHide: true, timeout: 20000 },\n"
+      ],
+      [
+       "    )\n"
+      ],
+      [
+       "      .split(/\\s+/)\n"
+      ],
+      [
+       "      .filter((pid) => /^\\d+$/.test(pid));\n"
+      ],
+      [
+       "  } catch (error) {\n"
+      ],
+      [
+       "    logger.warn(\"startup: could not look for a Store copy of Claude holding the lock\", { error });\n"
+      ],
+      [
+       "    ",
+       [
+        394,
+        6,
+        19
+       ],
+       "\n"
+      ],
+      [
+       "  }\n"
+      ],
+      [
+       "  if (pids.length === 0) {\n"
+      ],
+      [
+       "    ",
+       [
+        394,
+        6,
+        19
+       ],
+       "\n"
+      ],
+      [
+       "  }\n"
+      ],
+      [
+       "  logger.warn(`startup: the Store copy of Claude holds the lock (pids ${pids.join(\", \")}); closing it`);\n"
+      ],
+      [
+       "  try {\n"
+      ],
+      [
+       "    (0, childProcess.execFileSync)(\"taskkill.exe\", [\"/F\", \"/T\", ...pids.flatMap((pid) => [\"/PID\", pid])], {\n"
+      ],
+      [
+       "      windowsHide: true,\n"
+      ],
+      [
+       "      timeout: 20000,\n"
+      ],
+      [
+       "      stdio: \"ignore\",\n"
+      ],
+      [
+       "    });\n"
+      ],
+      [
+       "  } catch {\n"
+      ],
+      [
+       "    // Some of the pids were already gone with their parent's tree; the lock retry below decides.\n"
+      ],
+      [
+       "  }\n"
+      ],
+      [
+       "  let waitCell = new Int32Array(new SharedArrayBuffer(4));\n"
+      ],
+      [
+       "  let deadline = Date.now() + 15000;\n"
+      ],
+      [
+       "  while (Date.now() < deadline) {\n"
+      ],
+      [
+       "    Atomics.wait(waitCell, 0, 0, 250);\n"
+      ],
+      [
+       "    if (requestSingleInstanceLockAfterReset()) {\n"
+      ],
+      [
+       "      logger.info(\"startup: took the lock from the Store copy of Claude\");\n"
+      ],
+      [
+       "      ",
+       [
+        825,
+        4,
+        16
+       ],
+       "\n"
+      ],
+      [
+       "    }\n"
+      ],
+      [
+       "  }\n"
+      ],
+      [
+       "  logger.warn(\"startup: the Store copy of Claude was closed but the lock is still held; quitting\");\n"
+      ],
+      [
+       "  ",
+       [
+        394,
+        6,
+        19
+       ],
+       "\n"
+      ],
+      [
+       "}\n"
+      ]
+     ]
+    },
+    {
+     "at": 976,
+     "remove": 1,
+     "removeSha256": "ede41134b0b766f07c8b2e916b2e48237fa61de1aa859dc0a4e85f91d65645eb",
+     "add": [
+      [
+       "  if (\n"
+      ],
+      [
+       "    !(\n"
+      ],
+      [
+       "      ",
+       [
+        976,
+        8,
+        22
+       ],
+       "\n"
+      ],
+      [
+       "     ",
+       [
+        976,
+        22,
+        49
+       ],
+       "\n"
+      ],
+      [
+       "      (",
+       [
+        976,
+        50,
+        87
+       ],
+       " || takeLockFromStoreCopy())\n"
+      ],
+      [
+       "    )\n"
+      ],
+      [
+       "  ) {\n"
+      ]
+     ]
+    },
+    {
+     "at": 2357,
+     "remove": 0,
+     "add": [
+      [
+       "      initPowertoys();\n"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "path": "src/vite/build/main/app/0362-app-main-tray.js",
+   "kind": "edit",
+   "baseSha256": "1d38c884fce069e5b6fb12cf84c4ae149ae7db431e485104d252f7deead81c22",
+   "resultSha256": "48313d575dc41db718d01b55b5481395aa646bc6428bc2190a15493011b9e644",
+   "hunks": [
+    {
+     "at": 244,
+     "remove": 3,
+     "removeSha256": "018126f3ca74ff15aafb5bbb3e17597cab43be667793d8a2769d6afeb52871a3",
+     "add": [
+      [
+       "  // Local change: submenus count too (the Powertoys snippets and bookmarks change inside them).\n"
+      ],
+      [
+       "  let signatureOf = (items) =>\n"
+      ],
+      [
+       "    ",
+       [
+        245,
+        9,
+        117
+       ],
+       [
+        245,
+        47,
+        58
+       ],
+       "submenu ? signatureOf(menuItem.sub",
+       [
+        245,
+        4,
+        14
+       ],
+       ") : null]);\n"
+      ],
+      [
+       [
+        244,
+        0,
+        24
+       ],
+       "signatureOf(",
+       [
+        245,
+        4,
+        14
+       ],
+       "));\n"
+      ]
+     ]
+    },
+    {
+     "at": 373,
+     "remove": 1,
+     "removeSha256": "55d505fc174cbf0f10091d9122384d518cea626ecac4d8a304e9d703c7a57943",
+     "add": [
+      [
+       "      // Local change: one click shows the app (Powertoys' trayClickShowsApp), not the quick-entry box.\n"
+      ],
+      [
+       "      if (powertoysSetting(\"trayClickShowsApp\") !== false) {\n"
+      ],
+      [
+       "        showAndFocusWindow2();\n"
+      ],
+      [
+       "      } else {\n"
+      ],
+      [
+       "        ",
+       [
+        373,
+        6,
+        43
+       ],
+       "\n"
+      ],
+      [
+       "      }\n"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "path": "src/vite/build/main/platform/0029-electron-store-sync-timing.js",
+   "kind": "edit",
+   "baseSha256": "58813a23cea8058c71047fb9d1fa13cbd18823f40624be9bc33da70161b1eb57",
+   "resultSha256": "d62b348bd8c1ae0f8a8fb5de2b6d605d8da25b91ec47ea11fabee013e0872edd",
+   "hunks": [
+    {
+     "at": 61,
+     "remove": 0,
+     "add": [
+      [
+       "  // Local change: the bundled electron-store (replaced by the npm package in this build)\n"
+      ],
+      [
+       "  // journals writes and commits them asynchronously, and quit and cache reset wait for them with\n"
+      ],
+      [
+       "  // these two. The npm electron-store writes synchronously, so there is never a write in flight.\n"
+      ],
+      [
+       "  // Without them every quit threw \"CachedElectronStore.quiesce is not a function\" after its clean-up\n"
+      ],
+      [
+       "  // and stopped half-way: page views gone, process alive (a black window, 2026-10-19).\n"
+      ],
+      [
+       "  static quiesce() {\n"
+      ],
+      [
+       "    return Promise.resolve();\n"
+      ],
+      [
+       "  }\n"
+      ],
+      [
+       "  static resume() {}\n"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "path": "src/vite/build/main/platform/0251-gpu-state-telemetry.js",
+   "kind": "edit",
+   "baseSha256": "96d3b2e53e76ac13f9a715b0d270a5bc59e8a64405b215d912876da807fd0029",
+   "resultSha256": "09e916ca07ce40a6213ce740d26474cf325ae1f74a2d2e7e4ee4ff8bcfa56fdd",
+   "hunks": [
+    {
+     "at": 833,
      "remove": 0,
      "add": [
       [
@@ -4716,7 +5315,7 @@
       [
        "    ",
        [
-        673,
+        659,
         2,
         20
        ],
@@ -4735,12 +5334,12 @@
   {
    "path": "src/vite/build/main/powertoys/0340-powertoys-store.js",
    "kind": "add",
-   "sha256": "a7bad9e9fa61f6ed592feb93d2ab552f586e1151a754ca2b1b5b0e17aafc582c"
+   "sha256": "1b16eb448f303dc28c23fa1959ec4bb8e65fdcd54e6145e8a7e635b0879a7133"
   },
   {
    "path": "src/vite/build/main/powertoys/0341-powertoys-transcripts.js",
    "kind": "add",
-   "sha256": "a459a2b9997024d82f2181df268e252d38e4974198832d5ea56a3778c067cee7"
+   "sha256": "38c1a7affdbd1b7177030d8bf8b43193f06cedd757d33ed6dad19d94b3adacb5"
   },
   {
    "path": "src/vite/build/main/powertoys/0342-powertoys-sessions.js",
@@ -4755,7 +5354,7 @@
   {
    "path": "src/vite/build/main/powertoys/0344-powertoys-ipc.js",
    "kind": "add",
-   "sha256": "6e14d3f1ff0172e35bf68374c0edecd2334f10903e0520c2b35ab35fc0a76227"
+   "sha256": "f6431cb2b207f5c87daaf6a4d69cf008a28acd1195a479154a836495056bc96e"
   },
   {
    "path": "src/vite/build/main/powertoys/0345-powertoys-system.js",
@@ -4765,7 +5364,7 @@
   {
    "path": "src/vite/build/main/powertoys/0346-powertoys-extra.js",
    "kind": "add",
-   "sha256": "66ebe1ddc1fed3c8e0c68d6b43e626773cd7c20585467cfb987848d1c861015a"
+   "sha256": "d27036fc9e57461b60b9bcde1bb2c012059b0379d5454d6061b48ab0e00f2b14"
   },
   {
    "path": "src/vite/build/main/powertoys/0349-powertoys-notify.js",
@@ -4785,7 +5384,7 @@
   {
    "path": "src/vite/build/main/powertoys/0352-powertoys-flow.js",
    "kind": "add",
-   "sha256": "46b50324714442e11132262e1b818525b54525651aae492290e1a94bb2e420aa"
+   "sha256": "b6a0257eb5b4c73ef7fd7f2d80ebd785f3ac7f2e780b53cb8f3acf28b7e0b1c0"
   },
   {
    "path": "src/vite/build/main/powertoys/0353-powertoys-previews.js",
@@ -4800,13 +5399,13 @@
   {
    "path": "src/vite/build/main/powertoys/0355-powertoys-dashboard.js",
    "kind": "add",
-   "sha256": "d1aba68f1a4a719a9fd664ff57f1cc12a2d4a8e731ca8aefeba2cefc5c5a273f"
+   "sha256": "32a963c60d3a3fff57da08feb4d8fe1b2c5f0fc6b8ee3015d5b6f46acdb67d11"
   },
   {
-   "path": "src/vite/build/main/settings/0244-supported-features.js",
+   "path": "src/vite/build/main/settings/0246-supported-features.js",
    "kind": "edit",
-   "baseSha256": "dad9c9d9617ce6bca4c466c79f9b5211acc0e776bf763dab52a6da1f1474583d",
-   "resultSha256": "64d1c7acf60ea27b1d4240eb5684f9cb3a3895ffd8d3eeb0d5f9dc8ed9fb92ca",
+   "baseSha256": "b6aacf3608e88c1687c3886a64dc8859e42288547492bf4799528a1597e5c697",
+   "resultSha256": "fea6e4e66e674265e6dfd4140f360c912f63d0101ba6bc029932233b369c715e",
    "hunks": [
     {
      "at": 185,
@@ -4844,13 +5443,13 @@
    ]
   },
   {
-   "path": "src/vite/build/main/vm/0194-vm-rpc-client.js",
+   "path": "src/vite/build/main/vm/0195-vm-rpc-client.js",
    "kind": "edit",
-   "baseSha256": "5d1085787252094d6b3f62d428ac5627f0a41ff511b79b5129ad314d989f2f71",
-   "resultSha256": "86ffbfdc46d6973b841c249433c37766730114195818f00aae2ba6cde2d8c9ea",
+   "baseSha256": "9650644b27411a5fc03d05198f39f4430940b7b59edab3f8aef349b5eb7527fa",
+   "resultSha256": "62e7d011fb0fb4bd33c3f26663d6b626c0b50bf4a57f42bf5ad6e33593ff35f7",
    "hunks": [
     {
-     "at": 56,
+     "at": 139,
      "remove": 0,
      "add": [
       [
@@ -4868,7 +5467,7 @@
      ]
     },
     {
-     "at": 804,
+     "at": 881,
      "remove": 0,
      "add": [
       [
@@ -4880,7 +5479,7 @@
       [
        "    ",
        [
-        563,
+        646,
         4,
         16
        ],
@@ -4894,13 +5493,13 @@
    ]
   },
   {
-   "path": "src/vite/build/main/vm/0266-vm-bundle-download.js",
+   "path": "src/vite/build/main/vm/0267-vm-bundle-download.js",
    "kind": "edit",
-   "baseSha256": "f7f72f8b2596e2bd7fb7418740d5c76f37c55c45ee1cd0a9d4890e436b45aa64",
-   "resultSha256": "18e864ce9760ce91aa99e843ab0507e7afdaf220551a87376c5ddbcf61e0bbea",
+   "baseSha256": "2390324653c56a47cd3808a1d9073cb2523da8f3cbcdefd5f4d162e2a1961d07",
+   "resultSha256": "45ca64b95c17720b3d294225be05192fe8b7ae61b236cfe38632363d5b964a52",
    "hunks": [
     {
-     "at": 991,
+     "at": 1015,
      "remove": 0,
      "add": [
       [
@@ -4923,19 +5522,19 @@
    ]
   },
   {
-   "path": "src/vite/build/main/windows/0214-session-handoff-activity.js",
+   "path": "src/vite/build/main/windows/0218-session-handoff-activity.js",
    "kind": "edit",
-   "baseSha256": "d8c5b2f578eadb0c1fcbc22e261c023dc60afffa7163021e8843cc5e83783a89",
-   "resultSha256": "58073182063d4ac7e2482a88e62a941e53a5e80905c684aef53938bcc53029f6",
+   "baseSha256": "fc6f2038bc1c02b93c1d8da6b930ea8729b54295dc781d05612dc55eb89a05a3",
+   "resultSha256": "cd32cf62563a089df4d4d7623c648166e032c332f566e17b6c60b1dc3c412bae",
    "hunks": [
     {
-     "at": 656,
+     "at": 1071,
      "remove": 1,
      "removeSha256": "12b40b81468b904abce60d89e4f2915376c114df84467dc0ca8b208b909e8800",
      "add": [
       [
        [
-        656,
+        1071,
         0,
         8
        ],
@@ -4943,7 +5542,7 @@
       ],
       [
        [
-        656,
+        1071,
         0,
         16
        ],
@@ -4954,104 +5553,15 @@
    ]
   },
   {
-   "path": "src/vite/build/main/windows/0351-main-view-input-errors.js",
-   "kind": "edit",
-   "baseSha256": "2109da1918cb0074c95b6ced1e923c29d05e0f6df064c2c569f56eb88a6e4b8a",
-   "resultSha256": "efdc7d3e8f2e9b1654f1d286561d88f7cc264da4b300ec82c38c24380e056ca2",
-   "hunks": [
-    {
-     "at": 1759,
-     "remove": 0,
-     "add": [
-      [
-       "            questions: toolInput?.questions,\n"
-      ]
-     ]
-    },
-    {
-     "at": 1797,
-     "remove": 0,
-     "add": [
-      [
-       "                  alwaysAction: buildPermissionAlwaysAction(\"cowork\", request, session),\n"
-      ]
-     ]
-    },
-    {
-     "at": 1815,
-     "remove": 0,
-     "add": [
-      [
-       "        if (sessionEvent.request.toolName === \"AskUserQuestion\") {\n"
-      ],
-      [
-       "          notificationService.closeAskUserQuestionNotification(sessionEvent.request.requestId);\n"
-      ],
-      [
-       "        }\n"
-      ]
-     ]
-    },
-    {
-     "at": 2420,
-     "remove": 0,
-     "add": [
-      [
-       "              questions: toolInput?.questions,\n"
-      ]
-     ]
-    },
-    {
-     "at": 2444,
-     "remove": 0,
-     "add": [
-      [
-       "            alwaysAction: buildPermissionAlwaysAction(\"ccd\", notifyPermissionRequest, session),\n"
-      ]
-     ]
-    },
-    {
-     "at": 2476,
-     "remove": 0,
-     "add": [
-      [
-       "      // Local change: Powertoys' extra windows show local sessions too.\n"
-      ],
-      [
-       "      for (let extraWebContents of powertoysExtraWebContents()) {\n"
-      ],
-      [
-       "        ",
-       [
-        1710,
-        8,
-        62
-       ],
-       "\n"
-      ],
-      [
-       "          LocalSessions.getDispatcher(extraWebContents)?.dispatchOnEvent(event),\n"
-      ],
-      [
-       "        );\n"
-      ],
-      [
-       "      }\n"
-      ]
-     ]
-    }
-   ]
-  },
-  {
    "path": "src/vite/build/mainView/0003-powertoys-page.js",
    "kind": "add",
-   "sha256": "385fa1cf24c0c04d8d73d6a2fad22f8ccb4a9317157da758dc00b06f3311bba9"
+   "sha256": "c5620cacaae527ab01a40f9387c533dcf28996dc83ec01d12d9418618e524d34"
   },
   {
    "path": "src/vite/build/mainView/0007-window-manager-vm-bridges.js",
    "kind": "edit",
-   "baseSha256": "ebc6bad787f3f083188fd27857a2a89de1c4a804896b6dc1c65596971b2f0a9b",
-   "resultSha256": "1ae0e80a71f4d17ebea07ef054e90c8b0f9f3bd9c31051e1791601dfa2605057",
+   "baseSha256": "d8e33a7e9436ce2053618ef3743521c2a3743ebb023f0c57feea29d014bba34d",
+   "resultSha256": "9337e0519513d1eb035dda9e5a42199ba371916799974cd386924706d2da5e89",
    "hunks": [
     {
      "at": 596,
@@ -5078,8 +5588,8 @@
   {
    "path": "src/vite/build/mainView/_manifest.json",
    "kind": "edit",
-   "baseSha256": "12e6210c7b86a450d6bdc0ad2bffe93e98af714cb21c02c0fd058b533312c2c1",
-   "resultSha256": "2a1382299a1685602cf79e13d5413f2eb19e60e38bf03eda32cf5aa808ad66da",
+   "baseSha256": "d2180844be83b0b45f86e210029e4681cf26741aefbe6179151e2e731a3ee035",
+   "resultSha256": "a536ce504a40dbca02053cc322d9c6a0a707b7308c746d2d897c9dc92342a96b",
    "hunks": [
     {
      "at": 34,

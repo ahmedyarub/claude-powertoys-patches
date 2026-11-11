@@ -4854,7 +4854,10 @@ function powertoysPageMain() {
     outputBody.append(note, output);
     let outputWrap = document.createElement("div");
     outputWrap.style.cssText = "margin-top:4px;";
-    outputWrap.append(
+    let toggles = document.createElement("div");
+    toggles.style.cssText = "display:flex;gap:14px;";
+    outputWrap.append(toggles);
+    toggles.append(
       liveToggle(liveOpen.has(tool.id), "output", liveOpen, tool.id, (open) => {
         outputBody.hidden = !open;
         if (open) {
@@ -4866,8 +4869,9 @@ function powertoysPageMain() {
           output.hidden = true;
         }
       }),
-      outputBody,
+      fullScreenButton(() => openFullOutput({ id: tool.id, name: tool.name, command: tool.command, sessionId: paneSessionId(paneOf(box)), from: box })),
     );
+    outputWrap.append(outputBody);
     body.append(command, outputWrap);
     box.append(liveToggle(liveCommandOpen.has(tool.id), "command", liveCommandOpen, tool.id, (open) => (body.hidden = !open)), body);
     return box;
@@ -5001,6 +5005,7 @@ function powertoysPageMain() {
       }
     }
     if (!settings.highlightCommandOutput) {
+      document.querySelectorAll("[data-powertoys-full-card]").forEach((holder) => holder.remove());
       return;
     }
     for (let row of document.querySelectorAll('[data-cds="TurnStatusStep"], [data-cds="TurnStatus"]')) {
@@ -5050,6 +5055,17 @@ function powertoysPageMain() {
         target.style.display = "none";
         target.after(copy);
       }
+      if (targets.length && !row.querySelector("[data-powertoys-full-card]")) {
+        let last = targets[targets.length - 1];
+        let holder = document.createElement("div");
+        holder.setAttribute("data-powertoys-full-card", "");
+        holder.style.cssText = "margin:4px 0;";
+        holder.append(fullScreenButton(() => openFullOutput({
+          id: tool.id, name: tool.name, command: tool.command, sessionId: paneSessionId(paneOf(row)), from: row,
+          text: targets.map((target) => target.textContent).join("\n"),
+        })));
+        (last.nextElementSibling?.hasAttribute("data-powertoys-hl") ? last.nextElementSibling : last).after(holder);
+      }
     }
   }
   function tailLines(text) {
@@ -5098,7 +5114,9 @@ function powertoysPageMain() {
           ].filter(Boolean);
           let noteText = !found
             ? "Waiting for output…"
-            : found.truncated || tail.lines > LIVE_LINES
+            : found.done
+              ? "Finished"
+              : found.truncated || tail.lines > LIVE_LINES
               ? `Last ${Math.min(tail.lines, LIVE_LINES)} lines of ${kilobytes(found.size)}`
               : found.size === 0
                 ? "No output yet"
@@ -5125,6 +5143,185 @@ function powertoysPageMain() {
     }
   }
   setInterval(pollLiveOutput, 1000);
+
+  // --- A command's output, full screen ---------------------------------------------------------------------
+  // "⛶ Full screen" beside a running command's output, or under a finished command's card, covers the window with
+  // the output (the last FULL_LINES lines of its last 1 MB, highlighted). A bar across the top says where it stands:
+  // Running with the time so far, read again once a second; once the command has ended its result from the
+  // transcript replaces the file, and the bar turns to Finished, Failed (with the exit code) or Stopped, with how long
+  // it took. It stays open across the end. Esc or Close shuts it.
+  const FULL_LINES = 5000;
+  const FULL_TAIL = 1024 * 1024;
+  let fullView = null;
+  function duration(ms) {
+    let seconds = Math.max(0, Math.round(ms / 1000));
+    let hours = Math.floor(seconds / 3600);
+    let minutes = Math.floor((seconds % 3600) / 60);
+    let rest = String(seconds % 60).padStart(2, "0");
+    return hours ? `${hours}:${String(minutes).padStart(2, "0")}:${rest}` : `${minutes}:${rest}`;
+  }
+  function solidBackground(node) {
+    for (let at = node; at; at = at.parentElement) {
+      let color = getComputedStyle(at).backgroundColor;
+      if (color && !/^(transparent|rgba\(.*,\s*0\))$/.test(color)) {
+        return color;
+      }
+    }
+    return "Canvas";
+  }
+  function fullScreenButton(open) {
+    let button = document.createElement("button");
+    button.type = "button";
+    button.style.cssText = LIVE_TOGGLE;
+    button.textContent = "⛶ Full screen";
+    button.title = "Show the output full screen";
+    button.addEventListener("click", (event) => {
+      event.stopPropagation();
+      event.preventDefault();
+      open();
+    });
+    return button;
+  }
+  function closeFullOutput() {
+    if (!fullView) {
+      return;
+    }
+    clearInterval(fullView.timer);
+    window.removeEventListener("keydown", fullView.onKey, true);
+    fullView.root.remove();
+    log(`full screen: closed ${fullView.id}`);
+    fullView = null;
+  }
+  function openFullOutput({ id, name, command, sessionId, from, text }) {
+    closeFullOutput();
+    if (!document.getElementById("powertoys-full-style")) {
+      let style = document.createElement("style");
+      style.id = "powertoys-full-style";
+      style.textContent = "@keyframes powertoys-pulse{0%,100%{opacity:1}50%{opacity:.25}}";
+      document.head.append(style);
+    }
+    let color = getComputedStyle(from).color;
+    // Below the window's title bar: the window's own buttons are drawn over the page there and can't be covered.
+    let titleBar = document.querySelector(".epitaxy-titlebar") ?? document.querySelector(".dframe-chrome-title-slot");
+    let top = titleBar && isShown(titleBar) ? Math.max(0, Math.round(titleBar.getBoundingClientRect().bottom)) : 0;
+    let root = document.createElement("div");
+    root.setAttribute("data-powertoys-full", id);
+    // Above the Powertoys layer too (its outline button and previews), which comes after the body at 2147483000.
+    root.style.cssText = `position:fixed;inset:${top}px 0 0 0;z-index:2147483600;display:flex;flex-direction:column;background:${solidBackground(from)};color:${color};` +
+      "border-top:4px solid transparent;box-sizing:border-box;";
+    let bar = document.createElement("div");
+    bar.style.cssText = "display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid rgba(127,127,127,.25);flex:none;";
+    let state = document.createElement("span");
+    state.style.cssText = "display:inline-flex;align-items:center;gap:6px;font-weight:600;font-size:13px;padding:3px 10px;border-radius:999px;white-space:nowrap;";
+    let title = document.createElement("span");
+    title.style.cssText = "font-size:13px;opacity:.7;";
+    title.textContent = name;
+    let note = document.createElement("span");
+    note.style.cssText = "font-size:12px;opacity:.6;margin-left:auto;white-space:nowrap;";
+    let close = document.createElement("button");
+    close.type = "button";
+    close.textContent = "✕ Close";
+    close.title = "Close (Esc)";
+    close.style.cssText = "background:rgba(127,127,127,.15);border:0;border-radius:6px;padding:4px 10px;cursor:pointer;color:inherit;font-size:12px;";
+    close.addEventListener("click", closeFullOutput);
+    bar.append(state, title, note, close);
+    let commandText = document.createElement("pre");
+    commandText.style.cssText = `${LIVE_TEXT}margin:8px 16px 0;max-height:6em;overflow:auto;flex:none;`;
+    commandText.textContent = command;
+    let output = document.createElement("pre");
+    output.style.cssText = `${LIVE_TEXT}margin:8px 16px 16px;flex:1;min-height:0;overflow:auto;`;
+    root.append(bar, commandText, output);
+    document.body.append(root);
+    let onKey = (event) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        event.stopPropagation();
+        closeFullOutput();
+      }
+    };
+    window.addEventListener("keydown", onKey, true);
+    fullView = { id, sessionId, root, onKey, timer: 0, busy: false };
+    let view = fullView;
+    let paint = (status, found) => {
+      let colors = { running: LOG_COLORS.accent, finished: LOG_COLORS.success, failed: LOG_COLORS.error, stopped: LOG_COLORS.warning, waiting: "rgba(127,127,127,.6)" };
+      let took = found?.startedAt && found?.endedAt ? ` in ${duration(found.endedAt - found.startedAt)}` : "";
+      let exit = found?.exit;
+      let label = {
+        running: `Running${found?.background ? " in the background" : ""}${found?.startedAt ? ` · ${duration(Date.now() - found.startedAt)}` : ""}`,
+        finished: `✓ Finished${took}`,
+        failed: `✗ Failed${exit ? ` · exit code ${exit}` : ""}${took}`,
+        stopped: `■ Stopped${took}`,
+        waiting: "Waiting for output…",
+      }[status];
+      root.style.borderTopColor = colors[status];
+      state.style.background = `color-mix(in srgb, ${colors[status]} 18%, transparent)`;
+      state.style.color = colors[status];
+      let dot = status === "running" ? '<span style="width:8px;height:8px;border-radius:50%;background:currentColor;animation:powertoys-pulse 1.2s ease-in-out infinite"></span>' : "";
+      if (state.powertoysLabel !== status + label) {
+        state.powertoysLabel = status + label;
+        state.innerHTML = dot;
+        state.append(label);
+      }
+    };
+    let show = (body, size, truncated) => {
+      let lines = body.replace(/\n$/, "").split("\n");
+      let shown = lines.slice(-FULL_LINES).join("\n");
+      if (output.powertoysText === shown) {
+        return;
+      }
+      let atBottom = output.powertoysText === undefined || output.scrollHeight - output.scrollTop - output.clientHeight < 8;
+      let highlighted = highlightLog(shown);
+      output.powertoysText = shown;
+      output.replaceChildren(highlighted.fragment);
+      let tally = [
+        highlighted.counts.error ? `${highlighted.counts.error} error${highlighted.counts.error === 1 ? "" : "s"}` : "",
+        highlighted.counts.warning ? `${highlighted.counts.warning} warning${highlighted.counts.warning === 1 ? "" : "s"}` : "",
+      ].filter(Boolean);
+      let count = Math.min(lines.length, FULL_LINES);
+      note.textContent = [truncated || lines.length > FULL_LINES ? `Last ${count} lines${size ? ` of ${kilobytes(size)}` : ""}` : `${count} line${count === 1 ? "" : "s"}`, ...tally].join(" · ");
+      if (atBottom) {
+        output.scrollTop = output.scrollHeight;
+      }
+    };
+    let poll = async () => {
+      if (view.busy || fullView !== view) {
+        return;
+      }
+      view.busy = true;
+      try {
+        let found = sessionId ? (await call("commandOutput", sessionId, [id], FULL_TAIL).catch(() => ({})))?.[id] : null;
+        if (fullView !== view) {
+          return;
+        }
+        let selection = window.getSelection();
+        let selecting = selection && !selection.isCollapsed && selection.containsNode(output, true);
+        if (found?.done) {
+          clearInterval(view.timer);
+          paint(found.interrupted ? "stopped" : found.error ? "failed" : "finished", found);
+          show(found.text, found.size, found.truncated);
+          log(`full screen: ${id} has ended (${found.interrupted ? "stopped" : found.error ? "failed" : "finished"})`);
+        } else if (found) {
+          paint("running", found);
+          if (!selecting) {
+            show(found.text, found.size, found.truncated);
+          }
+        } else if (text !== undefined) {
+          // Not in the transcript's last shell results nor running: show the card's own text.
+          clearInterval(view.timer);
+          paint("finished", null);
+          show(text, 0, false);
+        } else {
+          paint("waiting", null);
+        }
+      } finally {
+        view.busy = false;
+      }
+    };
+    paint("waiting", null);
+    poll();
+    view.timer = setInterval(poll, 1000);
+    log(`full screen: opened ${name} ${id}`);
+  }
 
   // --- Status in the prompt box's row ------------------------------------------------------------------
   // The row under each prompt box (the app's: permission mode … model, usage ring) gets this pane's
