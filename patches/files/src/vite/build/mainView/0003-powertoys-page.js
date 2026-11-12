@@ -1225,6 +1225,80 @@ function powertoysPageMain() {
       button.style.top = `${Math.round(area.top + 10)}px`;
     }
   }
+  // --- Venice button: beside the sidebar's settings (gear) button, starts Claude Code on Venice AI ---
+  const VENICE_ICON =
+    '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 3.5L8 12.5l4.5-9"/></svg>';
+  let veniceGearLog = 0;
+  /**
+   * The sidebar's settings (gear) button: an icon-sized button at the window's left (the sidebar),
+   * named for settings. When none matches, logs the left column's icon buttons so the match can be fixed.
+   */
+  function sidebarGearButton() {
+    let label = (candidate) => `${candidate.getAttribute("aria-label") ?? ""} ${candidate.getAttribute("title") ?? ""} ${candidate.textContent.trim()}`.trim();
+    let icons = [...document.querySelectorAll('button, a, [role="button"]')].filter((candidate) => {
+      if (candidate.hasAttribute("data-powertoys-item") || candidate.closest("#claude-powertoys, [data-powertoys-item]")) {
+        return false;
+      }
+      let rect = candidate.getBoundingClientRect();
+      return rect.width > 0 && rect.width <= 64 && rect.height <= 64 && rect.right <= 480;
+    });
+    let gear = icons.find((candidate) => /setting|preference|customi[sz]e|gear|cog/i.test(label(candidate)));
+    if (!gear && veniceGearLog < 3) {
+      veniceGearLog++;
+      let describe = (candidate) => {
+        let rect = candidate.getBoundingClientRect();
+        return `${candidate.tagName.toLowerCase()} "${label(candidate).slice(0, 40)}" @${Math.round(rect.left)},${Math.round(rect.top)} ${candidate.outerHTML.replace(/\s+/g, " ").slice(0, 160)}`;
+      };
+      log(`venice: no settings button in the sidebar; ${icons.length} icon buttons on the left: ${icons.slice(0, 40).map(describe).join(" || ").slice(0, 6000)}`);
+    }
+    return gear ?? null;
+  }
+  function decorateSidebarVenice() {
+    let existing = document.querySelector("[data-powertoys-venice]");
+    if (!settings?.veniceButton) {
+      existing?.remove();
+      return;
+    }
+    let gear = sidebarGearButton();
+    if (!gear || existing?.previousElementSibling === gear) {
+      return;
+    }
+    existing?.remove();
+    let button = iconButtonLike(gear, "New Venice AI session", VENICE_ICON);
+    button.setAttribute("data-powertoys-venice", "");
+    button.removeAttribute("href");
+    button.addEventListener("click", (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      veniceMenu(button);
+    });
+    gear.after(button);
+    if (veniceGearLog < 6) {
+      veniceGearLog = 6;
+      log(`venice: button placed beside ${gear.getAttribute("aria-label") || gear.getAttribute("title") || "the settings button"}`);
+    }
+  }
+  async function veniceMenu(anchor) {
+    let folders = await call("veniceFolders", (panes()[0] && paneSessionId(panes()[0])) ?? null).catch(() => null);
+    if (!folders) {
+      flash("Couldn't list folders");
+      return;
+    }
+    let name = (folder) => folder.split(/[\\/]/).pop();
+    let start = (folder) => async () => {
+      flash("Starting a Venice session…");
+      await call("veniceStart", folder).catch((caught) => flash(caught.message.replace(/^Error invoking remote method '[^']+': (Error: )?/, "")));
+    };
+    let items = [{ label: "New Venice session in…", disabled: true }];
+    if (folders.current) {
+      items.push({ label: `This session's folder (${name(folders.current)})`, onClick: start(folders.current) }, "-");
+    }
+    items.push(...folders.recent.map((folder) => ({ label: name(folder), onClick: start(folder) })));
+    items.push({ label: "Home folder", onClick: start(null) }, "-");
+    items.push({ label: "Stop Venice proxy", disabled: !folders.proxyRunning, onClick: () => call("veniceStopProxy").then(() => flash("Venice proxy stopped")) });
+    let rect = anchor.getBoundingClientRect();
+    contextMenu(items, rect.left, Math.max(8, rect.top - 8 - 30 * (items.length + 1)));
+  }
   /** The prompts of the pane's session: the whole transcript for a local session, else what the page has loaded. */
   async function conversationOf(pane) {
     let sessionId = paneSessionId(pane);
@@ -7457,6 +7531,7 @@ function powertoysPageMain() {
     updateStatusBar();
     applyRtl();
     layoutOutlineButtons();
+    decorateSidebarVenice();
     settingsWindow?.render();
   }
   window.addEventListener("keydown", onKey, true);
@@ -7575,6 +7650,7 @@ function powertoysPageMain() {
     // A timer, not requestAnimationFrame: frames stop while the window is covered or minimised.
     let decorate = () => {
       layoutOutlineButtons();
+      decorateSidebarVenice();
       try {
         layoutTabs();
         applyRtl();

@@ -707,18 +707,22 @@ async function powertoysStartFresh(sessionId) {
   }
   powertoysFreshStarts.add(sessionId);
   try {
-    let tag = `handoff-${require("node:crypto").randomUUID().slice(0, 8)}`;
+    // Markdown lines, not XML-style tags: the chat renders the answer as Markdown and showed <handoff-…> tags raw.
+    let id = require("node:crypto").randomUUID().slice(0, 8);
+    let opening = `## Handoff ${id}`;
+    let closing = `*End of handoff ${id}*`;
     powertoysQueuePrompt(
       sessionId,
-      `This conversation has grown long, so it will continue in a fresh session that starts from your handoff instead of the whole history. ` +
-        `Write that handoff now, between <${tag}> and </${tag}>, and nothing else: the goal; what is done and what is left; ` +
+      `This conversation has grown long, so the app will open a fresh session that starts from your handoff instead of the whole history; ` +
+        `you do not need to start it. Write that handoff now and nothing else. Its first line is exactly \`${opening}\` and its last line is exactly \`${closing}\`. ` +
+        `In between: the goal; what is done and what is left; ` +
         `decisions made and why; constraints and things that did not work; the files, branches, commands and ids that matter; the next steps. ` +
         `Be complete but brief (aim for under 1,500 words): the new session knows nothing else. Do not start on the next steps.`,
       "start fresh",
     );
-    powertoysLog(`start fresh: asked ${sessionId} for a handoff (${tag})`);
-    // Read back from its transcript once its answer holds the tagged block (up to 15 minutes).
-    let pattern = new RegExp(`<${tag}>([\\s\\S]*?)</${tag}>`);
+    powertoysLog(`start fresh: asked ${sessionId} for a handoff (${id})`);
+    // Read back from its transcript once its answer holds the marked block (up to 15 minutes).
+    let pattern = new RegExp(`^[^\\n]*Handoff ${id}[^\\n]*\\n([\\s\\S]*?)^[^\\n]*End of handoff ${id}[^\\n]*$`, "mi");
     for (let deadline = Date.now() + 15 * 60000; Date.now() < deadline; ) {
       await new Promise((resolve) => setTimeout(resolve, 3000));
       let answer = await powertoysTranscripts("lastAnswer", { cliSessionId: record.cliSessionId }).catch(() => null);

@@ -145,6 +145,11 @@ const POWERTOYS_DEFAULT_SETTINGS = {
   mutedSessions: [],
   /** Where the Cowork VM image lives; "" = <userData>\vm_bundles. */
   coworkBundleDir: "",
+  // Venice AI sessions (0357-powertoys-venice.js): Claude Code in a terminal through a local LiteLLM proxy.
+  veniceButton: true,
+  veniceModel: "deepseek-v4-1-flash-1017-uncensored",
+  veniceProxyPort: 4100,
+  veniceLiteLlmPath: "litellm",
 };
 
 /**
@@ -262,6 +267,15 @@ const POWERTOYS_SETTINGS_SECTIONS = [
       { key: "editOpenInApps", label: "Edit the \"Open in\" apps (openin.json)", type: "action" },
     ],
   },
+  {
+    title: "Venice AI",
+    items: [
+      { key: "veniceButton", label: "A \"V\" button beside the sidebar's settings button starts Claude Code on Venice AI in a terminal (your key: setx VENICE_API_KEY <key>; only Venice's uncensored models)", type: "switch" },
+      { key: "veniceModel", label: "Venice model the sessions, subagents and background work run on", type: "text" },
+      { key: "veniceProxyPort", label: "Port of the local LiteLLM proxy", type: "number", min: 1024, max: 65535 },
+      { key: "veniceLiteLlmPath", label: "LiteLLM command (pip install \"litellm[proxy]\")", type: "text" },
+    ],
+  },
 ];
 
 /** The on/off switches, in menu order, with their menu labels. */
@@ -278,6 +292,7 @@ const POWERTOYS_SWITCHES = [
   ["promptHistory", "Alt+Up: earlier prompts"],
   ["search", "Ctrl+Shift+S: search all sessions"],
   ["bookmarks", "Bookmarks (right-click a message)"],
+  ["veniceButton", "Venice AI button (V)"],
   ["history", "Ctrl+H: history of every message"],
   ["waitingBadge", "Waiting-sessions badge on the tray and taskbar"],
   ["openRecentOnLaunch", "Open the most recent code conversation at launch"],

@@ -142,11 +142,13 @@ function powertoysTranscriptWorkerMain() {
     return parts;
   }
 
-  const transcriptPaths = new Map(); // cliSessionId -> path
+  // A session whose folder changed has a stale copy of its transcript under the old project folder
+  // (6 sessions had one on 2026-11-12), so the newest copy wins, and the choice is re-checked every 30s.
+  const transcriptPaths = new Map(); // cliSessionId -> { file, at }
   function findTranscript(root, cliSessionId) {
     let known = transcriptPaths.get(cliSessionId);
-    if (known && fs.existsSync(known)) {
-      return known;
+    if (known && Date.now() - known.at < 30000 && fs.existsSync(known.file)) {
+      return known.file;
     }
     let dirs;
     try {
@@ -154,17 +156,28 @@ function powertoysTranscriptWorkerMain() {
     } catch {
       return null;
     }
+    let newest = null;
     for (let dir of dirs) {
       if (!dir.isDirectory()) {
         continue;
       }
       let candidate = path.join(root, dir.name, `${cliSessionId}.jsonl`);
-      if (fs.existsSync(candidate)) {
-        transcriptPaths.set(cliSessionId, candidate);
-        return candidate;
+      let mtimeMs;
+      try {
+        mtimeMs = fs.statSync(candidate).mtimeMs;
+      } catch {
+        continue;
+      }
+      if (!newest || mtimeMs > newest.mtimeMs) {
+        newest = { file: candidate, mtimeMs };
       }
     }
-    return null;
+    if (!newest) {
+      transcriptPaths.delete(cliSessionId);
+      return null;
+    }
+    transcriptPaths.set(cliSessionId, { file: newest.file, at: Date.now() });
+    return newest.file;
   }
 
   function lastAnswer(parts) {

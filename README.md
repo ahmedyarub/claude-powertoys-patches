@@ -25,12 +25,12 @@ patches/patches.json        the patch manifest: every file, its hashes and its e
 patches/files/...           files that are entirely new (written for Powertoys), copied in as they are
 ```
 
-`patches/patches.json` lists 52 files:
+`patches/patches.json` lists 53 files:
 
-- **19 new files** (`"kind": "add"`), all written for Powertoys:
-  - `src/vite/build/main/powertoys/0340` … `0355`: the main-process half (settings and stores, the transcript
+- **20 new files** (`"kind": "add"`), all written for Powertoys:
+  - `src/vite/build/main/powertoys/0340` … `0357`: the main-process half (settings and stores, the transcript
     reader worker, session status, hotkeys and menus, IPC, system integration, extra windows, notifications
-    inbox, restart, the newer features, link previews and the token use dashboard).
+    inbox, restart, the newer features, link previews, the token use dashboard and Venice AI sessions).
   - `src/vite/build/mainView/0003-powertoys-page.js`: the in-page half (tabs, switcher, panels, keys, the
     windows Powertoys draws inside the app).
   - `scripts/restart-and-continue.mjs`, `scripts/swap-and-launch.mjs`, `scripts/check-syntax.mjs`:
@@ -183,7 +183,7 @@ pastes). Every feature has a switch in the Powertoys settings window (tray menu 
   histogram, a weekday × hour heatmap, per-session detail, a sortable table and CSV export.
 - **Context size on each tab**, amber past 300k tokens (a setting), estimated (~) right after a compaction. Past it, once a task is done (the last turn
   committed, pushed, opened a PR or made a release, and ended), a notification offers to compact the
-  conversation or start fresh (the session writes a handoff summary and a new session starts from it); ❄ marks
+  conversation or start fresh (the session writes a handoff summary and a new session starts from it by itself); ❄ marks
   a session idle past its prompt cache, where the next message writes the whole context again.
 - **Away summary:** what the sessions did in the last hour or today.
 
@@ -213,6 +213,9 @@ pastes). Every feature has a switch in the Powertoys settings window (tray menu 
 - **Cost and context warnings** (off by default): a notification and a ⚠ on the tab once a session passes a cost
   or a context threshold, with "Compact now".
 - **Project instructions:** text added to every new session's system prompt in a project, from a tab's menu.
+- **Venice AI sessions:** a V button beside the sidebar's settings button (also "New Venice session in" in the tray
+  and Powertoys menus) starts Claude Code in a Windows Terminal tab on Venice AI's models, through a local
+  LiteLLM proxy on 127.0.0.1:4100. The proxy holds your key, read from the user variable `VENICE_API_KEY`.
 - **Sessions for other programs:** `newSession` starts a session in a folder and a permission mode (for example
   Slack's "Ask Claude" in Auto mode), sends its first message and answers with its Claude Code session id;
   `selectedSession` answers with the conversation on screen, and `queuePrompt` queues a prompt for a session,
