@@ -718,7 +718,7 @@
    "path": "src/vite/build/ccd-session-runtime-core/0001-ccd.js",
    "kind": "edit",
    "baseSha256": "0c237c5194780b952a2db10f1912a80bca4c9a5061d38e437cc326ac2c789fc2",
-   "resultSha256": "dc7eb9106a7c3ee64179e5bc1c5d9e4b20dcf6041c8cd037e81067aba86b8d05",
+   "resultSha256": "55147118cbd590fa4b65526548655a32131dfe0320343e504ff2cdccd95f8ce0",
    "hunks": [
     {
      "at": 1851,
@@ -780,6 +780,102 @@
      "add": [
       [
        "      powertoysView: i?.powertoysView === true,\n"
+      ]
+     ]
+    },
+    {
+     "at": 2184,
+     "remove": 0,
+     "add": [
+      [
+       "    // Powertoys: a link written from a subfolder the shell had cd'd into (\"../handover.md\" for a\n"
+      ],
+      [
+       "    // file in the session folder itself) climbs out of the folder. Drop the leading \"..\" segments\n"
+      ],
+      [
+       "    // and look inside the session folder.\n"
+      ],
+      [
+       "    if (p && h) {\n"
+      ],
+      [
+       "      let segments = s.split(/[\\\\/]+/);\n"
+      ],
+      [
+       "      let climbs = 0;\n"
+      ],
+      [
+       "      while (segments.length > 1 && (segments[0] === \"..\" || segments[0] === \".\")) {\n"
+      ],
+      [
+       "        if (segments[0] === \"..\") {\n"
+      ],
+      [
+       "          climbs++;\n"
+      ],
+      [
+       "        }\n"
+      ],
+      [
+       "        segments.shift();\n"
+      ],
+      [
+       "      }\n"
+      ],
+      [
+       "      if (climbs > 0) {\n"
+      ],
+      [
+       "        let t = await this.containedFileAt(n, a, (0, path.resolve)(o, ...segments), l);\n"
+      ],
+      [
+       "        if (t) {\n"
+      ],
+      [
+       "          ",
+       [
+        613,
+        4,
+        26
+       ],
+       "\n"
+      ],
+      [
+       "            `[SessionFileAccess] \"${r}\" climbed out of ${o}; opened it from the session folder instead`,\n"
+      ],
+      [
+       "          );\n"
+      ],
+      [
+       "          return {\n"
+      ],
+      [
+       "            ...t,\n"
+      ],
+      [
+       "            paths: a,\n"
+      ],
+      [
+       "            ",
+       [
+        2141,
+        10,
+        31
+       ],
+       "\n"
+      ],
+      [
+       "          };\n"
+      ],
+      [
+       "        }\n"
+      ],
+      [
+       "      }\n"
+      ],
+      [
+       "    }\n"
       ]
      ]
     },

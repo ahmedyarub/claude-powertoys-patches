@@ -153,6 +153,9 @@ pastes). Every feature has a switch in the Powertoys settings window (tray menu 
   session?" bar are hidden.
 - **Files outside the session's folders:** the file pane opens any file, read only. Claude's own tools (open in
   your editor, show in Explorer, send a file) still stay inside the session's folders.
+- **`../` links that climb out of the session folder:** a link Claude wrote as if from a subfolder
+  (`../notes.md` for a file in the session folder itself) opens that file from the session folder instead of
+  failing.
 - **Folder trust off** (a setting, on by default): every folder counts as trusted, so "Trust this workspace?"
   never comes up. That includes a folder a `claude://code/new?folder=` link opens (for example from Slack): the
   page asks for those every time unless its own flag for skipping trusted folders is on, so Powertoys turns
@@ -338,7 +341,7 @@ Each hook is marked `Local change` in the patched code.
 | `ccd-local-session-manager/0014-ccd.js` | +2 | Powertoys' additions to a session's environment (no feedback survey). |
 | `claude-json-workspace-trust-config.js` | +8 | Folder trust off: the trust lookups count every folder as trusted while the Powertoys setting is on. |
 | `ccd-start-errors-turn-plan.js` | +13 −3 | The plan tool takes an estimate in minutes per step, its description asks for them when the setting is on, and its answer reports how long finished steps really took. |
-| `ccd-session-runtime-core/0001-ccd.js` | +16 −1 | Files outside the session's folders, read only: Powertoys' pastes folder, and any file you view in the file pane. |
+| `ccd-session-runtime-core/0001-ccd.js` | +42 −1 | Files outside the session's folders, read only: Powertoys' pastes folder, and any file you view in the file pane; `../` links that climb out of the session folder open from inside it. |
 | `ccd-local-sessions-api/0003-local-sessions-api-core.js` | +10 | Per-project model and effort defaults for a session you start, the task list when the Powertoys setting is on, the last start request kept for `newSession`, and a deleted session's tab closed first. |
 | `git-worktree-manager/0003-worktree-trash-tombstones.js` | +19 | Background fetches keep your global `core.sshCommand` (with batch mode) instead of replacing it. |
 | `git-worktree-manager/0005-create-worktree.js` | +1 −1 | Uses the above. |
