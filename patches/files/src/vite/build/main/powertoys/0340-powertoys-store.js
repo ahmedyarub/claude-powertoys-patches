@@ -150,6 +150,7 @@ const POWERTOYS_DEFAULT_SETTINGS = {
   veniceModel: "deepseek-v4-1-flash-1017-uncensored",
   veniceProxyPort: 4100,
   veniceLiteLlmPath: "litellm",
+  veniceAutoContinue: 100,
 };
 
 /**
@@ -274,6 +275,7 @@ const POWERTOYS_SETTINGS_SECTIONS = [
       { key: "veniceModel", label: "Venice model the sessions, subagents and background work run on", type: "text" },
       { key: "veniceProxyPort", label: "Port of the local LiteLLM proxy", type: "number", min: 1024, max: 65535 },
       { key: "veniceLiteLlmPath", label: "LiteLLM command (pip install \"litellm[proxy]\")", type: "text" },
+      { key: "veniceAutoContinue", label: "Keep a Venice turn going when the model stops mid-task, up to this many times per message (0 = off; it still stops to ask you or when done)", type: "number", min: 0, max: 1000 },
     ],
   },
 ];

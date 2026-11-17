@@ -5427,7 +5427,7 @@
   {
    "path": "src/vite/build/main/powertoys/0340-powertoys-store.js",
    "kind": "add",
-   "sha256": "9e67293de243260cace850cdc271552bee0c6244819a229a0331d4bc7100e703"
+   "sha256": "3390a204d9dd166f061ba3a9c2386f994d9f288ff7a28ff3bdf8040c1a6bf812"
   },
   {
    "path": "src/vite/build/main/powertoys/0341-powertoys-transcripts.js",
@@ -5497,7 +5497,7 @@
   {
    "path": "src/vite/build/main/powertoys/0357-powertoys-venice.js",
    "kind": "add",
-   "sha256": "8fa2a617473ddc0f7f05c48583c69f09532186c7dd425b51cd6294a97b7fc42c"
+   "sha256": "67ab5c7ffd27def8754334ce1042fec0fec8f2805a766e90ca56f4cd254537c7"
   },
   {
    "path": "src/vite/build/main/settings/0248-supported-features.js",
@@ -5653,7 +5653,7 @@
   {
    "path": "src/vite/build/mainView/0003-powertoys-page.js",
    "kind": "add",
-   "sha256": "d8cd072da8798e49da153b1311538e6f83b65d2d1da2a84ea927f3ff068d6dd1"
+   "sha256": "e7c83834fa428c96426d335031f4ed925bd6c5de429b0df527518cb980cf9460"
   },
   {
    "path": "src/vite/build/mainView/0007-window-manager-vm-bridges.js",

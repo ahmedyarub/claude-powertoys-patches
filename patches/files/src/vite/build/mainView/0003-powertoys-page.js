@@ -7323,6 +7323,24 @@ function powertoysPageMain() {
     event.preventDefault();
     event.stopImmediatePropagation();
   }
+  // --- /rename with no title names the session (main: powertoysAutoRename) ----------------------
+  /**
+   * The title after /rename (or /name, with the app's separators): "" for none, null when the text
+   * is not that command.
+   */
+  function renameCommandArg(text) {
+    let match = /^\/(?:rename|name)(?:[\s:,.]+([\s\S]*))?$/i.exec(text.trim());
+    return match ? (match[1] ?? "").trim() : null;
+  }
+  /**
+   * The prompt box's text without the grey argument hint a command picked from the slash list
+   * shows ("/rename [new title]": a span[data-skill-arg-hint], not typed text).
+   */
+  function typedPromptText(editor) {
+    let copy = editor.cloneNode(true);
+    copy.querySelectorAll("[data-skill-arg-hint], [data-skill-arg-hint-sr]").forEach((hint) => hint.remove());
+    return copy.textContent;
+  }
   function onKey(event) {
     if (!event.isTrusted || !settings) {
       return;
@@ -7456,7 +7474,7 @@ function powertoysPageMain() {
       let pane = activePane();
       let editor = paneEditor(pane);
       let sessionId = paneSessionId(pane);
-      if (editor && sessionId && /^\/(rename|name)$/i.test(editor.innerText.trim())) {
+      if (editor && sessionId && renameCommandArg(typedPromptText(editor)) === "") {
         swallow(event);
         editor.focus();
         document.execCommand("selectAll");

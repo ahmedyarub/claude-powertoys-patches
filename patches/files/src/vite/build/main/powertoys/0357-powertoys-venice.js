@@ -140,6 +140,76 @@ function powertoysVeniceStopProxy() {
 }
 electron.app.on("will-quit", powertoysVeniceStopProxy);
 
+// --- Auto-continue: keep a Venice turn going when the model stops mid-task -------------------------
+// A non-Claude model often ends its turn with text like "Let me check X" without calling the tool, so
+// Claude Code treats the turn as finished. The Stop hook below forces it to continue, up to
+// veniceAutoContinue times per real user message; it lets the turn end when the model hands back with
+// a question or says it is done, and fails open (never traps the session in a loop).
+const POWERTOYS_VENICE_CONTINUE_REASON =
+  "Keep working on this task without waiting for me. Only stop when it is fully complete, or when you genuinely need my input or a decision \u2014 in that case end your message with a question.";
+
+const POWERTOYS_VENICE_STOP_HOOK = `import fs from "node:fs";
+import path from "node:path";
+const REASON = ${JSON.stringify("JSON_REASON")};
+function allow() { process.exit(0); }
+try {
+  const cap = Number(process.env.VENICE_AUTO_CONTINUE || "0");
+  if (!Number.isFinite(cap) || cap < 1) allow();
+  let raw = "";
+  try { raw = fs.readFileSync(0, "utf8"); } catch {}
+  const data = JSON.parse(raw || "{}");
+  const sessionId = String(data.session_id || "unknown").replace(/[^\\w.-]/g, "_");
+  const transcript = data.transcript_path;
+  if (transcript && fs.existsSync(transcript)) {
+    const lines = fs.readFileSync(transcript, "utf8").trim().split("\\n");
+    for (let i = lines.length - 1; i >= 0; i--) {
+      let row; try { row = JSON.parse(lines[i]); } catch { continue; }
+      if (row.type === "assistant" && Array.isArray(row.message && row.message.content)) {
+        const text = row.message.content.filter((b) => b.type === "text").map((b) => b.text).join("").trim();
+        if (text) {
+          const tail = text.slice(-200);
+          if (/\\?\\s*$/.test(text) || /\\b(all done|task (is )?complete|completed the|let me know|awaiting your|your call|nothing (else|more) to)\\b/i.test(tail)) allow();
+          break;
+        }
+      }
+    }
+  }
+  const stateDir = path.join(process.env.VENICE_HOOK_DIR || ".", "hook-state");
+  fs.mkdirSync(stateDir, { recursive: true });
+  const file = path.join(stateDir, sessionId + ".count");
+  let n = 0; try { n = Number(fs.readFileSync(file, "utf8")) || 0; } catch {}
+  if (n >= cap) { try { fs.unlinkSync(file); } catch {} allow(); }
+  fs.writeFileSync(file, String(n + 1));
+  process.stdout.write(JSON.stringify({ decision: "block", reason: REASON }));
+} catch {}
+process.exit(0);
+`;
+
+const POWERTOYS_VENICE_RESET_HOOK = `import fs from "node:fs";
+import path from "node:path";
+try {
+  let raw = "";
+  try { raw = fs.readFileSync(0, "utf8"); } catch {}
+  const data = JSON.parse(raw || "{}");
+  // The forced continuation is not a user message, but guard in case Claude Code ever routes it here.
+  if (String(data.prompt || "").startsWith("Keep working on this task without waiting")) process.exit(0);
+  const sessionId = String(data.session_id || "unknown").replace(/[^\\w.-]/g, "_");
+  const file = path.join(process.env.VENICE_HOOK_DIR || ".", "hook-state", sessionId + ".count");
+  try { fs.unlinkSync(file); } catch {}
+} catch {}
+process.exit(0);
+`;
+
+/** Writes the auto-continue hook scripts to the venice dir and returns their paths. */
+function powertoysVeniceWriteHooks() {
+  let dir = powertoysVeniceDir();
+  let stop = powertoysPath.join(dir, "stop-hook.mjs");
+  let reset = powertoysPath.join(dir, "reset-hook.mjs");
+  powertoysFs.writeFileSync(stop, POWERTOYS_VENICE_STOP_HOOK.replace("JSON_REASON", POWERTOYS_VENICE_CONTINUE_REASON));
+  powertoysFs.writeFileSync(reset, POWERTOYS_VENICE_RESET_HOOK);
+  return { stop, reset, dir };
+}
+
 function powertoysVeniceClaudeSettings() {
   let model = powertoysSetting("veniceModel");
   let file = powertoysPath.join(powertoysVeniceDir(), "claude-settings.json");
@@ -157,7 +227,19 @@ function powertoysVeniceClaudeSettings() {
     // Pre-release request fields that the OpenAI translation can't carry.
     CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS: "1",
   };
-  powertoysFs.writeFileSync(file, JSON.stringify({ env }, null, 2));
+  let settings = { env };
+  let cap = Number(powertoysSetting("veniceAutoContinue"));
+  if (Number.isFinite(cap) && cap >= 1) {
+    let hooks = powertoysVeniceWriteHooks();
+    env.VENICE_AUTO_CONTINUE = String(Math.round(cap));
+    env.VENICE_HOOK_DIR = hooks.dir;
+    let command = (script) => `node "${script}"`;
+    settings.hooks = {
+      Stop: [{ hooks: [{ type: "command", command: command(hooks.stop) }] }],
+      UserPromptSubmit: [{ hooks: [{ type: "command", command: command(hooks.reset) }] }],
+    };
+  }
+  powertoysFs.writeFileSync(file, JSON.stringify(settings, null, 2));
   return file;
 }
 
