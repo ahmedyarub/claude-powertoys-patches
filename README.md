@@ -219,6 +219,11 @@ pastes). Every feature has a switch in the Powertoys settings window (tray menu 
 - **Venice AI sessions:** a V button beside the sidebar's settings button (also "New Venice session in" in the tray
   and Powertoys menus) starts Claude Code in a Windows Terminal tab on Venice AI's models, through a local
   LiteLLM proxy on 127.0.0.1:4100. The proxy holds your key, read from the user variable `VENICE_API_KEY`.
+  When the model ends a turn mid-task ("Let me check X" without calling the tool), the session keeps going on its
+  own, up to `veniceAutoContinue` times (default 100) per message of yours; it stops when the model asks you
+  something or says it is done.
+- **`/rename` with no title** names the session from its conversation, as Claude Code's `/rename` does, instead of
+  opening the Rename dialog, also when `/rename` was picked from the slash-command list.
 - **Sessions for other programs:** `newSession` starts a session in a folder and a permission mode (for example
   Slack's "Ask Claude" in Auto mode), sends its first message and answers with its Claude Code session id;
   `selectedSession` answers with the conversation on screen, and `queuePrompt` queues a prompt for a session,
