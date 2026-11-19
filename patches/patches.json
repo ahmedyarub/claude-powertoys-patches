@@ -1,5 +1,5 @@
 {
- "app": "Claude Desktop 6.6395.0 for Windows",
+ "app": "Claude Desktop 6.6395.1 for Windows",
  "files": [
   {
    "path": "package-lock.json",
@@ -171,7 +171,7 @@
   {
    "path": "scripts/swap-and-launch.mjs",
    "kind": "add",
-   "sha256": "035eb3ee32ce83d03b3f6d71b317be60788058262e890eb0ff218e6c5d67a525"
+   "sha256": "afa1cbeaa1902f136023d234143e0ba0d7b6456075cbfe6237a6afc8bd18ea57"
   },
   {
    "path": "src/vite/build/ccd-local-session-manager/0014-local-session-manager.js",
@@ -196,8 +196,8 @@
   {
    "path": "src/vite/build/ccd-local-session-manager/0017-ccd.js",
    "kind": "edit",
-   "baseSha256": "b33018efecb42053a293d265beb94cb9a9d3faade27c65a5a97a719e54a1b69a",
-   "resultSha256": "56215eba7380cc5a6f28221f394b8fe960c46c7519354df369ada63a3931d9fe",
+   "baseSha256": "ec05c693edd93899777cdd1b1c5e1243aa9ab33a87b93c77f2cbede79269f96e",
+   "resultSha256": "5fb9f7527f4b3f7034cd5e8a051b2d51b3396ac7486f6d6247fcaa31215ae1c7",
    "hunks": [
     {
      "at": 520,
@@ -651,8 +651,8 @@
   {
    "path": "src/vite/build/ccd-local-sessions-api/0003-local-sessions-api-core.js",
    "kind": "edit",
-   "baseSha256": "fb18bb77457e64dca45d45824649574d432f7f12686f2ed9fff3aee30636ae40",
-   "resultSha256": "b8c5a0325b790b7df8018a428a686c3a2149f470f1fde3edd17c655967037a7a",
+   "baseSha256": "ff6567930178ff7fc6fd61d85640d515e6601913c9a2255cdcfb07a407c86c08",
+   "resultSha256": "1abd71bb18c3c02ea5be48495fba7d3f786506ceb9726338f92e1a66fedfa935",
    "hunks": [
     {
      "at": 1409,
@@ -832,8 +832,8 @@
   {
    "path": "src/vite/build/ccd-start-errors-turn-plan.js",
    "kind": "edit",
-   "baseSha256": "beb28dc7e76f63ac51a7d8d9c905949d31e28f9aff6b0cc0c953190d6f64b35e",
-   "resultSha256": "f5d5d62f640d6fa996a889c0bd2d3169ba76b77e57fb4401f3dcd7f2674fba0a",
+   "baseSha256": "0efba6e53919906cf22054280b1e3f7dc40d0f5896c7177c3d12b410b94e3c2a",
+   "resultSha256": "ed590a9b8c4ec75ba47baf914c7edbc0ce7e4e13050d5b095f0007013617b597",
    "hunks": [
     {
      "at": 448,
@@ -1162,8 +1162,8 @@
   {
    "path": "src/vite/build/claude-json-workspace-trust-config.js",
    "kind": "edit",
-   "baseSha256": "8d8786fbe17e250aa1a58647fa039109f4cb00631b79e9a9698fcfd02fd273e7",
-   "resultSha256": "39dfb40d9e395e86e7aab44ac28d0fdd06065ef32b4fc2923df718e0f082faf8",
+   "baseSha256": "976ff0f91e72aef6da82925f471a007e2ed08e2397d258607060080944336ea1",
+   "resultSha256": "3e2b73da113b19774fa1cd920d6741216a9c2ad8585dcaed09588f8f292d8e42",
    "hunks": [
     {
      "at": 990,
@@ -1312,8 +1312,8 @@
   {
    "path": "src/vite/build/index.pre/0038-unc-relocated.js",
    "kind": "edit",
-   "baseSha256": "f320c17c287d7aa63ea7a854fbbac5488e0acf9f37b72f314d7cdd6af3185e6e",
-   "resultSha256": "dfeb9425be0cd2db3887752a650dd3af5c8a16e6703a3690b0094f59b4e223ef",
+   "baseSha256": "202543847f5d8fe521df4c4044b1cae9f60ed3c674bda7c28cfaa82771efcdfa",
+   "resultSha256": "8b378f06f1b43bd9c96172b8a6b201752f1b1044ecd11c2f96f753a74c71c880",
    "hunks": [
     {
      "at": 463,
@@ -1356,8 +1356,8 @@
   {
    "path": "src/vite/build/main/0307-support-bundle.js",
    "kind": "edit",
-   "baseSha256": "d5e432df367042043c6074f00283fe5ef9e005bfdd2d27a9fe1983b75f6965a1",
-   "resultSha256": "624cc62c528ee9408ec638bc1a706791badffb3df255f2c1bd19b51a3a63efa8",
+   "baseSha256": "61aa7826cda2a93052d55fc4a673388839e2ed2716c5f8abaa5846b4f6fd86dd",
+   "resultSha256": "73c3f0dee3ac3c960cb6c47c3e8d5b3330c640ef29da5657ca16f0fba3dd30be",
    "hunks": [
     {
      "at": 457,
@@ -1376,8 +1376,8 @@
   {
    "path": "src/vite/build/main/0369-main-view.js",
    "kind": "edit",
-   "baseSha256": "944e8a57182f86d472e959820d3633b1ff4f7349f8d9b006f833a6287127238b",
-   "resultSha256": "62e47935d5a2d81d7390d608766121cb0859d3870c2abd149a0217db6313b9a6",
+   "baseSha256": "619f6aa81d2829d6f1594415ee2a7c0f67895e74b70d97084a4364b62ea85f45",
+   "resultSha256": "0789cc809a04efc8cc32eba7a13176de9fb2787774065fc93bd0df67c73e9e3c",
    "hunks": [
     {
      "at": 508,
@@ -1465,8 +1465,8 @@
   {
    "path": "src/vite/build/main/_manifest.json",
    "kind": "edit",
-   "baseSha256": "d720f0fb50893619afc55da7f5a79ca43f624a060e94f8c1d8cde3e9a5fa400d",
-   "resultSha256": "3a321f6475dfc97c850a419295c4ca0f87fa0c6a33d3f6338bb342b6e27b5e82",
+   "baseSha256": "434d380d4257dbb53b8b103d3708c3d7923274363a8c7423a516e7250b327cb1",
+   "resultSha256": "bb1f1d2339ccc647da15e874513239edc3be8fea5a57f6d59568f2aa818394aa",
    "hunks": [
     {
      "at": 1478,
@@ -1659,8 +1659,8 @@
   {
    "path": "src/vite/build/main/app/0255-session-notifications.js",
    "kind": "edit",
-   "baseSha256": "ffb5ae90684599b4a876a15594116f5712a9881a3e32a286110bdf1ef1f9f862",
-   "resultSha256": "068580e71b4404c1631f50517f06a08ac2c3ed1626432d3e58a4c8ec5d201f86",
+   "baseSha256": "3ab713026de32aba5cbb47d0dd3b3e38d2abaf1142fe698c44a25a3e609caa3a",
+   "resultSha256": "5d31fb7af5af9585e7f2a0dbc246fc5f40b49a4b8af02e284f1ba4ea69392b87",
    "hunks": [
     {
      "at": 470,
@@ -4771,8 +4771,8 @@
   {
    "path": "src/vite/build/main/app/0309-help-menu-logs-handoff.js",
    "kind": "edit",
-   "baseSha256": "0b1960aa4661373c14aeffb5d949ccf46838baa3a6fdd33ca81e232388501ac0",
-   "resultSha256": "d72dd6ffc5b7e563ef3a91490e5a944f8f4791e4f68e078e8beb7d652e959538",
+   "baseSha256": "541f9aa68d21c843baa844f61ab23494ef23afa754d5f59e3400c022084506e6",
+   "resultSha256": "26758579985ff9c8412fded04d3f2130703c2a6b87d5d69b5dd21d0f71e62f3f",
    "hunks": [
     {
      "at": 627,
@@ -4800,8 +4800,8 @@
   {
    "path": "src/vite/build/main/app/0357-device-storage-api.js",
    "kind": "edit",
-   "baseSha256": "8e2920e7ea930cdf324da8e8f7d9d16eb1379c48650186ab148007d81f3bd793",
-   "resultSha256": "b5a2aaa173bdd04dedbc0d7d1881b1b9359895ab2f60456eccd420d6bca91af2",
+   "baseSha256": "a35cf788db5e05fc0be086f3ec284169fc2a2e056f2f59f26461b94637d5db5e",
+   "resultSha256": "b176d2e25f910c1882fb9c9ef9ab01429e7e968c1e23207db46b2bb1674427ee",
    "hunks": [
     {
      "at": 1231,
@@ -4920,8 +4920,8 @@
   {
    "path": "src/vite/build/main/app/0376-main-window-squirrel.js",
    "kind": "edit",
-   "baseSha256": "fbdbf76d089b6e539649053f13ec542e8ccdacf990193a74e33e1d4e9e108254",
-   "resultSha256": "8c479d997165d91cbe934ffd5275c55bc868e183694f21080a4e794b10c9af5f",
+   "baseSha256": "9180a9568473cfd8fd7efd52af6e96ffff2182e6f858285f6633efbf5b8e5c58",
+   "resultSha256": "cd669f98d89ffa6b9069bcff286cf89df93ce2a8599a57a56b1c38551619dc1c",
    "hunks": [
     {
      "at": 779,
@@ -5274,8 +5274,8 @@
   {
    "path": "src/vite/build/main/app/0377-app-main-tray.js",
    "kind": "edit",
-   "baseSha256": "3ffc580eeeae55b84f94e8ae16dc70ad1bc4d171e461182c2e2f3c2660563e59",
-   "resultSha256": "372ee661b7f86998824ce7e37997a9a20d351f7aa6fb3b738aeb8696e6f8f026",
+   "baseSha256": "fab0f8699b43d6873d250d30012854ad35902b8edde3ab8d81bcc8fa51812a24",
+   "resultSha256": "b106f0c58ab385801e504cea8be9c320cb5bdb4bf51c15403492e0a0eb6c7fbd",
    "hunks": [
     {
      "at": 391,
@@ -5360,8 +5360,8 @@
   {
    "path": "src/vite/build/main/platform/0258-gpu-state-telemetry.js",
    "kind": "edit",
-   "baseSha256": "88df7a92048f743d73d9b42aeb2a3f9e3563182d434e4de7b5b895a53227dffb",
-   "resultSha256": "bf3709aa06010e862c23710fd55efd003490b74a4271765667f7b870c1d3bd14",
+   "baseSha256": "f44e07ef7bc95b4b74f532b54daedf3e53dea962f1b49ffaee8f59338891bcfd",
+   "resultSha256": "285dba96ab3a2d7f8151ab4df3b8da2b88a078294e662124845ad76325ed95d8",
    "hunks": [
     {
      "at": 944,
@@ -5473,8 +5473,8 @@
   {
    "path": "src/vite/build/main/preview/0297-preview-ssrf-context.js",
    "kind": "edit",
-   "baseSha256": "067b99a1dfce6e2c60460b0722fa8bade059f3755edce5fd998b08b14b32afb3",
-   "resultSha256": "471d4404c81639206173f6b1cff53dc4071b8101b7033f9725a4994c2724a6d2",
+   "baseSha256": "dfd684fd7f8f8e28be480700a6696a271e79071b291cfcb03ae9de73c3ee61df",
+   "resultSha256": "4808dc8aef2e9f6980457f60d7a9ab737387a1b944b54d824584bad694a82774",
    "hunks": [
     {
      "at": 1390,
@@ -5535,8 +5535,8 @@
   {
    "path": "src/vite/build/main/settings/0220-supported-features.js",
    "kind": "edit",
-   "baseSha256": "e5955d266f281fb4ff94e3c0b253d50e9ccf20c25b6f19b2877adbaf7e4daa6f",
-   "resultSha256": "baadbc4816ef6deaa104ad3c68ddb8572e9fc42f7c02adc0093d4d88ecebb814",
+   "baseSha256": "e0e68139e91a02e65fca74fe76844e75ba9b8e5ac1ab19035d460f82488aadd7",
+   "resultSha256": "9d0e7d1283a9557e12d793ea1f322efe1782d67a23542e6f77833a99602a489f",
    "hunks": [
     {
      "at": 185,
@@ -5576,8 +5576,8 @@
   {
    "path": "src/vite/build/main/telemetry/0026-log-format-debug-namespaces.js",
    "kind": "edit",
-   "baseSha256": "96471055aae797c7def434db4e81faf898c536f59d94c5042af26d7205696b4c",
-   "resultSha256": "d7bc8106fa19a44fb23931cb67be2a7d6f7b444d4100800a6f2d27d71b12e40f",
+   "baseSha256": "559fee626bc7e66f1de4275a63576945fdada125628ce8a3c12b39200b433d49",
+   "resultSha256": "7e8b215a6e253230e54f794d7c57f2cab2d016505967aaaaa6c33a293061b607",
    "hunks": [
     {
      "at": 61,
@@ -5667,8 +5667,8 @@
   {
    "path": "src/vite/build/main/vm/0274-vm-bundle-download.js",
    "kind": "edit",
-   "baseSha256": "e522b307bbb43d783d6876298b579ab549d3296d9cbce904c0fd403a345a9324",
-   "resultSha256": "c5078804e429057565a6a9404f23911ec22e39fc78c568f6a03caf417c3b9c86",
+   "baseSha256": "05bab47c9e7f8b183433a1ce15cb09c9133ff8d2d8dec59e14e053b3132b16dd",
+   "resultSha256": "445db42813fac024a8bf18fdc2b63f2a3dc89a048de611d86f88edbcf1c12400",
    "hunks": [
     {
      "at": 1008,
@@ -5696,8 +5696,8 @@
   {
    "path": "src/vite/build/main/windows/0241-session-handoff-activity.js",
    "kind": "edit",
-   "baseSha256": "0ad6e3253900025adb4c74f789a44934485d5f13a4b1bb89563e90b6a998cdf2",
-   "resultSha256": "df882e7163eccf38a55cd13059983fdfeee2c46a157449fd13a149f6a8785fe5",
+   "baseSha256": "2cffcb9c99872901d0e1a508afd921b1330141be3de3029ffc7bbd8e4a17bb4f",
+   "resultSha256": "d11a3a5869d7a06e000afc08bea6ecd059926ad52e0ab5681600a0755e4d2f8a",
    "hunks": [
     {
      "at": 1027,
@@ -5732,8 +5732,8 @@
   {
    "path": "src/vite/build/mainView/0007-window-manager-vm-bridges.js",
    "kind": "edit",
-   "baseSha256": "8e08f6c11fe4ef8a7dff5690abdca5ac4f97647672352c48f3c6cd27b2deb208",
-   "resultSha256": "0fc0213cadb9de31ecba0fdd270abdaee3397d28556a7d4d36a90707a431ff74",
+   "baseSha256": "06a55345c4ca0262fa4ef7f4e7fdded089e9b506846f87304bf3bf4b9ad890ff",
+   "resultSha256": "2bcb36ea64182a1ef85f6fbe67715461a7f7ccb8295e06f607552d198fc35900",
    "hunks": [
     {
      "at": 613,

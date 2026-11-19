@@ -74,7 +74,7 @@ nothing of that file is in the patch. The patcher reconstructs the edited file f
 
 ## What the patches apply to
 
-The patches are for **Claude Desktop 6.6395.0 for Windows**, laid out as the paths in `patches.json` show.
+The patches are for **Claude Desktop 6.6395.1 for Windows**, laid out as the paths in `patches.json` show.
 Every edited file is checked by SHA-256, so the patches apply only to byte-identical files and refuse anything
 else.
 
@@ -375,7 +375,7 @@ Each hook is marked `Local change` in the patched code.
 | `mainView/0007-window-manager-vm-bridges.js` | +1 −1 | A large paste saved by Powertoys reports its file path, so the composer attaches it. |
 | `main/_manifest.json`, `mainView/_manifest.json` | | List the new files, so they are part of the app. |
 | `../../scripts/assemble.mjs` | | `--out <dir>`: builds into a staging folder while the app runs, for the in-app restart. |
-| `../../package.json`, `../../package-lock.json` | +1 −1, +4 −4 | Electron 45.3.3, which Claude Desktop 6.6395.0 needs. |
+| `../../package.json`, `../../package-lock.json` | +1 −1, +4 −4 | Electron 45.3.3, which Claude Desktop 6.6395.1 needs. |
 
 ## How the package was checked
 

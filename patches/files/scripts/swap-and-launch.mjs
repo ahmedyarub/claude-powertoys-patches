@@ -88,7 +88,21 @@ const step = (what, command, commandArgs, cwd = root) => {
   if (result.status !== 0) log(`${what} failed (exit ${result.status ?? result.error?.message})`);
   return result.status === 0;
 };
+// The full build replaces the app's folder, so nothing may run from it. The app has quit by now; what
+// still runs from there is a stray: a start from Explorer while the app was down (6.6395.1: a taskbar
+// click started a copy with no window, and the build failed with "dist ... is in use"), or Claude in
+// Chrome's chrome-native-host.exe. End them first.
+const endStrays = () => {
+  const folder = path.dirname(path.resolve(exe));
+  const script = `Get-CimInstance Win32_Process | Where-Object { $_.ProcessId -ne ${process.pid} -and $_.ExecutablePath -and $_.ExecutablePath.StartsWith('${folder.replace(/'/g, "''")}\\', 'OrdinalIgnoreCase') } | ForEach-Object { "$($_.ProcessId) $($_.Name)"; Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }`;
+  const result = spawnSync('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command', script], { encoding: 'utf8', windowsHide: true });
+  const ended = (result.stdout ?? '').trim();
+  if (ended) log(`ended what still ran from ${folder}: ${ended.split(/\r?\n/).join(', ')}`);
+  spawnSync('powershell.exe', ['-NoProfile', '-Command', 'Start-Sleep -Milliseconds 1500'], { windowsHide: true });
+  return true;
+};
 const build = () =>
+  endStrays() &&
   step('installing app-deps', 'npm', ['install', '--no-audit', '--no-fund'], path.join(root, 'app-deps')) &&
   step('syncing app-deps', 'node', ['scripts/sync-deps.mjs']) &&
   step('building', 'npm', ['run', 'build:exploded']);
