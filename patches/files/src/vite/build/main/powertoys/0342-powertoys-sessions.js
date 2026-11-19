@@ -539,7 +539,7 @@ function powertoysTooltip() {
 var powertoysLastBadgeCount = -1;
 function powertoysRenderBadge() {
   let count = powertoysSetting("waitingBadge") ? powertoysStatusSnapshot.waiting.length : 0;
-  let trayIconPath = powertoysPath.join(getResourcesPath(), getTrayIconFileName(false));
+  let trayIconPath = powertoysPath.join(getResourcesPath(), trayIconFileName(false));
   // The tray reads its image and tooltip from this controller (also after a theme change).
   trayIconController = {
     image: count > 0 ? powertoysBadgedTrayImage(trayIconPath, count) : electron.nativeImage.createFromPath(trayIconPath),

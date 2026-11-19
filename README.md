@@ -25,7 +25,7 @@ patches/patches.json        the patch manifest: every file, its hashes and its e
 patches/files/...           files that are entirely new (written for Powertoys), copied in as they are
 ```
 
-`patches/patches.json` lists 53 files:
+`patches/patches.json` lists 55 files:
 
 - **20 new files** (`"kind": "add"`), all written for Powertoys:
   - `src/vite/build/main/powertoys/0340` … `0357`: the main-process half (settings and stores, the transcript
@@ -37,7 +37,7 @@ patches/files/...           files that are entirely new (written for Powertoys),
     restarting the app from inside it, then continuing the session.
   - `scripts/powertoys-command.mjs`: asks the running app, from a session, to do what a page action does
     (add the task list to a session) or queue a prompt in one.
-- **33 edits** (`"kind": "edit"`) to the app's own files: the small hooks that call into
+- **35 edits** (`"kind": "edit"`) to the app's own files: the small hooks that call into
   Powertoys, a rewrite of the Windows notification code, two build manifests that list the new files, and the
   Electron version in `package.json`.
   They are described one by one [below](#every-change-to-the-apps-own-files).
@@ -74,7 +74,7 @@ nothing of that file is in the patch. The patcher reconstructs the edited file f
 
 ## What the patches apply to
 
-The patches are for **Claude Desktop 5.11492.5 for Windows**, laid out as the paths in `patches.json` show.
+The patches are for **Claude Desktop 6.6395.0 for Windows**, laid out as the paths in `patches.json` show.
 Every edited file is checked by SHA-256, so the patches apply only to byte-identical files and refuse anything
 else.
 
@@ -343,39 +343,39 @@ Each hook is marked `Local change` in the patched code.
 
 | File (under `src/vite/build/`) | Lines | What it does |
 |---|---|---|
-| `main/app/0250-session-notifications.js` | +560 −71 | Builds Windows notifications here instead of through Electron, so they can carry the in-app card's buttons (Allow once, Always allow …, Deny; a button per question option, a reply box, Skip, Submit). Can keep them on screen, respects Windows' settings, records them in the Powertoys inbox, and holds "finished" ones for the digest. After a restart, shows only the notifications that were on screen before it. |
-| `ccd-local-session-manager/0023-ccd.js` | +4 −1 | A saved queue restored at launch drops the messages the transcript shows as already sent, also after a clean exit. |
-| `ccd-local-session-manager/0025-ccd.js` | +52 −1 | A slash command the app handles itself (`/remote-control`) no longer stays "queued" in the page, whether or not a turn is running, and its id is kept for the next row. A second `/compact` for the conversation while one is queued or running is refused (see below). |
-| `ccd-local-session-manager/0026-local-session-manager.js` | +8 | Remove / Clear all on such a command take it out of the page's queue instead of answering "too late". |
-| `ccd-local-session-manager/0012-local-session-manager.js` | +2 | Reports Claude Code’s “compacting” status, so a new `/compact` is refused while it compacts. |
-| `ccd-local-session-manager/0052-ccd.js` | +15 −1 | That command's echo uses the id the page sent it under, once; a restored local session's folders get backslashes; the saved queue is written when a queued message goes to Claude Code; at quit, the session a Powertoys restart continues is not marked for the app's own resume. A `/compact` is followed from queued to running to ended. |
-| `ccd-local-session-manager/0014-ccd.js` | +2 | Powertoys' additions to a session's environment (no feedback survey). |
+| `main/app/0255-session-notifications.js` | +558 −66 | Builds Windows notifications here instead of through Electron, so they can carry the in-app card's buttons (Allow once, Always allow …, Deny; a button per question option, a reply box, Skip, Submit). Can keep them on screen, respects Windows' settings, records them in the Powertoys inbox, and holds "finished" ones for the digest. After a restart, shows only the notifications that were on screen before it. |
+| `ccd-local-session-manager/0029-ccd.js` | +4 −1 | A saved queue restored at launch drops the messages the transcript shows as already sent, also after a clean exit. |
+| `ccd-local-session-manager/0032-ccd.js` | +52 −1 | A slash command the app handles itself (`/remote-control`) no longer stays "queued" in the page, whether or not a turn is running, and its id is kept for the next row. A second `/compact` for the conversation while one is queued or running is refused (see below). |
+| `ccd-local-session-manager/0033-local-session-manager.js` | +8 | Remove / Clear all on such a command take it out of the page's queue instead of answering "too late". |
+| `ccd-local-session-manager/0014-local-session-manager.js` | +2 | Reports Claude Code’s “compacting” status, so a new `/compact` is refused while it compacts. |
+| `ccd-local-session-manager/0063-local-session-manager.js` | +15 −1 | That command's echo uses the id the page sent it under, once; a restored local session's folders get backslashes; the saved queue is written when a queued message goes to Claude Code; at quit, the session a Powertoys restart continues is not marked for the app's own resume. A `/compact` is followed from queued to running to ended. |
+| `ccd-local-session-manager/0017-ccd.js` | +2 | Powertoys' additions to a session's environment (no feedback survey). |
 | `claude-json-workspace-trust-config.js` | +8 | Folder trust off: the trust lookups count every folder as trusted while the Powertoys setting is on. |
 | `ccd-start-errors-turn-plan.js` | +13 −3 | The plan tool takes an estimate in minutes per step, its description asks for them when the setting is on, and its answer reports how long finished steps really took. |
 | `ccd-worktree-location-start-targets/0001-ccd.js` | +46 −2 | Files outside the session's folders, read only: Powertoys' pastes folder, and any file you view in the file pane, the PDF viewer or open in its default app; `../` links that climb out of the session folder open from inside it. |
-| `ccd-local-sessions-api/0003-local-sessions-api-core.js` | +20 −17 | Per-project model and effort defaults for a session you start, the task list when the Powertoys setting is on, the last start request kept for `newSession`, and a deleted session's tab closed first. The PDF viewer and "Open in default app" resolve files outside the session's folders, and "Open in default app" opens without its consent dialog. |
+| `ccd-local-sessions-api/0003-local-sessions-api-core.js` | +20 −19 | Per-project model and effort defaults for a session you start, the task list when the Powertoys setting is on, the last start request kept for `newSession`, and a deleted session's tab closed first. The PDF viewer and "Open in default app" resolve files outside the session's folders, and "Open in default app" opens without its consent dialog. |
 | `preview-launch-api/0002-create-launch-api.js` | +72 −2 | A file you open in the Browser pane that fails is tried again and logged; a path through a junction to a drive without a letter falls back to Node's JavaScript realpath (your opens only). |
-| `main/preview/0290-preview-ssrf-context.js` | +14 | The pinned tab of such a file loads through the same fallback. |
+| `main/preview/0297-preview-ssrf-context.js` | +14 | The pinned tab of such a file loads through the same fallback. |
 | `git-worktree-manager/0004-create-worktree-guards.js` | +19 | Background fetches keep your global `core.sshCommand` (with batch mode) instead of replacing it. |
 | `git-worktree-manager/0005-create-worktree.js` | +1 −1 | Uses the above. |
 | `index.pre/0038-unc-relocated.js` | +10 | `--powertoys-profile=<name>`: a separate data folder (sign-in, sessions, settings, single-instance lock). |
-| `main/0299-support-bundle.js` | +2 | Leaves Ctrl+Tab to the Powertoys switcher while it is on. |
-| `main/app/0347-device-storage-api.js` | +8 −2 | Restoring the window keeps a maximized window maximized; Powertoys gets the page's session start call (for `newSession`). |
-| `main/app/0365-app-ipc-preferences.js` | +3 −1 | "Open at login" starts this build (it has no Squirrel stub). |
-| `main/app/0366-main-window-squirrel.js` | +70 −7 | Extra windows reuse the code window's setup; the most recent conversation opens at launch. |
-| `main/app/0367-app-main-tray.js` | +10 −4 | The tray menu refreshes when its submenus (snippets, bookmarks) change; one click shows the app. |
-| `main/app/0301-help-menu-logs-handoff.js` | +3 | The Powertoys menu, and the tray's waiting sessions, snippets, bookmarks and switches. |
-| `main/platform/0030-electron-store-sync-timing.js` | +9 | Compatibility with the npm `electron-store` package. |
-| `main/platform/0253-gpu-state-telemetry.js` | +6 | Calls the network watchdog when the network service dies. |
-| `main/settings/0248-supported-features.js` | +7 −1 | "Cowork without the Store install": skips only the install-type check. |
-| `main/vm/0196-vm-rpc-client.js` | +8 | Doesn't start the Cowork service when Powertoys has it switched off. |
-| `main/vm/0270-vm-bundle-download.js` | +5 | The Cowork VM image can live in another folder. |
-| `main/windows/0220-session-handoff-activity.js` | +2 −1 | Folders removed from the recent lists stay out of the jump list. |
-| `main/0359-main-view.js` | +13 | Extra windows get local session events too. |
+| `main/0307-support-bundle.js` | +2 | Leaves Ctrl+Tab to the Powertoys switcher while it is on. |
+| `main/app/0357-device-storage-api.js` | +8 −2 | Restoring the window keeps a maximized window maximized; Powertoys gets the page's session start call (for `newSession`). |
+| `main/app/0375-app-ipc-preferences.js` | +3 −1 | "Open at login" starts this build (it has no Squirrel stub). |
+| `main/app/0376-main-window-squirrel.js` | +70 −7 | Extra windows reuse the code window's setup; the most recent conversation opens at launch. |
+| `main/app/0377-app-main-tray.js` | +10 −4 | The tray menu refreshes when its submenus (snippets, bookmarks) change; one click shows the app. |
+| `main/app/0309-help-menu-logs-handoff.js` | +3 | The Powertoys menu, and the tray's waiting sessions, snippets, bookmarks and switches. |
+| `main/telemetry/0026-log-format-debug-namespaces.js` | +9 | Compatibility with the npm `electron-store` package. |
+| `main/platform/0258-gpu-state-telemetry.js` | +6 | Calls the network watchdog when the network service dies. |
+| `main/settings/0220-supported-features.js` | +7 −1 | "Cowork without the Store install": skips only the install-type check. |
+| `main/vm/0188-vm-rpc-client.js` | +8 | Doesn't start the Cowork service when Powertoys has it switched off. |
+| `main/vm/0274-vm-bundle-download.js` | +5 | The Cowork VM image can live in another folder. |
+| `main/windows/0241-session-handoff-activity.js` | +2 −1 | Folders removed from the recent lists stay out of the jump list. |
+| `main/0369-main-view.js` | +13 | Extra windows get local session events too. |
 | `mainView/0007-window-manager-vm-bridges.js` | +1 −1 | A large paste saved by Powertoys reports its file path, so the composer attaches it. |
 | `main/_manifest.json`, `mainView/_manifest.json` | | List the new files, so they are part of the app. |
 | `../../scripts/assemble.mjs` | | `--out <dir>`: builds into a staging folder while the app runs, for the in-app restart. |
-| `../../package.json`, `../../package-lock.json` | +1 −1, +4 −4 | Electron 45.2.1, which Claude Desktop 5.11492.5 needs. |
+| `../../package.json`, `../../package-lock.json` | +1 −1, +4 −4 | Electron 45.3.3, which Claude Desktop 6.6395.0 needs. |
 
 ## How the package was checked
 
