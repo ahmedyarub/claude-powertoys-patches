@@ -123,7 +123,7 @@ const POWERTOYS_DEFAULT_SETTINGS = {
   // Ctrl+1…8 go to that tab, Ctrl+9 to the last; Ctrl+Shift+T reopens the last closed one.
   tabNumberKeys: true,
   // Open tabs ordered by project (first-seen order), with a gap between projects.
-  groupTabsByProject: true,
+  groupTabsByProject: false,
   // Hovering a conversation's tab shows its last answer (model, effort, context on top), this opaque (%).
   tabPreview: true,
   taskProgress: true,
@@ -721,7 +721,19 @@ const powertoysTabs = {
       }
     });
   },
-  /** Moves a pinned tab to another position among the pinned ones. */
+  /**
+   * Puts the tabs of a group ("pinned" or "open") in the order of `tabs` ([{ kind, id }]); a tab of the
+   * group that `tabs` leaves out keeps its relative place after the listed ones.
+   */
+  order(group, tabs) {
+    let rank = new Map((Array.isArray(tabs) ? tabs : []).map((tab, index) => [`${tab?.kind}:${tab?.id}`, index]));
+    return powertoysChangeTabs((data) => {
+      let list = group === "pinned" ? data.pinned : data.open ?? [];
+      let ranked = list.map((tab, index) => ({ tab, rank: rank.get(`${tab.kind}:${tab.id}`) ?? rank.size + index }));
+      let sorted = ranked.sort((left, right) => left.rank - right.rank).map((entry) => entry.tab);
+      group === "pinned" ? (data.pinned = sorted) : (data.open = sorted);
+    });
+  },
   /** Moves a tab to another position within its own group (pinned or open). */
   move(kind, id, toIndex) {
     return powertoysChangeTabs((data) => {

@@ -5872,6 +5872,37 @@ function powertoysPageMain() {
     }
     return { list, current, key };
   }
+  /** Whether the strip shows this group's tabs (pinned or open) grouped by project: only the open ones are. */
+  function tabsGroupedFor(group) {
+    return group === "open" && !!settings?.groupTabsByProject;
+  }
+  /**
+   * Moves a tab of `group` beside `target`, as the strip shows them: after it or before it. With the open
+   * tabs grouped by project a tab cannot leave its project, so one dropped on another project's tab takes
+   * its whole project along, beside that project's tabs. The main process stores the new order at once.
+   */
+  function moveTabBeside(group, moved, target, after) {
+    let same = (left, right) => left.kind === right.kind && left.id === right.id;
+    let projects = new Map(tabRows.map((tabRow) => [`${tabRow.kind}:${tabRow.id}`, tabRow.project?.key ?? ""]));
+    let projectOf = (tab) => projects.get(`${tab.kind}:${tab.id}`) ?? "";
+    let stored = group === "pinned" ? pinnedTabs : openTabs ?? [];
+    let grouped = tabsGroupedFor(group);
+    // The order the strip shows (tabsWanted groups the stored one the same way).
+    let order = grouped ? [...new Set(stored.map(projectOf))].flatMap((key) => stored.filter((tab) => projectOf(tab) === key)) : [...stored];
+    let movedTab = order.find((tab) => same(tab, moved));
+    let targetTab = order.find((tab) => same(tab, target));
+    if (!movedTab || !targetTab) {
+      log(`tabs: not moved, ${movedTab ? "the target" : "the moved tab"} is not among the ${group} tabs`);
+      return;
+    }
+    let whole = grouped && projectOf(movedTab) !== projectOf(targetTab);
+    let moving = whole ? order.filter((tab) => projectOf(tab) === projectOf(movedTab)) : [movedTab];
+    let rest = order.filter((tab) => !moving.includes(tab));
+    let block = whole ? rest.filter((tab) => projectOf(tab) === projectOf(targetTab)) : [targetTab];
+    rest.splice(after ? rest.indexOf(block.at(-1)) + 1 : rest.indexOf(block[0]), 0, ...moving);
+    log(`tabs: moving ${whole ? `the ${moving.length} tab(s) of the project of '${movedTab.title}'` : `'${movedTab.title}'`} ${after ? "after" : "before"} '${targetTab.title}'`);
+    call("tabs", "order", group, rest.map(({ kind, id }) => ({ kind, id }))).catch((caught) => log(`tabs: moving failed: ${caught.message}`));
+  }
   function stateOf(row) {
     if (row.pending || row.liveStatus === "needs_input" || row.liveStatus === "awaiting") {
       return "needsYou";
@@ -6922,8 +6953,9 @@ function powertoysPageMain() {
     });
     tab.draggable = true;
     tab.dataset.group = row.pinnedTab ? "pinned" : "open";
+    tab.dataset.project = row.project?.key ?? "";
     tab.addEventListener("dragstart", (event) => {
-      draggedTab = { kind: row.kind, id: row.id, group: tab.dataset.group };
+      draggedTab = { kind: row.kind, id: row.id, group: tab.dataset.group, project: tab.dataset.project, node: tab };
       event.dataTransfer.effectAllowed = "move";
       event.dataTransfer.setData("text/x-powertoys-tab", `${row.kind}:${row.id}`);
       tab.classList.add("dragging");
@@ -6941,34 +6973,27 @@ function powertoysPageMain() {
       }
       event.preventDefault();
       event.dataTransfer.dropEffect = "move";
-      let rect = tab.getBoundingClientRect();
-      let after = event.clientX > rect.left + rect.width / 2;
-      tabsNode?.querySelectorAll(".drop-before, .drop-after").forEach((other) => other !== tab && other.classList.remove("drop-before", "drop-after"));
-      tab.classList.toggle("drop-after", after);
-      tab.classList.toggle("drop-before", !after);
+      // Where it lands (see moveTabBeside): after the tab when coming from its left, else before it; a
+      // whole project's tabs land beside the other project's block.
+      let after = !!(draggedTab.node.compareDocumentPosition(tab) & Node.DOCUMENT_POSITION_FOLLOWING);
+      let mark = tab;
+      if (tabsGroupedFor(draggedTab.group) && draggedTab.project !== tab.dataset.project) {
+        let block = [...(tabsNode?.querySelectorAll(".tab") ?? [])].filter((other) => other.dataset.group === tab.dataset.group && other.dataset.project === tab.dataset.project);
+        mark = (after ? block.at(-1) : block[0]) ?? tab;
+      }
+      tabsNode?.querySelectorAll(".drop-before, .drop-after").forEach((other) => other !== mark && other.classList.remove("drop-before", "drop-after"));
+      mark.classList.toggle("drop-after", after);
+      mark.classList.toggle("drop-before", !after);
     });
-    tab.addEventListener("dragleave", () => tab.classList.remove("drop-before", "drop-after"));
+    tab.addEventListener("dragleave", () => tabsNode?.querySelectorAll(".drop-before, .drop-after").forEach((other) => other.classList.remove("drop-before", "drop-after")));
     tab.addEventListener("drop", (event) => {
       event.preventDefault();
       let dragged = draggedTab;
-      tab.classList.remove("drop-before", "drop-after");
+      tabsNode?.querySelectorAll(".drop-before, .drop-after").forEach((other) => other.classList.remove("drop-before", "drop-after"));
       if (!dragged || dragged.group !== tab.dataset.group || (dragged.kind === row.kind && dragged.id === row.id)) {
         return;
       }
-      // Positions within the group, as the main process stores it.
-      let list = dragged.group === "pinned" ? pinnedTabs : openTabs ?? [];
-      let from = list.findIndex((other) => other.kind === dragged.kind && other.id === dragged.id);
-      let to = list.findIndex((other) => other.kind === row.kind && other.id === row.id);
-      if (from < 0 || to < 0) {
-        return;
-      }
-      let rect = tab.getBoundingClientRect();
-      let after = event.clientX > rect.left + rect.width / 2;
-      let target = to + (after ? 1 : 0);
-      if (from < target) {
-        target--;
-      }
-      call("tabs", "move", dragged.kind, dragged.id, target).catch((caught) => log(`tabs: moving failed: ${caught.message}`));
+      moveTabBeside(dragged.group, dragged, row,!!(dragged.node.compareDocumentPosition(tab) & Node.DOCUMENT_POSITION_FOLLOWING));
     });
     tab.addEventListener("contextmenu", (event) => {
       event.preventDefault();
@@ -7450,9 +7475,7 @@ function powertoysPageMain() {
       let neighbour = list[at + (code === "PageUp" ? -1 : 1)];
       if (row && neighbour && row.kind !== "view" && neighbour.kind !== "view" && !!row.pinnedTab === !!neighbour.pinnedTab) {
         swallow(event);
-        let group = row.pinnedTab ? pinnedTabs : openTabs ?? [];
-        let to = group.findIndex((other) => key(other) === key(neighbour));
-        call("tabs", "move", row.kind, row.id, to).catch((caught) => log(`tabs: moving failed: ${caught.message}`));
+        moveTabBeside(row.pinnedTab ? "pinned" : "open", row, neighbour, code === "PageDown");
         return;
       }
     }

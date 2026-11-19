@@ -647,7 +647,7 @@
    "path": "src/vite/build/ccd-local-sessions-api/0003-local-sessions-api-core.js",
    "kind": "edit",
    "baseSha256": "77de907b160cf6e26f3b37d33bdb0754181b4b1646f0b8089b27dcddf6085498",
-   "resultSha256": "9f9ab5f74489ed18e8ca7f952ed8abaf6c52e64570b09e4f58812e417dc90267",
+   "resultSha256": "8abb3b357f48a50e11179afafc9cfdfd81ac8f866542cfddbfa36cd1b609d46e",
    "hunks": [
     {
      "at": 1367,
@@ -694,6 +694,131 @@
       ],
       [
        "      mainChunk.powertoysSessionDeleting?.(sessionId);\n"
+      ]
+     ]
+    },
+    {
+     "at": 2440,
+     "remove": 1,
+     "removeSha256": "8c148094bc0b9d88fe0b8687235e78d76d1c15ce78b0fa29ff1ce8a104a3a833",
+     "add": [
+      [
+       [
+        2440,
+        0,
+        12
+       ],
+       "// Local change: a file outside the",
+       [
+        2440,
+        39,
+        47
+       ],
+       "'s folders previews too (read only).\n"
+      ],
+      [
+       [
+        2440,
+        0,
+        114
+       ],
+       ", {\n"
+      ],
+      [
+       [
+        2440,
+        0,
+        12
+       ],
+       "  powertoysView: true,\n"
+      ],
+      [
+       [
+        2440,
+        0,
+        12
+       ],
+       "});\n"
+      ]
+     ]
+    },
+    {
+     "at": 2472,
+     "remove": 1,
+     "removeSha256": "3b31f7a5afa3c8a5a74fefc34700d916a35388eb2fde06196de3a309bde18188",
+     "add": []
+    },
+    {
+     "at": 2497,
+     "remove": 1,
+     "removeSha256": "19daa550805c5e269070e1e8088c35e668b2347796fdb8926621843fa57a097f",
+     "add": [
+      [
+       [
+        2497,
+        0,
+        10
+       ],
+       "// Local change: the person can open a file from anywhere, not only the",
+       [
+        2497,
+        37,
+        45
+       ],
+       "'s folders.\n"
+      ],
+      [
+       [
+        2497,
+        0,
+        112
+       ],
+       ", {\n"
+      ],
+      [
+       [
+        2497,
+        0,
+        10
+       ],
+       "  powertoysView: true,\n"
+      ],
+      [
+       [
+        2497,
+        0,
+        10
+       ],
+       "});\n"
+      ]
+     ]
+    },
+    {
+     "at": 2518,
+     "remove": 6,
+     "removeSha256": "8bf5472293554e2db18a718fc85e862a70a7bbfeac401c78f09e1317b5a43d63",
+     "add": []
+    },
+    {
+     "at": 2562,
+     "remove": 8,
+     "removeSha256": "c7c809009cfb393dbe77b10cdd049c47bad51ab15e043129b478e1eae1a36975",
+     "add": [
+      [
+       [
+        2562,
+        0,
+        8
+       ],
+       "// Local change: no \"Allow Claude to open this file?\" dialog. Only the page calls this, on the\n"
+      ],
+      [
+       [
+        2562,
+        0,
+        8
+       ],
+       "// person's click; executable types, links and unsafe names above are still refused.\n"
       ]
      ]
     }
@@ -815,7 +940,7 @@
    "path": "src/vite/build/ccd-worktree-location-start-targets/0001-ccd.js",
    "kind": "edit",
    "baseSha256": "ed4181aee9c56e220815fca8681f93c897aee2c42df65ea1c43c349c3b899b0c",
-   "resultSha256": "0d0d0df69a9f3fff6bb35854d00360f49214099286ea978ea153331c189d82cc",
+   "resultSha256": "88df070eea2883446ec47b36b47302c8c7a76afca41ccc1feac15d54e1ca39a2",
    "hunks": [
     {
      "at": 1804,
@@ -988,6 +1113,42 @@
         51
        ],
        ", { powertoysView: true });\n"
+      ]
+     ]
+    },
+    {
+     "at": 2692,
+     "remove": 1,
+     "removeSha256": "c7f9865d8b6992d467d3ad315a615c721a700ba4fcdb68f16b021d932820ba90",
+     "add": [
+      [
+       "  // Local change: `view.powertoysView` (the person previewing a file or opening it in its default app)\n"
+      ],
+      [
+       "  // lets a file outside the session's folders",
+       [
+        2692,
+        7,
+        15
+       ],
+       ", read only, like the file pane's reads.\n"
+      ],
+      [
+       [
+        2692,
+        0,
+        40
+       ],
+       ", view) {\n"
+      ]
+     ]
+    },
+    {
+     "at": 2701,
+     "remove": 0,
+     "add": [
+      [
+       "      powertoysView: view?.powertoysView === true,\n"
       ]
      ]
     }
@@ -5427,7 +5588,7 @@
   {
    "path": "src/vite/build/main/powertoys/0340-powertoys-store.js",
    "kind": "add",
-   "sha256": "3390a204d9dd166f061ba3a9c2386f994d9f288ff7a28ff3bdf8040c1a6bf812"
+   "sha256": "a41ffaf184960311f40f399ad643976ba44706ed38178ac84d84767bd12b031a"
   },
   {
    "path": "src/vite/build/main/powertoys/0341-powertoys-transcripts.js",
@@ -5447,7 +5608,7 @@
   {
    "path": "src/vite/build/main/powertoys/0344-powertoys-ipc.js",
    "kind": "add",
-   "sha256": "f6431cb2b207f5c87daaf6a4d69cf008a28acd1195a479154a836495056bc96e"
+   "sha256": "f6b6adde7c5a22b068b1499eb83edfbb0808ea926363be8ac96a740bca7681a1"
   },
   {
    "path": "src/vite/build/main/powertoys/0345-powertoys-system.js",
@@ -5498,6 +5659,68 @@
    "path": "src/vite/build/main/powertoys/0357-powertoys-venice.js",
    "kind": "add",
    "sha256": "67ab5c7ffd27def8754334ce1042fec0fec8f2805a766e90ca56f4cd254537c7"
+  },
+  {
+   "path": "src/vite/build/main/preview/0290-preview-ssrf-context.js",
+   "kind": "edit",
+   "baseSha256": "12e34b9247a8df77741c284e40f6005c9b22714ad500f507440a29c1678463fc",
+   "resultSha256": "a9a6011a911cb47168c1f8d60ba7bb7bcbfdf47e43b3572b5c6c0de61ad07fa0",
+   "hunks": [
+    {
+     "at": 1365,
+     "remove": 0,
+     "add": [
+      [
+       "    // Local change (Powertoys): a file the person opened through a junction to a drive without a letter\n"
+      ],
+      [
+       "    // (pinned by openFilePreview's fallback; Claude's opens never pin such a path) loads when Node's\n"
+      ],
+      [
+       "    // JavaScript realpath names that same local file.\n"
+      ],
+      [
+       "    let jsReal = await new Promise((resolve) => fsModule.realpath(filePath, (error, result) => resolve(error ? null : result)));\n"
+      ],
+      [
+       "    if (\n"
+      ],
+      [
+       "      jsReal !== null &&\n"
+      ],
+      [
+       "      !isNonWslUncPath(jsReal) &&\n"
+      ],
+      [
+       "      jsReal.toLowerCase() === filePath.toLowerCase() &&\n"
+      ],
+      [
+       "      (0, urlModule.pathToFileURL)(jsReal).href === url &&\n"
+      ],
+      [
+       "      (await fsModule.promises.lstat(jsReal)).isFile()\n"
+      ],
+      [
+       "    ) {\n"
+      ],
+      [
+       "      logger.info(`[powertoys] file open: pinned tab admitted through a junction: ${jsReal}`);\n"
+      ],
+      [
+       "      ",
+       [
+        1383,
+        4,
+        19
+       ],
+       "\n"
+      ],
+      [
+       "    }\n"
+      ]
+     ]
+    }
+   ]
   },
   {
    "path": "src/vite/build/main/settings/0248-supported-features.js",
@@ -5653,7 +5876,7 @@
   {
    "path": "src/vite/build/mainView/0003-powertoys-page.js",
    "kind": "add",
-   "sha256": "e7c83834fa428c96426d335031f4ed925bd6c5de429b0df527518cb980cf9460"
+   "sha256": "7154457173b2270c35c51ec2104e8d96f8e7f4fd75faaeae5d7c9078ecdf54a2"
   },
   {
    "path": "src/vite/build/mainView/0007-window-manager-vm-bridges.js",
@@ -5704,6 +5927,355 @@
       ],
       [
        "      \"statements\": 0\n"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "path": "src/vite/build/preview-launch-api/0002-create-launch-api.js",
+   "kind": "edit",
+   "baseSha256": "b326ec5a58b9d16d06a57f4c8c01d27192d6154db3b21f2070b460b8f44ceb52",
+   "resultSha256": "b74980176fc1ac15d0c6a5a24fbd8ae33cd17a42dc6e06d2953dfea287afaa62",
+   "hunks": [
+    {
+     "at": 1267,
+     "remove": 0,
+     "add": [
+      [
+       "// Local change (Powertoys): a file the person opens in the Browser pane that comes back empty (the page\n"
+      ],
+      [
+       "// then shows \"Couldn't load this preview / The file may have been deleted or moved\") is tried again a few\n"
+      ],
+      [
+       "// times, and every empty result is logged with the step that returned it (\"[powertoys] file open: …\").\n"
+      ],
+      [
+       "// Claude's own opens (initiator \"agent\") are neither retried nor logged.\n"
+      ],
+      [
+       "var POWERTOYS_FILE_OPEN_TRIES = 4;\n"
+      ],
+      [
+       "// Local change (Powertoys): a folder that is a junction to a drive without a letter\n"
+      ],
+      [
+       "// (\\\\?\\Volume{…}\\, e.g. a folder under Documents mounted from another volume) makes the native realpath fail with UNKNOWN, and the\n"
+      ],
+      [
+       "// safe realpath refuses it, so the person's own open came back as \"deleted or moved\". For the person's\n"
+      ],
+      [
+       "// opens only, fall back to Node's JavaScript realpath (it keeps the junction's path) when that names a\n"
+      ],
+      [
+       "// real local file. Not a UNC path.\n"
+      ],
+      [
+       "async function powertoysJunctionRealpath(filePath) {\n"
+      ],
+      [
+       "  try {\n"
+      ],
+      [
+       "    let resolved = path.default.resolve(filePath);\n"
+      ],
+      [
+       "    if (mainChunk.isNonWslUncPath(resolved)) {\n"
+      ],
+      [
+       "      ",
+       [
+        381,
+        4,
+        17
+       ],
+       "\n"
+      ],
+      [
+       "    }\n"
+      ],
+      [
+       "    let jsReal = await new Promise((resolve, reject) =>\n"
+      ],
+      [
+       "      require(\"node:fs\").realpath(resolved, (error, result) => (error ? reject(error) : resolve(result))),\n"
+      ],
+      [
+       "    );\n"
+      ],
+      [
+       "    if (mainChunk.isNonWslUncPath(jsReal) || !(await (0, fsPromises.stat)(jsReal)).isFile()) {\n"
+      ],
+      [
+       "      ",
+       [
+        381,
+        4,
+        17
+       ],
+       "\n"
+      ],
+      [
+       "    }\n"
+      ],
+      [
+       "    mainChunk.logger.info(`[powertoys] file open: ${filePath} goes through a junction the safe realpath refuses; opened as ${jsReal}`);\n"
+      ],
+      [
+       "    return jsReal;\n"
+      ],
+      [
+       "  } catch {\n"
+      ],
+      [
+       "    ",
+       [
+        381,
+        4,
+        17
+       ],
+       "\n"
+      ],
+      [
+       "  }\n"
+      ],
+      [
+       "}\n"
+      ]
+     ]
+    },
+    {
+     "at": 1268,
+     "remove": 0,
+     "add": [
+      [
+       "  ",
+       [
+        1283,
+        4,
+        41
+       ],
+       "\n"
+      ],
+      [
+       "    return openFilePreviewOnce(filePath, sessionId, cwd, options, {});\n"
+      ],
+      [
+       "  }\n"
+      ],
+      [
+       "  for (let attempt = 1; ; attempt++) {\n"
+      ],
+      [
+       "    let why = {};\n"
+      ],
+      [
+       "    let result = await openFilePreviewOnce(filePath, sessionId, cwd, options, why);\n"
+      ],
+      [
+       "    if (result !== null) {\n"
+      ],
+      [
+       "      if (attempt > 1) {\n"
+      ],
+      [
+       "        mainChunk.logger.info(`[powertoys] file open: ${filePath} opened on try ${attempt}`);\n"
+      ],
+      [
+       "      }\n"
+      ],
+      [
+       "      return result;\n"
+      ],
+      [
+       "    }\n"
+      ],
+      [
+       "    let last = attempt >= POWERTOYS_FILE_OPEN_TRIES || why.step === \"superseded\";\n"
+      ],
+      [
+       "    mainChunk.logger.info(\n"
+      ],
+      [
+       "      `[powertoys] file open: ${filePath} (session ${sessionId}, cwd ${cwd}) came back empty at \"${why.step ?? \"unknown\"}\" on try ${attempt}${last ? \"\" : \"; trying again\"}`,\n"
+      ],
+      [
+       "    );\n"
+      ],
+      [
+       "    if (last) {\n"
+      ],
+      [
+       "      ",
+       [
+        117,
+        6,
+        18
+       ],
+       "\n"
+      ],
+      [
+       "    }\n"
+      ],
+      [
+       "    await new Promise((resolve) => setTimeout(resolve, attempt * 400));\n"
+      ],
+      [
+       "  }\n"
+      ],
+      [
+       "}\n"
+      ],
+      [
+       "async function openFilePreviewOnce(filePath, sessionId, cwd, options, why) {\n"
+      ]
+     ]
+    },
+    {
+     "at": 1274,
+     "remove": 0,
+     "add": [
+      [
+       "        why.step = \"file URL names another host\";\n"
+      ]
+     ]
+    },
+    {
+     "at": 1278,
+     "remove": 0,
+     "add": [
+      [
+       "      why.step = \"file URL unreadable\";\n"
+      ]
+     ]
+    },
+    {
+     "at": 1333,
+     "remove": 0,
+     "add": [
+      [
+       "  if (realPath === false && options?.initiator !== \"agent\") {\n"
+      ],
+      [
+       "    realPath = await powertoysJunctionRealpath(filePath);\n"
+      ],
+      [
+       "  }\n"
+      ]
+     ]
+    },
+    {
+     "at": 1339,
+     "remove": 0,
+     "add": [
+      [
+       "    why.step =\n"
+      ],
+      [
+       "      ",
+       [
+        1337,
+        4,
+        47
+       ],
+       "\n"
+      ],
+      [
+       "        ? \"superseded\"\n"
+      ],
+      [
+       "        : realPath === false\n"
+      ],
+      [
+       "          ? `realpath refused (${filePath})`\n"
+      ],
+      [
+       "          : \"inside the app's sealed data\";\n"
+      ]
+     ]
+    },
+    {
+     "at": 1341,
+     "remove": 2,
+     "removeSha256": "322e739067da5af5c63ed6854b1ca15b36855314c304c12fe81a450f4cf476e8",
+     "add": [
+      [
+       [
+        1341,
+        0,
+        61
+       ],
+       "error) => ({ statError: error?.code ?? String(error) }));\n"
+      ],
+      [
+       [
+        1342,
+        0,
+        70
+       ],
+       "?.()) {\n"
+      ],
+      [
+       "    why.step =\n"
+      ],
+      [
+       "      ",
+       [
+        1337,
+        4,
+        47
+       ],
+       "\n"
+      ],
+      [
+       "        ? \"superseded\"\n"
+      ],
+      [
+       "        : `stat of ${realPath}: ${",
+       [
+        1342,
+        54,
+        64
+       ],
+       "statError ?? \"not a file\"}`;\n"
+      ]
+     ]
+    },
+    {
+     "at": 1351,
+     "remove": 0,
+     "add": [
+      [
+       "      why.step = \"superseded\";\n"
+      ]
+     ]
+    },
+    {
+     "at": 1372,
+     "remove": 0,
+     "add": [
+      [
+       "      why.step = \"preview path inside the app's sealed data\";\n"
+      ]
+     ]
+    },
+    {
+     "at": 1441,
+     "remove": 0,
+     "add": [
+      [
+       "          why.step = pinnedUrl === null ? \"no pinned content URL\" : \"superseded\";\n"
+      ]
+     ]
+    },
+    {
+     "at": 1480,
+     "remove": 0,
+     "add": [
+      [
+       "        why.step = \"an older content tab was closed instead\";\n"
       ]
      ]
     }

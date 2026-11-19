@@ -229,7 +229,7 @@ function powertoysRegisterIpc() {
     return powertoysBookmarks[operation](...args);
   });
   powertoysHandle("tabs", (event, operation, ...args) => {
-    if (!["open", "close", "closeMany", "reopen", "retitle", "pin", "unpin", "move"].includes(operation)) {
+    if (!["open", "close", "closeMany", "reopen", "retitle", "pin", "unpin", "move", "order"].includes(operation)) {
       throw Error(`unknown tabs operation ${operation}`);
     }
     return powertoysTabs[operation](...args);

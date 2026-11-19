@@ -102,8 +102,9 @@ pastes). Every feature has a switch in the Powertoys settings window (tray menu 
 - **Tabs in the title bar** for open and pinned conversations, restored at start:
   - **Opening and closing:** × or middle-click closes; right-click pins. Closing the last tab opens a new
     conversation, and deleting a session closes its tab first (then another tab, or a new conversation).
-  - **Organizing:** tabs are grouped and colored by project (16 distinct colors), and the strip scrolls
-    sideways when they don't fit.
+  - **Organizing:** tabs are colored by project (16 distinct colors) and can be grouped by project (off by
+    default); the strip scrolls sideways when they don't fit. A tab dropped on another takes its place, as in a
+    browser.
   - **Moving around:** Ctrl+1…9, Ctrl+Shift+T to reopen in the same position, Ctrl+Shift+PageUp/PageDown to
     move a tab, and close others / to the right / finished.
   - **Drafts:** the New session page keeps its tab when you switch away, until you close it or send the draft
@@ -151,8 +152,13 @@ pastes). Every feature has a switch in the Powertoys settings window (tray menu 
 - **No feedback survey** (on by default): new sessions start with Claude Code's "How is Claude doing?" survey
   off (`CLAUDE_CODE_DISABLE_FEEDBACK_SURVEY=1`), and the page's rating card and its "How is Claude doing this
   session?" bar are hidden.
-- **Files outside the session's folders:** the file pane opens any file, read only. Claude's own tools (open in
-  your editor, show in Explorer, send a file) still stay inside the session's folders.
+- **Files outside the session's folders:** the file pane, the Browser pane, the built-in PDF viewer and "Open in
+  default app" open any file you pick, read only, with no "Allow Claude to open this file?" dialog (executable
+  types and links are still refused). This includes files behind a junction to a drive without a letter
+  (`\\?\Volume{…}\`), where Windows' native realpath fails. A file you open in the Browser pane that fails is
+  tried again (4 tries), and each failure is logged in `main.log` with the step that refused it. Claude's own
+  tools (open in your editor, show in Explorer, send a file, previews it opens) still stay inside the session's
+  folders.
 - **`../` links that climb out of the session folder:** a link Claude wrote as if from a subfolder
   (`../notes.md` for a file in the session folder itself) opens that file from the session folder instead of
   failing.
@@ -346,8 +352,10 @@ Each hook is marked `Local change` in the patched code.
 | `ccd-local-session-manager/0014-ccd.js` | +2 | Powertoys' additions to a session's environment (no feedback survey). |
 | `claude-json-workspace-trust-config.js` | +8 | Folder trust off: the trust lookups count every folder as trusted while the Powertoys setting is on. |
 | `ccd-start-errors-turn-plan.js` | +13 −3 | The plan tool takes an estimate in minutes per step, its description asks for them when the setting is on, and its answer reports how long finished steps really took. |
-| `ccd-worktree-location-start-targets/0001-ccd.js` | +42 −1 | Files outside the session's folders, read only: Powertoys' pastes folder, and any file you view in the file pane; `../` links that climb out of the session folder open from inside it. |
-| `ccd-local-sessions-api/0003-local-sessions-api-core.js` | +10 | Per-project model and effort defaults for a session you start, the task list when the Powertoys setting is on, the last start request kept for `newSession`, and a deleted session's tab closed first. |
+| `ccd-worktree-location-start-targets/0001-ccd.js` | +46 −2 | Files outside the session's folders, read only: Powertoys' pastes folder, and any file you view in the file pane, the PDF viewer or open in its default app; `../` links that climb out of the session folder open from inside it. |
+| `ccd-local-sessions-api/0003-local-sessions-api-core.js` | +20 −17 | Per-project model and effort defaults for a session you start, the task list when the Powertoys setting is on, the last start request kept for `newSession`, and a deleted session's tab closed first. The PDF viewer and "Open in default app" resolve files outside the session's folders, and "Open in default app" opens without its consent dialog. |
+| `preview-launch-api/0002-create-launch-api.js` | +72 −2 | A file you open in the Browser pane that fails is tried again and logged; a path through a junction to a drive without a letter falls back to Node's JavaScript realpath (your opens only). |
+| `main/preview/0290-preview-ssrf-context.js` | +14 | The pinned tab of such a file loads through the same fallback. |
 | `git-worktree-manager/0004-create-worktree-guards.js` | +19 | Background fetches keep your global `core.sshCommand` (with batch mode) instead of replacing it. |
 | `git-worktree-manager/0005-create-worktree.js` | +1 −1 | Uses the above. |
 | `index.pre/0038-unc-relocated.js` | +10 | `--powertoys-profile=<name>`: a separate data folder (sign-in, sessions, settings, single-instance lock). |
