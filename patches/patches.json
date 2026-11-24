@@ -161,7 +161,7 @@
   {
    "path": "scripts/powertoys-command.mjs",
    "kind": "add",
-   "sha256": "7ae3279269ae46921400488957fe1644c6aff92924bbee86d45eceae9e3d78f8"
+   "sha256": "5680dc89ecd7e72948e310f91a59100d6d817b81f9cb4ef6afcc7f89b310c0fb"
   },
   {
    "path": "scripts/restart-and-continue.mjs",
@@ -957,7 +957,7 @@
    "path": "src/vite/build/ccd-worktree-location-start-targets/0000-ccd.js",
    "kind": "edit",
    "baseSha256": "35b172cd499db061d45e1f25318a9cb6d672daf64035afbfb662f111890fbdc8",
-   "resultSha256": "546bccc3ce564bc6206e6ed846836a95780e414b3cbef4c3e75d03129ee2f27f",
+   "resultSha256": "9dca5a5542688c4dc14e923de343e254f735d72afb87501f7923d412695a322e",
    "hunks": [
     {
      "at": 1886,
@@ -1026,6 +1026,72 @@
      "at": 2219,
      "remove": 0,
      "add": [
+      [
+       "    // Powertoys: a relative link Claude wrote while its shell had cd'd into a subfolder is relative to\n"
+      ],
+      [
+       "    // that subfolder (\"../../models/x.png\" from slicer\\orca\\kanji). Try the folders the shell was in\n"
+      ],
+      [
+       "    // (the session's shellFolders, most recent first) before the guesses below.\n"
+      ],
+      [
+       "    if (p && !(0, path.isAbsolute)(s)) {\n"
+      ],
+      [
+       "      for (let folder of a.shellFolders ?? []) {\n"
+      ],
+      [
+       "        let candidate = (0, path.resolve)(folder, s);\n"
+      ],
+      [
+       "        if (candidate === u) {\n"
+      ],
+      [
+       "          continue;\n"
+      ],
+      [
+       "        }\n"
+      ],
+      [
+       "        let t = await this.containedFileAt(n, a, candidate, l);\n"
+      ],
+      [
+       "        if (t) {\n"
+      ],
+      [
+       "          mainChunk.logger.info(`[SessionFileAccess] \"${r}\" opened relative to the shell folder ${folder}`);\n"
+      ],
+      [
+       "          return {\n"
+      ],
+      [
+       "            ...t,\n"
+      ],
+      [
+       "            paths: a,\n"
+      ],
+      [
+       "            ",
+       [
+        2176,
+        10,
+        31
+       ],
+       "\n"
+      ],
+      [
+       "          };\n"
+      ],
+      [
+       "        }\n"
+      ],
+      [
+       "      }\n"
+      ],
+      [
+       "    }\n"
+      ],
       [
        "    // Powertoys: a link written from a subfolder the shell had cd'd into (\"../handover.md\" for a\n"
       ],
@@ -5483,12 +5549,12 @@
   {
    "path": "src/vite/build/main/powertoys/0350-powertoys-restart.js",
    "kind": "add",
-   "sha256": "cc4c16984d726b7a7da66791cb73711126d3dd0a1e46253c6b92e1dadf238369"
+   "sha256": "3cc841a9b29bb4bcb2ff951142783a3c4a5cf77e6fc721167764595f4b137d68"
   },
   {
    "path": "src/vite/build/main/powertoys/0351-powertoys-work.js",
    "kind": "add",
-   "sha256": "14d50e24956c7e9080fb666d73b4e35f236d6889b7dbd970a6b2bf7741b2642f"
+   "sha256": "d8c4cfe04d0be674df4b926ce394b65231c28a946a3a0c49b06e4733e4cae6a9"
   },
   {
    "path": "src/vite/build/main/powertoys/0352-powertoys-flow.js",
@@ -5498,7 +5564,7 @@
   {
    "path": "src/vite/build/main/powertoys/0353-powertoys-previews.js",
    "kind": "add",
-   "sha256": "9c816b562e80020ece47e9bd24a61bc6a5f335951c2a7c485d1da7819b358b0e"
+   "sha256": "081f990a9cb592e41661a03bd8fdb59111b406736be20604c82b7e0f2d86eb65"
   },
   {
    "path": "src/vite/build/main/powertoys/0354-powertoys-preview-render.js",
@@ -5799,7 +5865,7 @@
   {
    "path": "src/vite/build/mainView/0003-powertoys-page.js",
    "kind": "add",
-   "sha256": "7154457173b2270c35c51ec2104e8d96f8e7f4fd75faaeae5d7c9078ecdf54a2"
+   "sha256": "79e8127155504fd1798a3fc8bf52acd44ce579cc57d471dc3d951664d1f606ae"
   },
   {
    "path": "src/vite/build/mainView/0007-window-manager-vm-bridges.js",

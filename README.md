@@ -36,7 +36,7 @@ patches/files/...           files that are entirely new (written for Powertoys),
   - `scripts/restart-and-continue.mjs`, `scripts/swap-and-launch.mjs`, `scripts/check-syntax.mjs`:
     restarting the app from inside it, then continuing the session.
   - `scripts/powertoys-command.mjs`: asks the running app, from a session, to do what a page action does
-    (add the task list to a session) or queue a prompt in one.
+    (add the task list to a session, connect every session to Remote Control) or queue a prompt in one.
 - **35 edits** (`"kind": "edit"`) to the app's own files: the small hooks that call into
   Powertoys, a rewrite of the Windows notification code, two build manifests that list the new files, and the
   Electron version in `package.json`.
@@ -143,6 +143,7 @@ pastes). Every feature has a switch in the Powertoys settings window (tray menu 
   drawn the way each one shows them, in its dark theme, with images. A bare link shows the PR's or page's title,
   still as a link. The card stays open while the pointer is on it, and scrolls with the wheel.
   - **Slack:** the thread's first message and its last replies, through Slack Powertoys (it must be running).
+    A link to a reply shows that reply, under a "Reply in X's thread · N replies" line.
   - **GitHub:** the PR's description, labels, checks and state, through `gh`, as whichever of your accounts can
     see the repository.
   - **Notion:** the page's properties and content, through the claude.ai Notion connector, or an integration
@@ -159,6 +160,9 @@ pastes). Every feature has a switch in the Powertoys settings window (tray menu 
   tried again (4 tries), and each failure is logged in `main.log` with the step that refused it. Claude's own
   tools (open in your editor, show in Explorer, send a file, previews it opens) still stay inside the session's
   folders.
+- **Links written from the shell's folder:** a relative link Claude wrote while its shell was in a subfolder
+  (`../../models/panel.png` from `slicer\orca\kanji`) opens from the folders the shell was in, most recent first,
+  instead of showing "This file is outside the working directory".
 - **`../` links that climb out of the session folder:** a link Claude wrote as if from a subfolder
   (`../notes.md` for a file in the session folder itself) opens that file from the session folder instead of
   failing.
@@ -236,6 +240,12 @@ pastes). Every feature has a switch in the Powertoys settings window (tray menu 
   optionally on another model (`haiku`, `sonnet`, `opus` or a model id) for that one turn (command requests, see
   `scripts/powertoys-command.mjs`). The session is set up like one started in the app (same connectors and
   servers), from the last session the app started.
+- **Every session on the phone:** `powertoys-command.mjs connectAllRemoteControl` connects each unarchived
+  session that has no Remote Control link yet, one at a time in the background: it wakes the session without a
+  prompt, turns Remote Control on as the toolbar switch does, and stops it again the way an app quit does, so the
+  session stays unarchived on claude.ai and the Claude app on the phone lists it. Progress is in
+  `%APPDATA%\Claude\powertoys\remote-control-sweep.json`. `unarchiveRemoteSessions` unarchives the Remote Control
+  sessions the sweep connected.
 
 **Progress**
 
@@ -300,9 +310,9 @@ pastes). Every feature has a switch in the Powertoys settings window (tray menu 
   `restart-and-continue.mjs --update <git ref>` brings in a new release that needs a full build: once the app
   has quit it fast-forwards the project folder, installs the packages, rebuilds and starts again, going
   back to the previous commit if a step or the start fails.
-  Sessions that were in the middle of a turn are continued after the restart, and the waiting-for-you question
-  doesn't block it. Sessions that only had Remote Control on, queued messages, a background shell or a loop are
-  left alone.
+  Sessions that were in the middle of a turn, or waiting on a background shell, monitor or agent of their own
+  (the restart ends it), are continued after the restart, and the waiting-for-you question doesn't block it.
+  Sessions that only had Remote Control on, queued messages or a loop are left alone.
   The session that asked for the restart is continued by its own message, not first by the app's "The app was
   quit while you were working".
 - **One /compact at a time:** a `/compact` for a conversation that already has one queued or running is refused
@@ -352,7 +362,7 @@ Each hook is marked `Local change` in the patched code.
 | `ccd-local-session-manager/0016-ccd.js` | +2 | Powertoys' additions to a session's environment (no feedback survey). |
 | `claude-json-workspace-trust-config.js` | +8 | Folder trust off: the trust lookups count every folder as trusted while the Powertoys setting is on. |
 | `ccd-start-errors-turn-plan.js` | +13 −3 | The plan tool takes an estimate in minutes per step, its description asks for them when the setting is on, and its answer reports how long finished steps really took. |
-| `ccd-worktree-location-start-targets/0000-ccd.js` | +46 −2 | Files outside the session's folders, read only: Powertoys' pastes folder, and any file you view in the file pane, the PDF viewer or open in its default app; `../` links that climb out of the session folder open from inside it. |
+| `ccd-worktree-location-start-targets/0000-ccd.js` | +66 −2 | Files outside the session's folders, read only: Powertoys' pastes folder, and any file you view in the file pane, the PDF viewer or open in its default app; a relative link opens from the folders Claude's shell was in; `../` links that climb out of the session folder open from inside it. |
 | `ccd-local-sessions-api/0002-ccd.js` | +20 −19 | Per-project model and effort defaults for a session you start, the task list when the Powertoys setting is on, the last start request kept for `newSession`, and a deleted session's tab closed first. The PDF viewer and "Open in default app" resolve files outside the session's folders, and "Open in default app" opens without its consent dialog. |
 | `preview-launch-api/0001-create-launch-api.js` | +72 −2 | A file you open in the Browser pane that fails is tried again and logged; a path through a junction to a drive without a letter falls back to Node's JavaScript realpath (your opens only). |
 | `main/preview/0307-preview-ssrf-context.js` | +14 | The pinned tab of such a file loads through the same fallback. |

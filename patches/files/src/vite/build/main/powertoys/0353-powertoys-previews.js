@@ -60,7 +60,8 @@ function powertoysLinkPreview(url) {
   return promise;
 }
 /**
- * { workspace, conversation, messages: [root, then the last 3 replies] as { author, time, avatar, html, files }, replyCount }
+ * { workspace, conversation, messages: [root, then the last 3 replies] as { author, time, avatar, html, files }, replyCount },
+ * or, for a link to a reply, messages: [that reply] and inThread: { author of the thread's first message, replies }
  * from Slack Powertoys (rich=1: blocks, names, avatars, image thumbnails, when its bridge has them).
  */
 async function powertoysSlackPreview(url) {
@@ -78,6 +79,18 @@ async function powertoysSlackPreview(url) {
     throw Error(body.error ?? `Slack answered HTTP ${response.status}`);
   }
   let [first, ...rest] = body.messages ?? [];
+  // The bridge sends the whole thread; a link to a reply shows that reply, not the thread's first message.
+  let stamp = (link) => /\/p(\d{16})(?:[?#]|$)/.exec(String(link ?? ""))?.[1];
+  let linked = rest.find((message) => stamp(message.link) === stamp(url));
+  if (linked) {
+    return {
+      workspace: body.workspace,
+      conversation: body.conversation,
+      messages: [powertoysSlackMessageHtml(linked)],
+      replyCount: 0,
+      inThread: { author: first?.author, replies: rest.length },
+    };
+  }
   return {
     workspace: body.workspace,
     conversation: body.conversation,

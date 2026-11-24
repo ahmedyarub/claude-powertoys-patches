@@ -253,6 +253,9 @@ async function powertoysSendToSession(sessionId, text) {
  * "still working" list also has idle sessions: Remote Control connected ("lanyard"), queued input, a background
  * shell, a loop. Those were sent "continue" after a restart though nothing was running (seen 2026-11-06 with
  * Remote Control on), so only a turn ("turn") is continued; the rest are logged with their kind and left alone.
+ * A turn waiting on its own background shell, monitor or agent ("background_task") is continued too: the restart
+ * kills that task, the CLI only notes "didn't finish" in the transcript, and the session sat idle until the person
+ * typed "continue" (seen 2026-11-24: the Android build's run17 and the 3D printer watchers).
  */
 function powertoysNoteWorkingSessions(requesterId) {
   let others = [];
@@ -265,7 +268,7 @@ function powertoysNoteWorkingSessions(requesterId) {
       }
       let session = manager.sessions.get(sessionId);
       let kind = session ? manager.restartLosesWorkKind(session, now) : undefined;
-      if (kind === "turn") {
+      if (kind === "turn" || kind === "background_task") {
         others.push(sessionId);
       } else {
         powertoysLog(`restart: ${sessionId} is not in a turn (${kind ?? "unknown"}); not continued afterwards`);
@@ -416,6 +419,10 @@ const POWERTOYS_COMMANDS = {
   selectedSession: () => powertoysSelectedSession(),
   // { url } -> the preview of a Slack message, GitHub PR or Notion page link (0353).
   linkPreview: (request) => powertoysLinkPreview(String(request.url ?? "")),
+  // -> { total, running }: connects every unarchived session to Remote Control, one at a time, in the background (0351).
+  connectAllRemoteControl: () => powertoysConnectAllRemoteControl(),
+  // -> { unarchived, failed, none }: unarchives on claude.ai each local session's latest Remote Control session (0351).
+  unarchiveRemoteSessions: (request) => powertoysUnarchiveRemoteSessions(request.sessionIds),
 };
 function powertoysTakeCommandRequest() {
   let file = powertoysFile(POWERTOYS_COMMAND_REQUEST_FILE);

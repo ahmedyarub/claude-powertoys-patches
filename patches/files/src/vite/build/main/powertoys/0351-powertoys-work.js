@@ -719,6 +719,117 @@ try {
   logger.error("[powertoys] registering the rename IPC failed: %o", caught);
 }
 
+// --- Every session on the phone: connect them all to Remote Control ------------------------------
+// The Claude app (phone, claude.ai/code) lists a desktop session once it has been connected to Remote Control,
+// and keeps listing it after it stops. The app connects new sessions itself; older ones never were. Remote
+// Control needs the session's Claude Code process, so each one is woken as opening it would (no prompt is
+// sent), connected with the toolbar switch's own call, then stopped again: one at a time, in the background.
+// Progress and outcome: powertoys/remote-control-sweep.json.
+let powertoysRemoteSweep = null;
+function powertoysRemoteSweepSave() {
+  powertoysWriteJson("remote-control-sweep.json", powertoysRemoteSweep);
+}
+async function powertoysRemoteSweepOne(manager, sessionId) {
+  let record = manager.sessions.get(sessionId);
+  if (!record || record.isArchived || record.bridgeSessionUrl) {
+    return "skipped";
+  }
+  let wasRunning = !!record.query;
+  if (!wasRunning) {
+    await manager.warmSession(sessionId, { userInitiated: true });
+    for (let waited = 0; waited < 60000 && !record.query; waited += 250) {
+      await new Promise((resolve) => setTimeout(resolve, 250));
+    }
+    if (!record.query) {
+      return "did not start";
+    }
+  }
+  let outcome = await manager.toggleRemoteControl(sessionId, true);
+  if (outcome && outcome.ok === false) {
+    return `refused: ${outcome.error ?? outcome.reason ?? "unknown"}`;
+  }
+  for (let waited = 0; waited < 30000 && !record.bridgeSessionUrl; waited += 250) {
+    await new Promise((resolve) => setTimeout(resolve, 250));
+  }
+  let connected = !!record.bridgeSessionUrl;
+  if (!wasRunning) {
+    // as an app quit stops it: a "user" stop makes Claude Code end its Remote Control session, which archives
+    // the session on claude.ai (seen 2026-11-24: the phone listed them under Archived)
+    await manager.stopSession(sessionId, "app_quit").catch((caught) => powertoysWarn(`Remote Control sweep: stopping ${sessionId} failed: ${caught.message}`));
+  }
+  return connected ? "connected" : "no link yet";
+}
+async function powertoysConnectAllRemoteControl() {
+  if (powertoysRemoteSweep?.running) {
+    return powertoysRemoteSweep;
+  }
+  let manager = powertoysSessionManager();
+  if (!manager) {
+    throw Error("The sessions are not loaded yet");
+  }
+  let ids = [...manager.sessions.values()].filter((record) => !record.isArchived && !record.bridgeSessionUrl).map((record) => record.sessionId);
+  powertoysRemoteSweep = { running: true, total: ids.length, done: 0, connected: 0, startedAt: new Date().toISOString(), results: {} };
+  powertoysRemoteSweepSave();
+  powertoysLog(`Remote Control sweep: ${ids.length} sessions to connect`);
+  (async () => {
+    for (let sessionId of ids) {
+      let result;
+      try {
+        result = await powertoysRemoteSweepOne(manager, sessionId);
+      } catch (caught) {
+        result = `failed: ${caught.message}`;
+      }
+      powertoysRemoteSweep.results[sessionId] = result;
+      powertoysRemoteSweep.done += 1;
+      if (result === "connected") {
+        powertoysRemoteSweep.connected += 1;
+      }
+      powertoysLog(`Remote Control sweep: ${sessionId} ${result} (${powertoysRemoteSweep.done} of ${ids.length})`);
+      powertoysRemoteSweepSave();
+    }
+    powertoysRemoteSweep.running = false;
+    powertoysRemoteSweep.endedAt = new Date().toISOString();
+    powertoysRemoteSweepSave();
+  })().catch((caught) => powertoysWarn(`Remote Control sweep failed: ${caught.message}`));
+  return { total: ids.length, running: true };
+}
+/**
+ * Unarchive on claude.ai the Remote Control session (the latest bridge session) of the sessions the sweep connected
+ * (or of the given ones): the first sweep stopped them with "user", which archived them there.
+ */
+async function powertoysUnarchiveRemoteSessions(sessionIds) {
+  let manager = powertoysSessionManager();
+  let api = getSessionsBridgeClient()?.apiClient;
+  if (!manager || !api) {
+    throw Error("The sessions or the claude.ai sessions client are not ready");
+  }
+  let swept = powertoysReadJson("remote-control-sweep.json", null)?.results ?? {};
+  let ids = Array.isArray(sessionIds) && sessionIds.length ? sessionIds : Object.keys(swept).filter((id) => swept[id] === "connected");
+  let out = { unarchived: 0, failed: {}, none: 0 };
+  for (let sessionId of ids) {
+    let record = manager.sessions.get(sessionId);
+    let remote = record?.bridgeSessionIds?.[record.bridgeSessionIds.length - 1];
+    if (!record || record.isArchived || !remote) {
+      out.none += 1;
+      continue;
+    }
+    try {
+      await api.unarchiveSession(remote);
+      out.unarchived += 1;
+    } catch (caught) {
+      out.failed[sessionId] = caught.message;
+    }
+  }
+  powertoysLog(`Remote sessions unarchived: ${out.unarchived}, failed ${Object.keys(out.failed).length}`);
+  return out;
+}
+try {
+  powertoysHandle("unarchiveRemoteSessions", (event, sessionIds) => powertoysUnarchiveRemoteSessions(sessionIds));
+  powertoysHandle("connectAllRemoteControl", () => powertoysConnectAllRemoteControl());
+} catch (caught) {
+  logger.error("[powertoys] registering the Remote Control sweep IPC failed: %o", caught);
+}
+
 // --- Tab preview, per-project defaults, splits kept across a restart ----------------------------
 /** What hovering a conversation's tab shows: its last answer, with model, effort, context and state. */
 async function powertoysTabPreview(sessionId) {

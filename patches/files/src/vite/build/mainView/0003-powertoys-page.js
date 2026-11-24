@@ -1996,6 +1996,7 @@ function powertoysPageMain() {
   function slackCard(data) {
     let [root, ...replies] = data.messages;
     let card = make("div", "lp lp-slack", [make("div", "s-head", [make("span", "s-channel", `# ${data.conversation}`), make("span", "s-workspace", data.workspace)])]);
+    data.inThread && card.append(make("div", "s-replies", `Reply in ${data.inThread.author ? `${data.inThread.author}'s` : "a"} thread · ${data.inThread.replies} repl${data.inThread.replies === 1 ? "y" : "ies"}`));
     root && card.append(slackMessage(root, false));
     if (data.replyCount) {
       card.append(make("div", "s-replies", data.replyCount > replies.length ? `${data.replyCount} replies · the last ${replies.length}` : `${data.replyCount} repl${data.replyCount === 1 ? "y" : "ies"}`));

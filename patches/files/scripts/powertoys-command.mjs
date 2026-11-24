@@ -8,6 +8,10 @@
 //                 bypassPermissions, dontAsk); answers { sessionId, cliSessionId, cwd }
 //   selectedSession  the Code conversation on screen: { sessionId, cliSessionId, cwd, title } or null
 //   linkPreview   the preview of a Slack message, GitHub PR or Notion page link (--url)
+//   connectAllRemoteControl  connect every unarchived session to Remote Control (woken without a prompt, one at a
+//                 time, stopped again), so the Claude app on the phone lists them; progress in
+//                 %APPDATA%\Claude\powertoys\remote-control-sweep.json
+//   unarchiveRemoteSessions  unarchive on claude.ai the Remote Control sessions the sweep connected
 //
 // The session defaults to this one (CLAUDE_CODE_HOST_SESSION_ID). Main process: main/powertoys/0350-powertoys-restart.js.
 import fs from 'node:fs';
